@@ -5,7 +5,6 @@ from selenium.webdriver.common.by import By
 import os 
 import time
 import uuid
-import json
 
 #Folosim ScraperSelenium pentru ca siteul incarca elementele prin AJAX
 url = "https://careers.allianz.com/en_US.html/search/?searchby=location&createNewAlert=false&q=&locationsearch=Romania&optionsFacetsDD_department=&optionsFacetsDD_shifttype=&optionsFacetsDD_customfield3=&optionsFacetsDD_customfield2=&optionsFacetsDD_facility=&optionsFacetsDD_customfield4=&inputSearchValue=Romania&quatFlag=false"
@@ -74,10 +73,6 @@ while True:
 #Afisam numarul de total de joburi
 print(len(finaljobs))
 
-#Salvam joburile in fisierul allianz.json
-with open("json/allianz.json", "w") as f:
-    json.dump(finaljobs, f, indent=4)
-
+#Incarcam datele in baza de date
 apikey = os.environ.get("apikey")
-
 loadingData(finaljobs, apikey, "Allianz")

@@ -1,7 +1,6 @@
 from scraper_peviitor import Scraper, Rules, loadingData, ScraperSelenium
 from selenium.webdriver import Chrome
 
-import json
 import time
 import uuid
 import os
@@ -47,10 +46,6 @@ for job in jobs:
 
 #Afisam numarul de joburi
 print("Total jobs: " + str(len(finaljobs)))
-
-#Salvam joburile in fisierul json/fedex.json
-with open("json/fedex.json", "w") as f:
-    json.dump(finaljobs, f, indent=4)
 
 #Incarcam joburile in baza de date
 apikey = os.environ.get("apikey")

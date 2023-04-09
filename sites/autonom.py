@@ -4,7 +4,6 @@ from selenium.webdriver.common.by import By
 
 import time
 import uuid 
-import json
 import os
 
 #Folosim ScraperSelenium deoarece paginatia se face cu ajutorul unui buton
@@ -66,10 +65,6 @@ for job in jobs:
 
 #Afisam numarul de joburi
 print("Total jobs: " + str(len(finalJobs)))
-
-#Salvam datele in fisierul json/autonome.json
-with open("json/autonome.json", "w") as f:
-    json.dump(finalJobs, f, indent=4)
 
 #Incarcam datele in baza de date
 apikey = os.environ.get('apikey')

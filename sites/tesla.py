@@ -1,6 +1,5 @@
 from scraper_peviitor import Scraper, Rules, loadingData, ScraperSelenium
 
-import json
 import time
 import uuid
 import os
@@ -45,10 +44,6 @@ for job in jobs:
 
 #Afisam numarul total de joburi
 print("Total jobs: " + str(len(finaljobs)))
-
-#Salvam joburile in fisierul json
-with open("json/tesla.json", "w") as f:
-    json.dump(finaljobs, f, indent=4)
 
 #Incarcam joburile in baza de date
 apikey = os.environ.get("apikey")

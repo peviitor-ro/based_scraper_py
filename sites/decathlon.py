@@ -1,7 +1,6 @@
 from scraper_peviitor import Scraper, Rules, ScraperSelenium, loadingData
 from selenium import webdriver
 
-import json
 import uuid
 import time
 import os

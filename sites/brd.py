@@ -1,7 +1,6 @@
 from scraper_peviitor import Scraper, Rules, loadingData
 import time
 import uuid
-import json
 import os
 
 url = "https://www.brd.ro/cariere"
@@ -66,10 +65,6 @@ for job in j:
 #Afisam numarul total de joburi gasite
 print(len(finalJobs))
 
-#Salvam joburile in fisierul brd.json
-with open("json/brd.json", "w") as f:
-    json.dump(finalJobs, f, indent=4)
-
+#Salvam datele in baza de date
 apikey = os.environ.get("apikey")
-
 loadingData(finalJobs, apikey, "BRD")

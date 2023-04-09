@@ -3,7 +3,6 @@ from selenium.webdriver import Chrome
 
 import time
 import uuid
-import json
 import os
 
 #Folosim ScraperSelenium deoarece joburile sunt incarcate prin AJAX
@@ -61,10 +60,6 @@ for job in j:
 
 #Afisam numarul de joburi gasite
 print("Jobs found: " + str(len(finalJobs)))
-
-#Salvam joburile in fisierul linde.json
-with open("json/linde.json", "w") as f:
-    json.dump(finalJobs, f, indent=4)
 
 #Incarcam joburile in baza de date
 apikey = os.environ.get("apikey")

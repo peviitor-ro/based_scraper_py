@@ -1,5 +1,4 @@
 from time import sleep
-import json
 from scraper_peviitor import ScraperSelenium, loadingData
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
@@ -78,10 +77,6 @@ for job in jobs:
 #Afiseaza numarul de joburi gasite
 print(len(finalJobs))
 
-# Salvăm job-urile într-un fișier JSON
-with open("json/vodafone.json", "w") as f:
-    json.dump(finalJobs, f, indent=4)
-
+# Încărcăm job-urile în baza de date
 apikey = os.environ.get('apikey')
-
 loadingData(finalJobs, apikey, "Vodafone")

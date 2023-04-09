@@ -3,7 +3,6 @@ from selenium.webdriver.common.by import By
 
 import time
 import uuid
-import json
 import os
 
 #Folosim ScraperSelenium dewoarece nu putem accesa paginatia prin BeautifulSoup
@@ -60,11 +59,6 @@ for page in range(len(totalJobs)):
 #Afisam numarul de joburi
 print("Total jobs: " + str(len(finalJobs)))
 
-#Salvam joburile in fisierul json
-with open("json/zentiva.json", "w") as f:
-    json.dump(finalJobs, f, indent=4)
-
 #Incarcam joburile in baza de date
 apikey = os.environ.get("apikey")
-
 loadingData(finalJobs, apikey, "zentiva")

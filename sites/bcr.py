@@ -1,6 +1,5 @@
 from scraper_peviitor import Scraper, Rules, loadingData
 import uuid
-import json
 import os
 
 #Cream o instanta a clasei Scraper
@@ -35,10 +34,6 @@ for element in elements:
 #afișăm numărul total de joburi
 print(len(finalJobs))
 
-#salvăm rezultatele într-un fișier JSON
-with open("json/bcr.json", "w") as file:
-    json.dump(finalJobs, file, indent=4)
-
+#Salvăm datele in baza de date
 apikey = os.environ.get("apikey")
-
 loadingData(finalJobs, apikey, "BCR")

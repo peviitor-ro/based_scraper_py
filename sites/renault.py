@@ -2,7 +2,6 @@ from scraper_peviitor import Scraper, Rules, ScraperSelenium, loadingData
 from selenium.webdriver.common.by import By
 
 import time
-import json
 import uuid
 import os
 
@@ -71,11 +70,6 @@ while True:
 #se afiseaza numarul de joburi gasite
 print(len(finaljobs))
 
-#se salveaza joburile in fisierul renault.json
-with open("json/renault.json", "w") as f:
-    json.dump(finaljobs, f, indent=4)
-
-
+#se incarca datele in baza de date
 apikey = os.environ.get("apikey")
-
 loadingData(finaljobs, apikey, "Renault")

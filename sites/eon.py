@@ -3,7 +3,6 @@ from selenium.webdriver.common.by import By
 
 import time
 import uuid
-import json
 import os
 
 
@@ -52,11 +51,6 @@ for page in totalJobs:
 #Afisam numarul de joburi extrase
 print(len(finalJobs))
 
-#Salvam joburile in fisierul eon.json
-with open("json/eon.json", "w") as f:
-    json.dump(finalJobs, f, indent=4)
-
 #Incarcam joburile in baza de date
 apikey = os.environ.get("apikey")
-
 loadingData(finalJobs, apikey, "Eon")

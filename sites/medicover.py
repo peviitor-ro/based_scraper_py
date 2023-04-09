@@ -2,7 +2,6 @@ from scraper_peviitor import ScraperSelenium, Scraper, Rules, loadingData
 from selenium.webdriver.common.by import By
 
 import os 
-import json
 import time
 import uuid
 
@@ -74,13 +73,8 @@ while idx < len(anchors):
 #Numarul de joburi gasite
 print(len(finalJobs))
 
-#Salvez joburile in fisierul medicover.json
-with open("json/medicover.json", "w") as f:
-    json.dump(finalJobs, f, indent=4)
-
-
+#Incarc joburile in baza de date
 apikey = os.environ.get("apikey")
-
 loadingData(finalJobs, apikey, "Medicover")
 
 

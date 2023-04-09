@@ -5,7 +5,6 @@ from selenium.webdriver.common.by import By
 import os
 import time
 import uuid
-import json 
 
 #Folosim ScraperSelenium pentru a putea naviga pe pagini
 scraper = ScraperSelenium("https://cariere.auchan.ro/?_ga=2.139478582.44265217.1594377481-1024065221.1578324695/")
@@ -107,10 +106,6 @@ for page in range(len(pages)):
 #Afisam numarul total de joburi
 print(len(finaljobs))
 
-#Salvam datele in fisierul auchan.json
-with open("json/auchan.json", "w") as f:
-    json.dump(finaljobs, f, indent=4)
-
+#Incarcam datele in baza de date
 apikey = os.environ.get("apikey")
-
 loadingData(finaljobs, apikey, "Auchan")
