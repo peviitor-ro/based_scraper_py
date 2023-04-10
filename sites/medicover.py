@@ -60,7 +60,7 @@ while idx < len(anchors):
     })
         
     #Afisez jobul curent
-    print(job_title + " " + city)
+    print(job_title + " -> " + city)
     
     #Inapoi la pagina principala
     scraper.driver.back()

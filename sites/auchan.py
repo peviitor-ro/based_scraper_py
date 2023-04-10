@@ -46,7 +46,7 @@ for element in elements:
     country = "Romania"
     city = element.find_all("td")[2].text
 
-    print(job_title + " " + city)
+    print(job_title + " -> " + city)
     finaljobs.append({
         "id": str(id),
         "job_title": job_title,

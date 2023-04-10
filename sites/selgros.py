@@ -30,7 +30,7 @@ for page in range(1, numberPages + 1):
         company = "Selgros"
         country = "Romania"
         city = job.find("div", {"class":"type-location"}).text.split(",")[1]
-        print(job_title + " " + city)
+        print(job_title + " -> " + city)
 
         finaljobs.append({
             "id": str(id),

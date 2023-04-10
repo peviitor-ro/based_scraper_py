@@ -52,7 +52,7 @@ while True:
                 "city": city
             })
 
-            print(job_title + " " + city)
+            print(job_title + " -> " + city)
 
 
         #se cauta butonul de next
@@ -62,7 +62,7 @@ while True:
         scraper.click(nextBtn)
         time.sleep(5)
         
-        print("Next")
+        print("Next page")
     except Exception as e:
         print("No more pages")
         break

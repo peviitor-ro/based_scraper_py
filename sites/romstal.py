@@ -25,7 +25,7 @@ for job in jobs:
     if "SECTOR" in city:
         city = "Bucharest"
 
-    print(job_title + " " + city)
+    print(job_title + " -> " + city)
 
     finalJobs.append({
         "id": str(id),

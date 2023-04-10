@@ -66,7 +66,7 @@ for job in jobs:
             "country": country,
             "city": city,
         })
-        print(job_title + " " + city)
+        print(job_title + " -> " + city)
 
     except Exception as e:
         print(e)

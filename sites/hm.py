@@ -76,7 +76,7 @@ for job in jobs:
         "city": city,
     })
 
-    print(finaljobs[idx])
+    print(job_title + " -> " + city)
     idx += 1
     sleep(3)
 

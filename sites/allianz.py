@@ -44,7 +44,7 @@ while True:
         country = "Romania"
         city = "Romania"
 
-        print(element.find("a").text)
+        print(job_title + " -> " + city)
 
         finaljobs.append(
             {

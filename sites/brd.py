@@ -60,7 +60,7 @@ for job in j:
             "city": city,
         }
     )
-    print(job_title + " " + city)
+    print(job_title + " -> " + city)
 
 #Afisam numarul total de joburi gasite
 print(len(finalJobs))

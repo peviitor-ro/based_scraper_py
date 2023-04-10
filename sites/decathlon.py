@@ -49,7 +49,7 @@ for elemen in elements:
     except:
         location = "Romania"
     
-    print(title + " " + location)
+    print(title + " -> " + location)
 
     country = "Romania"
     finalJobs.append({
@@ -63,9 +63,6 @@ for elemen in elements:
 
     time.sleep(3)
 
-with open('json/decathlon.json', 'w') as file:
-    json.dump(finalJobs, file, indent=4)
-
+#Incarc joburile in baza de date
 apikey = os.environ.get('apikey')
-
 loadingData(finalJobs, apikey, 'Decathlon')

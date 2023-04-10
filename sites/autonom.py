@@ -53,7 +53,7 @@ for job in jobs:
     for city in citys:
         city = city.text
 
-        print(job_title + " " + city)
+        print(job_title + " -> " + city)
         finalJobs.append({
             "id": str(id),
             "job_title": job_title,

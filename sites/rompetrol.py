@@ -33,7 +33,7 @@ for query in queryList:
         company = "Rompetrol"
         country = "Romania"
         city = job.find("span", {"class": "jobLocation"}).text.split(",")[0].strip()
-        print(job.find("a").text + " " + job.find("span", {"class": "jobLocation"}).text.split(",")[0].strip())
+        print(job_title + " -> " + city)
 
         finaljobs.append({
             "id": str(id),

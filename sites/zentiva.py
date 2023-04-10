@@ -43,7 +43,7 @@ for page in range(len(totalJobs)):
         company = "Zentiva"
         country = "Romania"
         city = "Romania"
-        print(job_title + " " + city)
+        print(job_title + " -> " + city)
 
         finalJobs.append({
             "id": str(id),

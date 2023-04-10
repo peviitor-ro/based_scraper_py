@@ -32,7 +32,7 @@ while True:
             "city": city
         })
 
-        print(job_title)
+        print(job_title + " -> " + city)
 
     #Se cauta butonul de next
     domain = "https://www.nestle.ro/jobs/search-jobs"

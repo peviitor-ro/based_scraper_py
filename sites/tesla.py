@@ -31,7 +31,7 @@ for job in jobs:
     country = "Romania"
     city = job.find_all("td")[2].text.split(",")[0].strip()
 
-    print(job_title + " " + city)
+    print(job_title + " -> " + city)
 
     finaljobs.append({
         "id": str(id),

@@ -33,7 +33,7 @@ for job in jobs:
     country = "Romania"
     city = "Romania"
 
-    print(job_title + " " + city)
+    print(job_title + " -> " + city)
 
     finaljobs.append({
         "id": str(id),

@@ -32,7 +32,7 @@ for page in range(len(pageNumbers)):
         company = "Medlife"
         country = "Romania"
         city = element.find("div", {"class":"detaii-job"}).find_all("div")[0].text.strip()
-        print(job_title + " " + city)
+        print(job_title + " -> " + city)
 
         finalJobs.append({
             "id": str(id),

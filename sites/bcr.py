@@ -29,7 +29,7 @@ for element in elements:
         "city": city
     })
 
-    print(job_title)
+    print(job_title + " -> " + city)
 
 #afișăm numărul total de joburi
 print(len(finalJobs))

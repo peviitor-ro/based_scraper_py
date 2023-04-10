@@ -32,7 +32,7 @@ for jobCategory in jobsCategory:
             citys = rules.getTag("div", {"class": "jobs-info-city"}).find("b").text.split(",")
         except:
             citys = [rules.getTag("div", {"class": "jobs-info-city"}).find("b").text]
-        print(job_title,  citys)
+        print(job_title + " -> " + citys)
 
         #Cream un dictionar cu jobul si il adaugam in lista finala
         for city in citys:

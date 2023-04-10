@@ -35,7 +35,7 @@ for page in range(len(pages)):
             city = element.find("span", {"class": "more"}).text.split("-")[0].strip()
         except:
             city = city = element.find("span", {"class": "more"}).text
-        print(city + " " + job_title)
+        print(city + " -> " + job_title)
 
         finalJobs.append({
             "id": str(id),

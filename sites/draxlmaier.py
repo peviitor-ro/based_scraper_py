@@ -40,7 +40,7 @@ for jobs in jobsPerPage:
         country = "Romania"
         city = element.find("span", {"class":"jobLocation"}).text.split(',')[0].replace('  ', '').replace('\n', '')
 
-        print(job_title, job_link, company, country, city)
+        print(job_title + " -> " + city)
         
         finaljobs.append({
             'id': id,

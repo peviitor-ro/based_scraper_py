@@ -36,7 +36,7 @@ for page in totalJobs:
         company = "Eon"
         country = "Romania"
         city = job.find("span", {"class": "jobLocation"}).text.split(",")[0]
-        print(job_title + " " + city.strip())
+        print(job_title + " -> " + city.strip())
 
         finalJobs.append({
             "id": str(id),
