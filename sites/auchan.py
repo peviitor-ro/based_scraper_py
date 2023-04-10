@@ -7,7 +7,7 @@ import time
 import uuid
 
 #Folosim ScraperSelenium pentru a putea naviga pe pagini
-scraper = ScraperSelenium("https://cariere.auchan.ro/?_ga=2.139478582.44265217.1594377481-1024065221.1578324695/")
+scraper = ScraperSelenium("https://cariere.auchan.ro")
 scraper.get()
 
 #Asteptam sa se incarce pagina
