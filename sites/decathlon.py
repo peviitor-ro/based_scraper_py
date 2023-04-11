@@ -32,14 +32,7 @@ for elemen in elements:
     title = link.text
 
     #Deschid link-ul jobului in browser
-    linkScrap = ScraperSelenium(link['href'])
-    linkScrap.get()
-
-    #Iau dom-ul jobului si il pun in scraper
-    scraper.soup = linkScrap.getDom()
-
-    #inchid browser-ul
-    linkScrap.close()
+    scraper.url = link['href']
 
     #Iau locatia jobului
     city = rules.getTag('span', {'data-ui': 'job-location'})
