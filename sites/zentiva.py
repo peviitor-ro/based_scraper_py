@@ -60,5 +60,4 @@ for page in range(len(totalJobs)):
 print("Total jobs: " + str(len(finalJobs)))
 
 #Incarcam joburile in baza de date
-apikey = os.environ.get("apikey")
-loadingData(finalJobs, apikey, "zentiva")
+loadingData(finalJobs, "182b157-bb68-e3c5-5146-5f27dcd7a4c8", "zentiva")

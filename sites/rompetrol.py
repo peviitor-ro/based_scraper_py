@@ -50,5 +50,4 @@ for query in queryList:
 print(len(finaljobs))
 
 #Incarcam datele in baza de date
-apikey = os.environ.get("apikey")
-loadingData(finaljobs, apikey, "Rompetrol")
+loadingData(finaljobs, "182b157-bb68-e3c5-5146-5f27dcd7a4c8", "Rompetrol")

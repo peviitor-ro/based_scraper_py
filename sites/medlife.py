@@ -49,5 +49,4 @@ for page in range(len(pageNumbers)):
 print(len(finalJobs))
 
 #Incarcam datele in baza de date
-apikey = os.environ.get("apikey")
-loadingData(finalJobs, apikey, "Medlife")
+loadingData(finalJobs, "182b157-bb68-e3c5-5146-5f27dcd7a4c8", "Medlife")

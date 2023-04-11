@@ -27,13 +27,7 @@ jobs:
       run: |
         sudo apt-get install firefox-geckodriver 
         python3 -m pip install --upgrade pip
-        python3 -m venv env
-        source env/bin/activate
-        echo "virtualenv activated: "$VIRTUAL_ENV
-        export apikey="182b157-bb68-e3c5-5146-5f27dcd7a4c8"
-        echo "apikey: "$apikey
         pip3 install -e .
-
     - name: Runing Scrapers
       run: |
         python3 sites/main.py
