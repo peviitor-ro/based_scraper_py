@@ -1,14 +1,13 @@
-from scraper_peviitor import Scraper, Rules
+from scraper_peviitor import Scraper, Rules, loadingData
 import time
-import json
+import uuid
 
 #Aici se creeaza o instanta a clasei Scraper
 scraper = Scraper("https://jobs.enel.com/en_US/careers/JobOpeningsRomania")
 
 rules = Rules(scraper)
 
-finaljobs = dict()
-idx = 0
+finaljobs = list()
 
 
 while True:
@@ -20,13 +19,23 @@ while True:
 
     #Pentru fiecare job, extragem titlul, locatia si link-ul
     for element in elements:
-        title = element.find("h3").text.replace("\t", "").replace("\r", "").replace("\n", "").replace("  ", "")
-        location = "Romania"
-        link = element.find("a")["href"]
+        id = uuid.uuid4()
+        job_title = element.find("h3").text.strip()
+        job_link = element.find("a")["href"]
+        company = "Enel"
+        country = "Romania"
+        city = "Romania"
 
-        print(element.find("h3").text.replace("\t", "").replace("\r", "").replace("\n", ""))
-        finaljobs[idx] = {"title": title, "location": location, "link": link}
-        idx += 1
+        print(job_title + " -> " + city)
+
+        finaljobs.append({
+            "id": str(id),
+            "job_title": job_title,
+            "job_link": job_link,
+            "company": company,
+            "country": country,
+            "city": city
+        })
 
     try:
         #Daca exista butonul de next, extraem link-ul si il punem in url-ul scraper-ului
@@ -38,9 +47,11 @@ while True:
 
     time.sleep(3)
 
-#Salvam joburile in fisierul enel.json
-with open("enel.json", "w") as f:
-    json.dump(finaljobs, f, indent=4)
+#Afisam numarul total de joburi
+print("Total jobs: " + str(len(finaljobs)))
+
+#Incarcam datele in baza de date
+loadingData(finaljobs, "182b157-bb68-e3c5-5146-5f27dcd7a4c8", "Enel")
 
 
 
