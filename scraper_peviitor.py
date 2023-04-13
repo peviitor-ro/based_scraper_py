@@ -38,7 +38,6 @@ class Scraper:
         url : str, opțional
             URL-ul website-ului de pe care se va face scraping-ul.
         """
-
         self.session = self.getSession()
         self._url = url
         self.user_agent = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/61.0.3163.100 Safari/537.36'}
@@ -69,7 +68,7 @@ class Scraper:
         """
 
         try:
-            document = self.session.get(self.url,headers=self.user_agent ,timeout=10)
+            document = self.session.get(self.url,headers=self.user_agent ,timeout=10, verify=False)
             self._soup = BeautifulSoup(document.text, "html.parser")
         except Exception as e:
             print(e)  
@@ -226,6 +225,7 @@ class Rules:
         :param attrs: un dicționar cu atributele tagului căutat (ex. {'class': 'foo', 'id': 'bar'})
         :return: primul tag găsit după criteriile de căutare specificate
         """
+
         self.anchor = self.scraper.soup.find(tag, attrs=attrs)
         return self.anchor
     
