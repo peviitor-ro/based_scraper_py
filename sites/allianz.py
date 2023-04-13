@@ -1,77 +1,64 @@
 from scraper_peviitor import Scraper, ScraperSelenium, Rules, loadingData
-from selenium.webdriver.support import expected_conditions as EC
-from selenium.webdriver.common.by import By
 
-import os 
-import time
+import json
 import uuid
 
-#Folosim ScraperSelenium pentru ca siteul incarca elementele prin AJAX
-url = "https://careers.allianz.com/en_US.html/search/?searchby=location&createNewAlert=false&q=&locationsearch=Romania&optionsFacetsDD_department=&optionsFacetsDD_shifttype=&optionsFacetsDD_customfield3=&optionsFacetsDD_customfield2=&optionsFacetsDD_facility=&optionsFacetsDD_customfield4=&inputSearchValue=Romania&quatFlag=false"
-scraper = ScraperSelenium(url)
-scraper.get()
-
-#Asteptam sa se incarce cookie-ul
-scraper.wait(EC.presence_of_element_located((By.ID, "onetrust-accept-btn-handler")))
-
-#Acceptam cookie-ul
-cookieBtn = scraper.find_element(By.ID, "onetrust-accept-btn-handler")
-scraper.click(cookieBtn)
+#url-ul paginii
+url = "https://careers.allianz.com/tile-search-results?q=&locationsearch=Romania&searchby=location&d=15&"
+#Numarul de rezultate de pe pagina
+numberOfResults = 0
 
 finaljobs = list()
 
-#Asteptam sa se incarce elementele
-while True:
-    #Luam DOM-ul
-    dom = scraper.getDom()
+#Cream un nou scraper
+scraper = Scraper()
+#Cream un nou obiect Rules
+rules = Rules(scraper)
 
-    #Cream un nou scraper
-    pageScraper = Scraper()
-    #Setam DOM-ul
-    pageScraper.soup = dom
-    #Cream un nou obiect Rules
-    rules = Rules(pageScraper)
+#Luam toate joburile
 
+#Definim o variabila de iteratie
+iteration = True
+
+while iteration:
+    #Setam url-ul paginii
+    scraper.url = url + f"startrow={numberOfResults}"
     #Luam toate joburile
-    elements = rules.getTags("tbody")
-
+    elements = rules.getTags("li", {"class": "job-tile"})
     #Pentru fiecare job luam titlul, linkul, compania, tara si orasul
     for element in elements:
         id = uuid.uuid4()
-        job_title = element.find("a").text
-        job_link = "https://careers.allianz.com" + element.find("a")["href"]
+        job_title = element.find("a").text.strip()
+        job_link = "https://careers.allianz.com" + element.find("a").get("href")
         company = "Allianz"
         country = "Romania"
         city = "Romania"
 
+        job = {
+            "id": str(id),
+            "job_title": job_title,
+            "job_link": job_link,
+            "company": company,
+            "country": country,
+            "city": city,
+        }
         print(job_title + " -> " + city)
 
-        finaljobs.append(
-            {
-                "id": str(id),
-                "job_title": job_title,
-                "job_link": job_link,
-                "company": company,
-                "country": country,
-                "city": city,
-            }
-        )
-
-    #Cautam butonul de next
-    nextPage = scraper.find_element(By.CLASS_NAME, "nx-pagination__link--next")
-    #Scrollam pana la buton
-    scraper.driver.execute_script("arguments[0].scrollIntoView();", nextPage)
-
-    #Daca butonul este disabled inseamna ca nu mai avem pagini
-    if "is-disabled" in nextPage.get_attribute("class"):
-        break
-
-    #Daca nu este disabled, apasam pe el
-    scraper.click(nextPage)
-    time.sleep(3)
+        #Verificam daca jobul exista deja in lista
+        for j in finaljobs:
+            if j["job_title"] == job_title and j["job_link"] == job_link:
+                #Daca exista oprim iteratia
+                iteration = False
+                break
+        
+        #Daca nu exista il adaugam in lista
+        if iteration:
+            finaljobs.append(job)
+    #Incrementam numarul de rezultate
+    numberOfResults += 25
 
 #Afisam numarul de total de joburi
-print(len(finaljobs))
+print("Total jobs: " + str(len(finaljobs)))
 
 #Incarcam datele in baza de date
 loadingData(finaljobs, "182b157-bb68-e3c5-5146-5f27dcd7a4c8", "Allianz")
