@@ -1,60 +1,32 @@
-from scraper_peviitor import Scraper, Rules, ScraperSelenium, loadingData
-from selenium import webdriver
+from scraper_peviitor import Scraper, loadingData
 
 import uuid
-import time
-import os
-
 #Folosesc selenium deoarece joburile sunt incarcate prin ajax
-scraper = ScraperSelenium('https://cariere-decathlon.ro')
-scraper.get()
-
-#Iau dom-ul randat de browser
-dom = scraper.getDom()
-
-
-scraper = Scraper()
-#incarc dom-ul in scraper
-scraper.soup = dom
-
-#Folosesc clasa Rules pentru a extrage joburile
-rules = Rules(scraper)
-
-#Iau toate h3-urile cu clasa whr-title
-elements = rules.getTags('h3', {'class': 'whr-title'})
+scraper = Scraper('https://apply.workable.com//api/v1/widget/accounts/404273')
+jobs = scraper.getJson().get('jobs')
 
 finalJobs = list()
-idx = 0
 
-#Pentru fiecare h3 extrag titlul si linkul
-for elemen in elements:
-    link = elemen.find('a')
-    title = link.text
-
-    #Deschid link-ul jobului in browser
-    scraper.url = link['href']
-
-    #Iau locatia jobului
-    city = rules.getTag('span', {'data-ui': 'job-location'})
-
-    try:
-        location = city.text.split(',')[0]
-    except:
-        location = "Romania"
+for job in jobs:
+    id = uuid.uuid4()
+    job_title = job.get('title')
+    job_link = job.get('url')
+    company = "Decathlon"
+    country = "Romania"
+    city = job.get('city')
     
-    print(title + " -> " + location)
+    print(job_title + " -> " + city)
 
     country = "Romania"
     finalJobs.append({
         'id': str(uuid.uuid4()),
-        'job_title': title,
-        'job_link': link['href'],
-        'company': 'Decathlon',
+        'job_title': job_title,
+        'job_link': job_link,
+        'company': company,
         'country': country,
-        'city': location,
+        'city': city
     })
 
-    time.sleep(3)
 
 #Afisa numarul de joburi
 print("Jobs found: " + str(len(finalJobs)))

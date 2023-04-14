@@ -73,6 +73,21 @@ class Scraper:
         except Exception as e:
             print(e)  
             return [] 
+    
+    def getJson(self):
+        """
+        Descarcă codul HTML de la URL și creează un obiect BeautifulSoup.
+
+        Returnează
+        ----------
+        soup : obiect BeautifulSoup
+            Obiectul BeautifulSoup creat.
+        """
+
+
+        document = self.session.get(self.url,headers=self.user_agent ,timeout=10, verify=False)
+        return document.json()
+        
 
     @property
     def url(self):

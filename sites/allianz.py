@@ -1,6 +1,4 @@
 from scraper_peviitor import Scraper, Rules, loadingData
-
-import json
 import uuid
 
 #url-ul paginii
