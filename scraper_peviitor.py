@@ -56,7 +56,8 @@ class Scraper:
 
         session = requests.Session()
         return session
-    def post(self, url, data):
+    
+    def post(self, *args, **kwargs):
         """
         Creează o sesiune nouă HTTP pentru a face request-uri.
 
@@ -66,7 +67,7 @@ class Scraper:
             Sesiunea HTTP.
         """
 
-        response = self.session.post(url, data=data)
+        response = self.session.post(*args ,**kwargs)
 
         return response.json()
     
