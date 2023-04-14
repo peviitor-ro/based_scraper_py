@@ -1,5 +1,4 @@
 from scraper_peviitor import Scraper, Rules, loadingData
-import time
 import uuid
 
 #Aici se creeaza o instanta a clasei Scraper
@@ -44,9 +43,6 @@ while True:
         break
    
     scraper.url = nextPageLink
-
-    time.sleep(3)
-
 #Afisam numarul total de joburi
 print("Total jobs: " + str(len(finaljobs)))
 

@@ -1,7 +1,6 @@
 from scraper_peviitor import Scraper, Rules, loadingData
 import time
 import uuid
-import os
 
 url = "https://www.brd.ro/cariere"
 

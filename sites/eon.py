@@ -1,22 +1,18 @@
-from scraper_peviitor import Scraper, ScraperSelenium, Rules, loadingData
-from selenium.webdriver.common.by import By
+from scraper_peviitor import Scraper, Rules, loadingData
 
-import time
 import uuid
-import os
 
 
 #Folosim ScraperSelenium deoarece numarul de joburi este incarcat prin AJAX
-scraper = ScraperSelenium("https://careers.eon.com/romania/go/Toate-joburile-din-Romania/3727401?utm_source=pagina-cariere-ro")
-scraper.get()
+scraper = Scraper("https://careers.eon.com/romania/go/Toate-joburile-din-Romania/3727401?utm_source=pagina-cariere-ro")
+rules = Rules(scraper)
 
-time.sleep(5)
 
 #Luam numarul total de joburi
-jobs = scraper.find_elements(By.CSS_SELECTOR, "span.paginationLabel > b")[1]
+jobs = rules.getTag("span", {"class": "paginationLabel"}).find_all("b")[1]
 step = 25
 
-#Calculam numarul de pagini
+# Calculam numarul de pagini
 totalJobs = [*range(0, int(jobs.text), step)]
 
 finalJobs = list()
@@ -46,7 +42,6 @@ for page in totalJobs:
             "country": country,
             "city": city.strip(),
         })
-    time.sleep(3)
 
 #Afisam numarul de joburi extrase
 print(len(finalJobs))

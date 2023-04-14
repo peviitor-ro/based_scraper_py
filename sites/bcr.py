@@ -1,6 +1,5 @@
 from scraper_peviitor import Scraper, Rules, loadingData
 import uuid
-import os
 
 #Cream o instanta a clasei Scraper
 scraper = Scraper("https://erstegroup-careers.com/bcr/search/?createNewAlert=false&q=&locations")

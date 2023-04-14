@@ -1,7 +1,5 @@
 from scraper_peviitor import Scraper, Rules, loadingData
 import uuid
-import time
-import os
 
 #Cream o instanta a clasei Scraper
 scraper = Scraper("https://d-career.org/Draexlmaier/go/DRÄXLMAIER-Job-Opportunities-in-Romania-%28Romanian%29/4196801/125/?q=&sortColumn=referencedate&sortDirection=desc")
@@ -50,8 +48,6 @@ for jobs in jobsPerPage:
             'country': country,
             'city': city,
         })
-
-    time.sleep(3)
 
 #Afisam numarul de joburi
 print(len(finaljobs))
