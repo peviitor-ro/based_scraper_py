@@ -56,6 +56,19 @@ class Scraper:
 
         session = requests.Session()
         return session
+    def post(self, url, data):
+        """
+        Creează o sesiune nouă HTTP pentru a face request-uri.
+
+        Returnează
+        ----------
+        session : obiect requests.Session
+            Sesiunea HTTP.
+        """
+
+        response = self.session.post(url, data=data)
+
+        return response.json()
     
     def getSoup(self):
         """
