@@ -1,10 +1,6 @@
 from bs4 import BeautifulSoup
 import requests
 from lxml import etree
-from selenium import webdriver
-from selenium.webdriver.common.by import By
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.chrome.options import Options
 import json
 import platform
 
@@ -158,79 +154,6 @@ class Scraper:
         """
 
         self._soup = BeautifulSoup(soup, "html.parser")
-
-
-class ScraperSelenium:
-    def __init__(self, url: str):
-        """
-        Constructorul clasei.
-        :param url: adresa URL a paginii web pe care se va lucra
-        :param driver: instanța webdriver utilizată pentru a automatiza browserul web
-        """
-        if platform.system() == 'Darwin':
-            print("running on macOS")
-            self.driver = webdriver.Chrome()
-        elif platform.system() == 'Linux':
-            print("running on linux")
-            options = webdriver.FirefoxOptions()
-            options.add_argument('--headless')
-            self.driver = webdriver.Firefox(options=options)
-        else:
-            raise Exception('Platform not supported')
-        self.url = url
-        
-    def get(self):
-        """
-        Deschide adresa URL în browser.
-        """
-        self.driver.get(self.url)
-
-    def find_element(self, by: By, value: str):
-        """
-        Găsește primul element pe care îl găsește după criteriile de căutare specificate.
-        :param by: metoda de căutare (ex. By.ID, By.CLASS_NAME, etc.)
-        :param value: valoarea căutată
-        :return: primul element găsit după criteriile de căutare specificate
-        """
-        return self.driver.find_element(by, value)
-    
-    def find_elements(self, by: By, value: str):
-        """
-        Găsește toate elementele care se potrivesc cu criteriile de căutare specificate.
-        :param by: metoda de căutare (ex. By.ID, By.CLASS_NAME, etc.)
-        :param value: valoarea căutată
-        :return: o listă de elemente găsite după criteriile de căutare specificate
-        """
-        return self.driver.find_elements(by, value)
-    
-    def click(self, element):
-        """
-        Face click pe elementul specificat.
-        :param element: elementul pe care se face click
-        """
-        self.driver.execute_script("arguments[0].click();", element)
-    
-    def getDom(self):
-        """
-        Returnează conținutul DOM al paginii web curente.
-        :return: conținutul DOM al paginii web curente
-        """
-        return self.driver.page_source
-    
-    def wait(self, condition, timeout=10):
-        """
-        Așteaptă până când o condiție specificată devine adevărată.
-        :param condition: condiția care trebuie să devină adevărată
-        :param timeout: timpul maxim de așteptare în secunde (implicit 10)
-        """
-        return WebDriverWait(self.driver, timeout).until(condition)
-    
-    def close(self):
-        """
-        Închide browserul web.
-        """
-        self.driver.close()
-
 
 class Rules:
     def __init__(self, scraper : Scraper):
