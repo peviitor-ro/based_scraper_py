@@ -1,64 +1,54 @@
-from scraper_peviitor import Scraper, Rules, loadingData, ScraperSelenium
-from selenium.webdriver.common.by import By
-
-import time
+from scraper_peviitor import Scraper, loadingData
 import uuid
-import os
 
 
-#Folosim ScraperSelenium dewoarece nu putem accesa paginatia prin BeautifulSoup
-scraper = ScraperSelenium("https://sec.wd3.myworkdayjobs.com/Samsung_Careers?q=Romania")
-scraper.get()
+apiUrl = "https://sec.wd3.myworkdayjobs.com/wday/cxs/sec/Samsung_Careers/jobs"
+scraper = Scraper()
+#Cream un header pentru a putea face request-uri POST
+headers = {
+    "Accept": "application/json",
+    "Content-Type": "application/json",
+}
 
-time.sleep(5)
+#Cream un dictionar cu datele pe care dorim sa le trimitem catre server
+data = {"appliedFacets":{},"limit":20,"offset":0,"searchText":"Romania"}
 
-#Cautam butonul de acceptare a cookie-urilor si il apasam
-cookieBtn = scraper.find_element(By.CLASS_NAME, "css-yih7c7")
-scraper.click(cookieBtn)
+#Actualizam header-ul cu datele de mai sus
+scraper.session.headers.update(headers)
 
-#Cautam numarul total de joburi si il impartim la 20 pentru a afla numarul de pagini
-jobs = scraper.find_element(By.CLASS_NAME, "css-12psxof").text.split(" ")[0]
+#Facem request-ul POST si salvam numarul total de joburi
+numberOfJobs = scraper.post(apiUrl, json=data).get("total")
 
-totalJobs = [*range(0, int(jobs), 20)]
+#Cream o lista cu numerele de la 0 la numarul total de joburi, cu pasul de 20
+iteration = [i for i in range(0, numberOfJobs, 20)]
 
-finalJobs = list()
+finaljobs = list()
 
-#Parcurgem fiecare pagina si extragem joburile
-for page in range(len(totalJobs)):
-    if page != 0:
-        nextPage = scraper.find_element(By.CLASS_NAME, "css-1xuojeq")
-        scraper.driver.execute_script("arguments[0].scrollIntoView();", nextPage)
-        scraper.click(nextPage)
-        time.sleep(3)
-
-    doom = scraper.getDom()
-    pageScraper = Scraper()
-    pageScraper.soup = doom
-    rules = Rules(pageScraper)
-
-    jobs = rules.getTags("li", {"class": "css-1q2dra3"})
+#Pentru fiecare numar din lista, extragem joburile
+for num in iteration:
+    data["offset"] = num
+    jobs = scraper.post(apiUrl, json=data).get("jobPostings")
     for job in jobs:
         id = uuid.uuid4()
-        job_title = job.find("a").text
-        job_link = "https://sec.wd3.myworkdayjobs.com" + job.find("a")["href"]
+        job_title = job.get("title")
+        job_link = "https://sec.wd3.myworkdayjobs.com/en-US/Samsung_Careers" + job.get("externalPath")
         company = "Samsung"
         country = "Romania"
         city = "Romania"
-        print(job_title + " -> " + city)
 
-        finalJobs.append({
+        finaljobs.append({
             "id": str(id),
             "job_title": job_title,
             "job_link": job_link,
             "company": company,
             "country": country,
-            "city": city,
+            "city": city
         })
 
-    time.sleep(3)
+        print(job_title + " -> " + city)
 
-#Afisam numarul de joburi
-print("Total jobs: " + str(len(finalJobs)))
+#afisam numarul total de joburi gasite
+print("Total jobs: " + str(len(finaljobs)))
 
-#Incarcam joburile in baza de date
-loadingData(finalJobs, "182b157-bb68-e3c5-5146-5f27dcd7a4c8", "Samsung")
+#se incarca datele in baza de date
+loadingData(finaljobs, "182b157-bb68-e3c5-5146-5f27dcd7a4c8", "Samsung")
