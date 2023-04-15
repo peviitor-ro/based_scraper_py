@@ -38,7 +38,7 @@ while jobs.get("jobs"):
     jobs = scraper.post(url, data)
 
 # Se afișează numărul de job-uri extrase
-print(len(finalJobs))
+print("Total jobs: " + str(len(finalJobs)))
 
 #Salvarea datelor în baza de date
 loadingData(finalJobs, "182b157-bb68-e3c5-5146-5f27dcd7a4c8", "HM")

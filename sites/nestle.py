@@ -1,7 +1,5 @@
 from scraper_peviitor import Scraper, Rules, loadingData
-import time
 import uuid
-import os
 
 #Se creeaza o instanta a clasei Scraper
 scraper = Scraper("https://www.nestle.ro/jobs/search-jobs?keyword=Romania&country=&location=&career_area=All")
@@ -44,11 +42,10 @@ while True:
     except:
         break
 
-    time.sleep(3)
 
 
 #Afiseaza numarul de joburi gasite
-print(len(finalJobs))
+print("Total Jobs: " + str(len(finalJobs)))
 
 #Incarca datele in baza de date
 loadingData(finalJobs, "182b157-bb68-e3c5-5146-5f27dcd7a4c8", "Nestle")

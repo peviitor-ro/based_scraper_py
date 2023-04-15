@@ -1,7 +1,7 @@
 import os 
 import subprocess
 
-exclude = ['__init__.py','main.py' , 'enel.py', 'kaufland.py']
+exclude = ['__init__.py','main.py' , 'enel.py', 'kaufland.py', 'renault.py', "zentiva.py","samsung.py"]
 path = os.path.dirname(os.path.abspath(__file__))
 
 for site in os.listdir(path):

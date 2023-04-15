@@ -1,7 +1,5 @@
 from scraper_peviitor import Scraper, Rules, loadingData
-import time
 import uuid
-import os
 
 #Cream o instanta a clasei Scraper
 scraper = Scraper("https://www.synevo.ro/cariere/")
@@ -45,10 +43,9 @@ for jobCategory in jobsCategory:
                 "city": city.strip(),
             }
             finaljobs.append(job)
-        time.sleep(3)
 
 #Afisam numarul total de joburi
-print(len(finaljobs))
+print("Total jobs: " + str(len(finaljobs)))
 
 #Incarcam datele in baza de date
 loadingData(finaljobs, "182b157-bb68-e3c5-5146-5f27dcd7a4c8", "Synevo")

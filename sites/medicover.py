@@ -1,4 +1,4 @@
-from scraper_peviitor import Scraper, Rules, loadingData
+from scraper_peviitor import Scraper, loadingData
 
 import uuid
 
@@ -45,7 +45,7 @@ for job in jobs:
     print(job_title + " -> " + city)
 
 #Numarul de joburi gasite
-print("Jobs found: " + str(len(finalJobs)))
+print("Total jobs: " + str(len(finalJobs)))
 
 #Incarc joburile in baza de date
 loadingData(finalJobs, "182b157-bb68-e3c5-5146-5f27dcd7a4c8", "Medicover")

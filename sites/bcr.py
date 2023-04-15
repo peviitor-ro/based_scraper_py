@@ -31,7 +31,7 @@ for element in elements:
     print(job_title + " -> " + city)
 
 #afișăm numărul total de joburi
-print(len(finalJobs))
+print("Total jobs: " + str(len(finalJobs)))
 
 #Salvăm datele in baza de date
 loadingData(finalJobs, "182b157-bb68-e3c5-5146-5f27dcd7a4c8", "BCR")

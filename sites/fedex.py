@@ -3,11 +3,10 @@ from scraper_peviitor import Scraper, loadingData
 import uuid
 
 #Folosim ScraperSelenium deoaarece joburile sunt incarcate prin AJAX
-scraper = Scraper('https://careers.fedex.com/api/jobs?lang=ro-RO&location=Rom%25C3%25A2nia&woe=12&stretch=10&stretchUnit=MILES&page=1&limit=100&sortBy=relevance&descending=false&internal=false&brand=FedEx%20Express%20EU')
+url = 'https://careers.fedex.com/api/jobs?lang=ro-RO&location=Rom%25C3%25A2nia&woe=12&stretch=10&stretchUnit=MILES&page=1&limit=100&sortBy=relevance&descending=false&internal=false&brand=FedEx%20Express%20EU'
+scraper = Scraper(url)
 
 jobs = scraper.getJson().get('jobs')
-
-print(len(jobs))
 
 finaljobs = list()
 

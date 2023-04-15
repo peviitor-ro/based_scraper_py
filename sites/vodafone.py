@@ -1,81 +1,49 @@
-from time import sleep
-from scraper_peviitor import ScraperSelenium, loadingData
-from selenium.webdriver.common.by import By
-from selenium.webdriver.support import expected_conditions as EC
+from scraper_peviitor import Scraper, loadingData
 
-import os
 import uuid
 
-# Inițializăm un obiect ScraperSelenium cu URL-ul dorit și obiectul Chrome
-scraper = ScraperSelenium("https://jobs.vodafone.com/careers?query=Romania&pid=563018675157116&domain=vodafone.com&sort_by=relevance")
-# Accesăm URL-ul
-scraper.get()
+#urlul pentru a veadea numarul total de joburi
+jobsUrl = "https://jobs.vodafone.com/api/apply/v2/jobs/"
 
-# Așteptăm să apară butonul de cookie-uri și apoi îl accesăm
-scraper.wait(EC.presence_of_element_located((By.ID, "onetrust-accept-btn-handler")))
-cookieBtn = scraper.find_element(By.ID, "onetrust-accept-btn-handler")
-scraper.click(cookieBtn)
+scraper = Scraper(jobsUrl)
 
-# Extragem numărul total de rezultate de pe pagină
-results = scraper.find_element(By.XPATH, '//*[@id="pcs-body-container"]/div[2]/div[1]/div/span/span/strong').text
-results = results.replace(" open jobs.", "")
-step = 10
+#extragem numarul total de joburi
+number_of_jobs = scraper.getJson().get("facets").get("country").get("Romania")
 
-# Generăm o listă cu numerele de click-uri necesare pentru a accesa toate job-urile
-butonCountClick = [i for i in range(step, int(results), step)]
-
-print(len(butonCountClick))
-
-# Parcurgem butoanele și le accesăm succesiv, apoi așteptăm ca paginile să se încarce complet
-for click in range(len(butonCountClick)):
-    scraper.wait(EC.presence_of_element_located((By.CLASS_NAME, 'show-more-positions')))
-    button = scraper.find_element(By.CLASS_NAME, 'show-more-positions')
-    scraper.driver.execute_script("arguments[0].scrollIntoView();", button)
-    scraper.click(button)
-    sleep(2)
-
-# Extragem toate job-urile de pe pagină și le parcurgem succesiv, accesând fiecare în parte și extrăgând titlul și locația
-jobs = scraper.find_elements(By.CLASS_NAME, "position-card")
-idx = 0
-
-print(len(jobs))
-
-scraper.driver.execute_script("scroll(0, 0);")
+#Cream o lista cu numerele de la 0 la numarul total de joburi, cu pasul de 10 pentru a putea extrage joburile
+iteratii = [i for i in range(0, number_of_jobs, 10)]
 
 finalJobs = list()
 
-# Parcurgem job-urile și le salvăm într-o listă de dictionare
-for job in jobs:
-    sleep(2)
-    #Pe fiecare job il deschidem si extragem datele precum titlul, link-ul, compania, tara si orasul
-    try:
-        scraper.driver.execute_script("arguments[0].scrollIntoView();", job)
-        scraper.click(job)
-        id = uuid.uuid4()
-        job_title = scraper.find_elements(By.CLASS_NAME, "position-title")[idx].text
-        job_link = scraper.driver.current_url
-        company = "Vodafone"
-        country = "Romania"
-        city = scraper.find_elements(By.CLASS_NAME, "position-location")[idx].text.split(",")[0]
+#Iteram prin lista de numere si extragem joburile
+for num in iteratii:
+    url = f"https://jobs.vodafone.com/api/apply/v2/jobs?domain=vodafone.com&start={num}&num=10&query=Romania&domain=vodafone.com&sort_by=relevance"
+    scraper.url = url
 
-        finalJobs.append({
-            "id": str(id),
-            "job_title": job_title,
-            "job_link": job_link,
-            "company": company,
-            "country": country,
-            "city": city,
-        })
-        print(job_title + " -> " + city)
-
-    except Exception as e:
-        print(e)
-        break
-    idx += 1
+    jobs = scraper.getJson().get("positions")
     
+    for job in jobs:
+        country = job.get("location").split(",")[-1].strip()
+        if country == "ROU" or country == "Romania":
+            id = uuid.uuid4()
+            job_title = job.get("name")
+            job_link = f"https://jobs.vodafone.com/careers?query=Romania&pid={job.get('id')}&domain=vodafone.com&sort_by=relevance"
+            company = "Vodafone"
+            country = "Romania"
+            location = job.get("location").split(",")[0]
 
-#Afiseaza numarul de joburi gasite
-print(len(finalJobs))
+            finalJobs.append({
+                "id": str(id),
+                "job_title": job_title,
+                "job_link": job_link,
+                "company": company,
+                "country": country,
+                "city": location
+            })
+        print(job_title + " -> " + location)
+
+#Afisam numarul total de joburi
+print("Total jobs: " + str(len(finalJobs)))
 
 # Încărcăm job-urile în baza de date
 loadingData(finalJobs, "182b157-bb68-e3c5-5146-5f27dcd7a4c8", "Vodafone")

@@ -1,5 +1,4 @@
 from scraper_peviitor import Scraper, Rules, loadingData
-import time
 import uuid
 
 url = "https://www.brd.ro/cariere"
@@ -20,8 +19,6 @@ for element in elements:
     #setam link-ul paginii
     jobCategory = "https://www.brd.ro" + element.find("a")["href"]
     scraper.url = jobCategory
-
-    time.sleep(2)
 
     #Cautam elementele care contin joburile
     jobs = rules.getTags("div", {"class": "card"})
@@ -62,7 +59,7 @@ for job in j:
     print(job_title + " -> " + city)
 
 #Afisam numarul total de joburi gasite
-print(len(finalJobs))
+print("Total jobs: " + str(len(finalJobs)))
 
 #Salvam datele in baza de date
 loadingData(finalJobs, "182b157-bb68-e3c5-5146-5f27dcd7a4c8", "BRD")

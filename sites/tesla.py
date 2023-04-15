@@ -2,12 +2,11 @@ from scraper_peviitor import Scraper, Rules, loadingData, ScraperSelenium
 
 import time
 import uuid
-import os
 
 #Folosim ScraperSelenium deoarece joburile sunt incarcate prin AJAX
 scraper = ScraperSelenium("https://www.tesla.com/ro_RO/careers/search/?site=RO")
 scraper.get()
-time.sleep(5)
+time.sleep(3)
 
 #Luam codul HTML
 dom = scraper.getDom()

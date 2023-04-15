@@ -1,7 +1,5 @@
 from scraper_peviitor import Scraper, Rules, loadingData
 import uuid
-import time
-import os
 
 #Cream o instanta a clasei Scraper
 url = "https://www.medlife.ro/cariere/lista-joburi"
@@ -43,10 +41,9 @@ for page in range(len(pageNumbers)):
             "city": city
         })
 
-    time.sleep(3)
 
 #Afisam numarul total de joburi
-print(len(finalJobs))
+print("Total jobs: " + str(len(finalJobs)))
 
 #Incarcam datele in baza de date
 loadingData(finalJobs, "182b157-bb68-e3c5-5146-5f27dcd7a4c8", "Medlife")

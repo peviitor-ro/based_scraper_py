@@ -2,7 +2,6 @@
 
 from scraper_peviitor import Scraper, Rules, loadingData
 import uuid
-import os 
 
 #Cream o instanta de tip Scraper
 scraper = Scraper("https://cariere.romstal.ro/search/?createNewAlert=false&q=&locationsearch=&optionsFacetsDD_location=&optionsFacetsDD_department=")
