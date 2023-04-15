@@ -1,77 +1,51 @@
-from scraper_peviitor import ScraperSelenium, Scraper, Rules, loadingData
-from selenium.webdriver.common.by import By
+from scraper_peviitor import Scraper, Rules, loadingData
 
-import os 
-import time
 import uuid
 
-#Folosim selenium deoarece anchorele cu nu au atributul href
-scraper = ScraperSelenium("https://medicover.mingle.ro/en/apply")
-scraper.get()
+url = "https://mingle.ro/api/session?company=medicover"
+apiUrl = "https://mingle.ro/api/boards/mingle/jobs?q=companyUid~eq~%22medicover%22&page=0&pageSize=30&sort=modifiedDate~DESC"
 
-#Caut toate anchorele cu clasa btn-apply
-anchors = scraper.find_elements(By.CLASS_NAME, "btn-apply")
+scraper = Scraper(url)
+#Luam cookie-ul XSRF-TOKEN
+cookies = scraper.session.cookies.get_dict().get("XSRF-TOKEN")
 
-#Instantiez un nou scraper pentru a extrage datele de pe pagina jobului
-anchorPageScraper = Scraper()
-rules = Rules(anchorPageScraper)
+#Setam header-ul XSRF-TOKEN
+scraper.session.headers.update({"XSRF-TOKEN": cookies})
+#Setam header-ul Content-Type
+scraper.url = apiUrl
+
+#Luam json-ul
+jobs = scraper.getJson().get("data").get("results")
 
 finalJobs = list()
-idx = 0
 
-while idx < len(anchors):
-    #Scroll pana la ancorela curenta si apoi fac click pe ea
-    anchor = anchors[idx]
-    scraper.driver.execute_script("arguments[0].scrollIntoView();", anchor)
-    time.sleep(1)
-    scraper.click(anchor)
-
-    time.sleep(1)
-    #Incarc dom-ul paginii jobului in scraper
-    anchorPageScraper.soup = scraper.getDom()
-
-    #Extrag datele de pe pagina jobului
+#Pentru fiecare job
+for job in jobs:
     id = uuid.uuid4()
-    job_title = rules.getTag("title").text
-    job_link = scraper.driver.current_url
+    job_title = job.get("jobTitle")
+    job_link = "https://medicover.mingle.ro/en/apply/" + job.get("publicUid") 
     company = "Medicover"
     country = "Romania"
-    cities = []
-    
-    #Caut div-ul cu clasa py-2 d-flex flex-nowrap si extrag orasele
-    try:
-        city = rules.getTag("div", {"class": "py-2 d-flex flex-nowrap"}).text
-        if "," in city:
-            cities = city.split(",")
-        else:
-            cities.append(city)
-    except:
-        cities = ["Romania"]
+    city = job.get("locations")
 
-    #Adaug joburile in lista finala
-    for city in cities:
-        finalJobs.append({
+    if city is None:
+        city = "Romania"
+    else:
+        city = city[0].get("name")
+
+    finalJobs.append({
         "id": str(id),
         "job_title": job_title,
         "job_link": job_link,
         "company": company,
         "country": country,
-        "city": city.strip()
+        "city": city
     })
-        
-    #Afisez jobul curent
-    print(job_title + " -> " + city)
-    
-    #Inapoi la pagina principala
-    scraper.driver.back()
-    time.sleep(1)
 
-    #Caut toate ancorele din nou
-    anchors = scraper.find_elements(By.CLASS_NAME, "btn-apply")
-    idx += 1
+    print(job_title + " -> " + city)
 
 #Numarul de joburi gasite
-print(len(finalJobs))
+print("Jobs found: " + str(len(finalJobs)))
 
 #Incarc joburile in baza de date
 loadingData(finalJobs, "182b157-bb68-e3c5-5146-5f27dcd7a4c8", "Medicover")
