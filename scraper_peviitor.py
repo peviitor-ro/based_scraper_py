@@ -2,8 +2,6 @@ from bs4 import BeautifulSoup
 import requests
 from lxml import etree
 import json
-import platform
-
 
 
 class Scraper:
