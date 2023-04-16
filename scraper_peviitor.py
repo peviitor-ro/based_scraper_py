@@ -54,6 +54,14 @@ class Scraper:
     def post(self, *args, **kwargs):
         """
         Creează o sesiune nouă HTTP pentru a face request-uri.
+        Parametri
+        ----------
+        url : str
+            URL-ul website-ului de pe care se va face scraping-ul.
+        data : dict
+            Dicționarul cu datele de trimis.
+        json : dict
+            Dicționarul cu datele de trimis.
 
         Returnează
         ----------
