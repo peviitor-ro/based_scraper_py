@@ -1,5 +1,5 @@
 from scraper_peviitor import Scraper, Rules, loadingData
-
+import uuid
 url = "https://romaero.com/cariere/locuri-de-munca-romaero/"
 
 scraper = Scraper(url)
@@ -11,6 +11,7 @@ finalJobs = list()
 
 for job in jobs:
     try:
+        id = uuid.uuid4()
         job_title = job.find("strong").text.strip()
         job_link = job.find("a").get("href")
         company = "Romaero"
@@ -18,6 +19,7 @@ for job in jobs:
         city = "Romania"
 
         finalJobs.append({
+            "id": str(id),
             "job_title": job_title,
             "job_link": job_link,
             "company": company,
