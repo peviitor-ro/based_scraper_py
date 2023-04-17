@@ -74,4 +74,3 @@ Dacă dorești să contribui la dezvoltarea scraperului, există mai multe modal
 - [peviitor team](https://github.com/peviitor-ro)
 
 Suntem dedicați îmbunătățirii și dezvoltării continue a acestui proiect, astfel încât să putem oferi cele mai bune resurse pentru toți cei interesați.
-<>
