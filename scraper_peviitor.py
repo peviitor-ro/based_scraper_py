@@ -71,7 +71,7 @@ class Scraper:
 
         response = self.session.post(*args ,**kwargs)
 
-        return response.json()
+        return response
     
     def getSoup(self, verify=True):
         """

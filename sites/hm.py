@@ -6,7 +6,7 @@ data = {"locations": [], "workAreas": [], "contractType": [], "fulltext": "Roman
 url = "https://career.hm.com/wp-json/hm/v1/sr/jobs/search?_locale=user"
 # Se creează o instanță a clasei ScraperSelenium pentru a accesa site-ul
 scraper = Scraper()
-jobs = scraper.post(url, data)
+jobs = scraper.post(url, data).json()
 
 finalJobs = list()
 
@@ -35,7 +35,7 @@ while jobs.get("jobs"):
 
     # Se trece la pagina următoare
     data["page"] += 1
-    jobs = scraper.post(url, data)
+    jobs = scraper.post(url, data).json()
 
 # Se afișează numărul de job-uri extrase
 print("Total jobs: " + str(len(finalJobs)))

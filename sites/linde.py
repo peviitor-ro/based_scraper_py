@@ -25,7 +25,7 @@ scraper.session.headers.update({"Authorization": autorization})
 data = {"careerSiteId":20,"careerSitePageId":20,"pageNumber":1,"pageSize":100,"cultureId":1,"searchText":"","cultureName":"en-US","states":[],"countryCodes":["ro"],"cities":[],"placeID":"","radius":"","postingsWithinDays":"","customFieldCheckboxKeys":[],"customFieldDropdowns":[],"customFieldRadios":[]}
 
 #Se face request-ul catre API
-jobs = scraper.post(apiUrl, json=data).get("data").get("requisitions")
+jobs = scraper.post(apiUrl, json=data).json().get("data").get("requisitions")
 
 
 finalJobs = list()

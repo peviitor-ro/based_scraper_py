@@ -16,7 +16,7 @@ data = {"appliedFacets":{"locationCountry":["f2e609fe92974a55a05fc1cdc2852122"],
 scraper.session.headers.update(headers)
 
 #Facem request-ul POST si salvam numarul total de joburi
-numberOfJobs = scraper.post(apiUrl, json=data).get("total")
+numberOfJobs = scraper.post(apiUrl, json=data).json().get("total")
 
 #Cream o lista cu numerele de la 0 la numarul total de joburi, cu pasul de 20
 iteration = [i for i in range(0, numberOfJobs, 20)]
@@ -26,7 +26,7 @@ finaljobs = list()
 #Pentru fiecare numar din lista, extragem joburile
 for num in iteration:
     data["offset"] = num
-    jobs = scraper.post(apiUrl, json=data).get("jobPostings")
+    jobs = scraper.post(apiUrl, json=data).json().get("jobPostings")
     for job in jobs:
         id = uuid.uuid4()
         job_title = job.get("title")

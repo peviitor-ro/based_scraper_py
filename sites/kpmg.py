@@ -19,7 +19,7 @@ data = {"Departments":[],"Locations":[],"CareerLevel":None,"WorkplaceType":None,
 scraper.session.headers.update(headers)
 
 #Facem request-ul POST si salvam numarul total de joburi
-jobs = scraper.post(apiUrl, json=data).get("Results")
+jobs = scraper.post(apiUrl, json=data).json().get("Results")
 
 finalJobs = list()
 
@@ -44,7 +44,7 @@ while jobs:
         print(job_title + " -> " + city)
 
     data["CurrentPage"] += 1
-    jobs = scraper.post(apiUrl, json=data).get("Results")
+    jobs = scraper.post(apiUrl, json=data).json().get("Results")
 
 #afisam numarul total de joburi gasite
 print("Total jobs: " + str(len(finalJobs)))
