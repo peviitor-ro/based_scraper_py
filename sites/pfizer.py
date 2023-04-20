@@ -45,7 +45,6 @@ for num in iteration:
         })
 
         print(job_title + " -> " + city)
-        print(job_link)
 
 #afisam numarul total de joburi gasite
 print("Total jobs: " + str(len(finaljobs)))

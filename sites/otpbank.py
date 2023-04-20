@@ -27,7 +27,7 @@ for page in range(len(pages)):
         id = uuid.uuid4()
         job_title = element.find("h2").find("a").text
         job_link = "https://cariere.otpbank.ro" + element.find("h2").find("a")["href"]
-        company = "OTP Bank"
+        company = "OTPBank"
         country = "Romania"
         try:
             city = element.find("span", {"class": "more"}).text.split("-")[0].strip()
@@ -49,4 +49,4 @@ for page in range(len(pages)):
 print("Total jobs: " + str(len(finalJobs)))
 
 #Incarcam datele in baza de date
-loadingData(finalJobs, "182b157-bb68-e3c5-5146-5f27dcd7a4c8", "OTP Bank")
+loadingData(finalJobs, "182b157-bb68-e3c5-5146-5f27dcd7a4c8", "OTPBank")

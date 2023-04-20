@@ -14,7 +14,7 @@ for job in jobs:
     id = uuid.uuid4()
     job_title = job.find("div", {"class": "card-career__header"}).text.strip()
     job_link = job.find("a", {"class": "card-career__link"}).get("href")
-    company = "TBI Bank"
+    company = "TBIBank"
     country = "Romania"
     city = job.find("div", {"class": "card-career__countries"}).text.strip()
 
@@ -31,4 +31,6 @@ for job in jobs:
 
 print("Total jobs: " + str(len(finalJobs)))
 
-loadingData(finalJobs, "182b157-bb68-e3c5-5146-5f27dcd7a4c8", "TBI Bank")
+loadingData(finalJobs, "182b157-bb68-e3c5-5146-5f27dcd7a4c8", "TBIBank")
+
+
