@@ -73,7 +73,7 @@ class Scraper:
 
         return response
     
-    def getSoup(self, verify=True):
+    def getSoup(self, **kwargs):
         """
         Descarcă codul HTML de la URL și creează un obiect BeautifulSoup.
 
@@ -84,10 +84,7 @@ class Scraper:
         """
 
         try:
-            if verify:
-                document = self.session.get(self.url,headers=self.user_agent ,timeout=10, verify=True)
-            else:
-                document = self.session.get(self.url,headers=self.user_agent ,timeout=10, verify=False)
+            document = self.session.get(self.url,headers=self.user_agent , **kwargs)
             self._soup = BeautifulSoup(document.text, "html.parser")
         except Exception as e:
             print(e)  
