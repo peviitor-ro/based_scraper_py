@@ -36,6 +36,7 @@ class Scraper:
         self._url = url
         self.user_agent = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/61.0.3163.100 Safari/537.36'}
         self._soup = None  
+        self.status_code = None
         self.getSoup()  
 
     def getSession(self):
@@ -85,6 +86,7 @@ class Scraper:
 
         try:
             document = self.session.get(self.url,headers=self.user_agent , **kwargs)
+            self.status_code = document.status_code
             self._soup = BeautifulSoup(document.text, "html.parser")
         except Exception as e:
             print(e)  

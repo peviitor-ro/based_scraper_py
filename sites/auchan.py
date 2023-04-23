@@ -7,7 +7,7 @@ import json
 #Folosim ScraperSelenium pentru a putea naviga pe pagini
 url = "https://cariere.auchan.ro"
 scraper = Scraper(url)
-scraper.getSoup(verify=False, timeout=100)
+scraper.getSoup(verify=False, timeout=10)
 rules = Rules(scraper)
 
 doomBody = rules.getTag("body")
