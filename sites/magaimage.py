@@ -23,42 +23,37 @@ scraper.session.headers.update(headers)
 
 finalJobs = list()
 
-iteration = True
 while True:
-    try:
-        url = f"https://cariere.mega-image.ro/api/vacancy/?location[name]=&location[range]=10&location[latitude]=&location[longitude]=&options[sort_order]=desc&sort=date&sortDir=desc&pageNumber={pageNumber}"
-        scraper.url = url
+    url = f"https://cariere.mega-image.ro/api/vacancy/?location[name]=&location[range]=10&location[latitude]=&location[longitude]=&options[sort_order]=desc&sort=date&sortDir=desc&pageNumber={pageNumber}"
+    scraper.url = url
 
-        jobs = scraper.getJson().get("vacancies")
+    jobs = scraper.getJson().get("vacancies")
 
-        if len(jobs) == 0:
-            break
-
-        for job in jobs:
-            id = uuid.uuid4()
-            job_title = job.get("title")
-            job_link = "https://cariere.mega-image.ro/post-vacant/" + str(job.get("id")) + "/" + job.get("slug")
-            company = "MegaImage"
-            country = "Romania"
-            city = job.get("city")
-
-            print(job_link + " -> " + city)
-
-            finalJobs.append(
-                {
-                    "id": str(id),
-                    "job_title": job_title,
-                    "job_link": job_link,
-                    "company": company,
-                    "country": country,
-                    "city": city,
-                }
-            )
-        
-        pageNumber += 1
-    except Exception as e:
-        print(e)
+    if len(jobs) == 0:
         break
+
+    for job in jobs:
+        id = uuid.uuid4()
+        job_title = job.get("title")
+        job_link = "https://cariere.mega-image.ro/post-vacant/" + str(job.get("id")) + "/" + job.get("slug")
+        company = "MegaImage"
+        country = "Romania"
+        city = job.get("city")
+
+        print(job_title + " -> " + city)
+
+        finalJobs.append(
+            {
+                "id": str(id),
+                "job_title": job_title,
+                "job_link": job_link,
+                "company": company,
+                "country": country,
+                "city": city,
+            }
+        )
+    
+    pageNumber += 1
 
 print("Total jobs: " + str(len(finalJobs)))
 
