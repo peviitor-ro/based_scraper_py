@@ -10,6 +10,7 @@ on:
     branches: [ "main" ]
   schedule:
     - cron: '40 18 * * *'
+  workflow_dispatch:    
 
 permissions:
   contents: read
