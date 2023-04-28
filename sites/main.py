@@ -11,6 +11,8 @@ for site in os.listdir(path):
             errors = action.stderr.decode('utf-8')
             print("Error in " + site)
             print(errors)
+        else:
+            print("Success scraping " + site)
 
 
         
