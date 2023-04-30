@@ -1,26 +1,28 @@
 from scraper_peviitor import Scraper, Rules, loadingData
 import uuid
+import re 
 
 #url-ul paginii
-url = "https://careers.allianz.com/tile-search-results?q=&locationsearch=Romania&searchby=location&d=15&"
+url = "https://careers.allianz.com/search/?searchby=location&createNewAlert=false&q=&locationsearch=Romania&optionsFacetsDD_department=&optionsFacetsDD_shifttype=&optionsFacetsDD_customfield3=&optionsFacetsDD_customfield2=&optionsFacetsDD_facility=&optionsFacetsDD_customfield4=&inputSearchValue=Romania&quatFlag=false"
 #Numarul de rezultate de pe pagina
 numberOfResults = 0
 
 finaljobs = list()
 
 #Cream un nou scraper
-scraper = Scraper()
+scraper = Scraper(url)
 #Cream un nou obiect Rules
 rules = Rules(scraper)
 
-#Luam toate joburile
+pattern = re.compile(r'jobRecordsFound: parseInt\("(.*)"\)')
+#Luam numarul total de joburi
+totalJobs = re.search(pattern, scraper.soup.prettify()).group(1)
+#Cream o lista cu numerele de la 0 la numarul total de joburi
+queryStrings = [*range(0, int(totalJobs), 25)]
 
-#Definim o variabila de iteratie
-iteration = True
-
-while iteration:
+for number in queryStrings:
     #Setam url-ul paginii
-    scraper.url = url + f"startrow={numberOfResults}"
+    scraper.url = url + f"https://careers.allianz.com/tile-search-results?q=&locationsearch=Romania&searchby=location&d=15&startrow={number}"
     #Luam toate joburile
     elements = rules.getTags("li", {"class": "job-tile"})
     #Pentru fiecare job luam titlul, linkul, compania, tara si orasul
@@ -42,18 +44,7 @@ while iteration:
         }
         print(job_title + " -> " + city)
 
-        #Verificam daca jobul exista deja in lista
-        for j in finaljobs:
-            if j["job_title"] == job_title and j["job_link"] == job_link:
-                #Daca exista oprim iteratia
-                iteration = False
-                break
-        
-        #Daca nu exista il adaugam in lista
-        if iteration:
-            finaljobs.append(job)
-    #Incrementam numarul de rezultate
-    numberOfResults += 25
+        finaljobs.append(job)
 
 #Afisam numarul de total de joburi
 print("Total jobs: " + str(len(finaljobs)))
