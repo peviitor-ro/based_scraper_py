@@ -3,29 +3,27 @@ from scraper_peviitor import Scraper, Rules, loadingData
 import uuid
 import re
 import json
-import os 
-import subprocess
+from selenium import webdriver
+import platform
 
-import asyncio
 
-#Folosim ScraperSelenium pentru a putea naviga pe pagini
+# Folosim ScraperSelenium pentru a putea naviga pe pagini
 url = "https://cariere.auchan.ro"
 
-print(os.path.dirname(os.path.abspath(__file__)))
+if platform.system() == 'Darwin':
+    print("running on macOS")
+    driver = webdriver.Chrome()
+elif platform.system() == 'Linux':
+    print("running on linux")
+    options = webdriver.FirefoxOptions()
+    options.add_argument('--headless')
+    driver = webdriver.Firefox(options=options)
 
+driver.get(url)
 
-process = subprocess.run(["wget", url , "--no-check-certificate", "-O",f"{os.path.dirname(os.path.abspath(__file__))}/auchan.html"], capture_output=True)
+html = driver.page_source
 
-
-# loop = asyncio.get_event_loop()
-# loop.run_until_complete(getHtml())
-
-file = open(f"{os.path.dirname(os.path.abspath(__file__))}/auchan.html", "r")
-doomBody = file.read()
-
-print(doomBody)
-
-file.close()
+print(html)
 
 # print(process.stdout.decode('utf-8'))
 # scraper = Scraper()

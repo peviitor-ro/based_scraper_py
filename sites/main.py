@@ -14,6 +14,7 @@ for site in os.listdir(path):
             print(errors)
         else:
             print("Success scraping " + site)
+            print(action.stdout.decode('utf-8'))
     break
 
 
