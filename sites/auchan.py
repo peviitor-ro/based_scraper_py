@@ -27,6 +27,8 @@ doomBody = file.read()
 
 print(doomBody)
 
+file.close()
+
 # print(process.stdout.decode('utf-8'))
 # scraper = Scraper()
 # scraper.session.verify = False
