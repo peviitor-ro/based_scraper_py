@@ -13,14 +13,12 @@ url = "https://cariere.auchan.ro"
 
 print(os.path.dirname(os.path.abspath(__file__)))
 
-async def getHtml():
+
+process = subprocess.run(["wget", url , "--no-check-certificate", "-O",f"{os.path.dirname(os.path.abspath(__file__))}/auchan.html"], capture_output=True)
 
 
-    process = subprocess.run(["wget", url , "--no-check-certificate", "-O",f"{os.path.dirname(os.path.abspath(__file__))}/auchan.html"], capture_output=True)
-
-
-loop = asyncio.get_event_loop()
-loop.run_until_complete(getHtml())
+# loop = asyncio.get_event_loop()
+# loop.run_until_complete(getHtml())
 
 file = open(f"{os.path.dirname(os.path.abspath(__file__))}/auchan.html", "r")
 doomBody = file.read()
