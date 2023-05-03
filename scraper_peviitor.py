@@ -3,7 +3,6 @@ import requests
 from lxml import etree
 import json
 
-
 class Scraper:
     """
     O clasă utilizată pentru a realiza scraping web.
@@ -37,7 +36,9 @@ class Scraper:
         self.user_agent = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/61.0.3163.100 Safari/537.36'}
         self._soup = None  
         self.status_code = None
-        self.getSoup()  
+
+        if url is not None:
+            self.getSoup()  
 
     def getSession(self):
         """
