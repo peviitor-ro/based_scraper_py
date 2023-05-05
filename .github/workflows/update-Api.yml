@@ -25,4 +25,5 @@ jobs:
         python-version: "3.10"
     - name: Update API
       run: |
+        pip3 install requests
         python3 apiUpdateFiles.py
