@@ -1,8 +1,10 @@
 import os 
 import subprocess
+import requests
 
 exclude = ['__init__.py','main.py' , 'kaufland.py', "tesla.py"]
 path = os.path.dirname(os.path.abspath(__file__))
+resolveApi = "https://dev.laurentiumarian.ro/scraper/based_scraper_py/"
 
 for site in os.listdir(path):
     if site.endswith('.py') and site not in exclude:
@@ -10,7 +12,14 @@ for site in os.listdir(path):
         if action.returncode != 0:
             errors = action.stderr.decode('utf-8')
             print("Error in " + site)
-            print(errors)
+            print("Sending trigger to API")
+            r = requests.post(resolveApi, data = {"file": site})
+            response = r.json()
+            if response.get("succes"):
+                print("Success Scraping by API to " + site)
+            else:
+                print("Both failed")
+                print("Error: " + response.get("error"))
         else:
             print("Success scraping " + site)
 
