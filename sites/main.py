@@ -12,13 +12,13 @@ for site in os.listdir(path):
         if action.returncode != 0:
             errors = action.stderr.decode('utf-8')
             print("Error in " + site)
-            print("Sending trigger to API")
+            print("Sending trigger to API ...")
             r = requests.post(resolveApi, data = {"file": site})
             response = r.json()
             if response.get("succes"):
-                print("Success Scraping by API to " + site)
+                print("Success Scraping " + site + " after trigger")
             else:
-                print("Both failed")
+                print("Both scraping and trigger failed")
                 print("Error: " + response.get("error"))
         else:
             print("Success scraping " + site)
