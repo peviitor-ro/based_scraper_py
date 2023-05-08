@@ -28,7 +28,7 @@ while foundedJobs:
         id = str(uuid.uuid4())
         job_title = job.find_all("td")[1].text.strip()
         job_link = job.find("a").get("href")
-        company = "Electronic Arts"
+        company = "ElectronicArts"
         country = "Romania"
         city = "Romania"
 
