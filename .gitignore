@@ -134,3 +134,4 @@ dmypy.json
 *.csv
 /driver
 wget-log
+exclude/
