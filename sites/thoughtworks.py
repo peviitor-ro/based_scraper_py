@@ -18,7 +18,7 @@ for job in jobs:
         id = uuid.uuid4()
         job_title = job.get("name")
         job_link = "https://www.thoughtworks.com/careers/jobs/" + str(job.get("sourceSystemId"))
-        city = job.get("city")
+        city = job.get("location")
 
         print(job_title + " -> " + city)
 
