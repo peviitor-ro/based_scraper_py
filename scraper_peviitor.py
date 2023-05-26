@@ -218,6 +218,5 @@ def loadingData(data : dict, apikey : str, company : str):
     if len(data) > 0:
         r = requests.post(update, headers={"apikey": apikey, "Content-Type": updateContentType}, data = json.dumps(data))
         print("Updating data for company " + company + "...")
-    print("=========================================")
 
     
