@@ -19,7 +19,9 @@ for site in os.listdir(path):
                 print("Success Scraping " + site + " after trigger")
             else:
                 print("Both scraping and trigger failed")
-                print("Error: " + response.get("error"))
+                print("Error:")
+                for error in response.get("error"):
+                    print(error)
         else:
             print("Success scraping " + site)
 

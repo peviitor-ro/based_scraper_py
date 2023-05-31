@@ -9,4 +9,4 @@ response = r.json()
 if response.get("succes"):
     print(response.get("succes"))
 else:
-    print("Error: " + response.get("error"))
+    print(response.get("error"))
