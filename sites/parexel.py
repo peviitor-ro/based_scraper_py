@@ -19,7 +19,12 @@ for job in jobs:
     id = uuid.uuid4()
     job_title = job.find("h2").text
     job_link = "https://jobs.parexel.com" + job.find("a").get("href")
-    city = job.find("span", {"class": "job-location"}).text.split(",")[0].strip()
+    city = ""
+
+    if job.find("span", {"class": "job-city"}) is not None:
+        city = job.find("span", {"class": "job-city"}).text.strip()
+    else:
+        city = job.find("span", {"class": "job-location"}).text.split(",")[0].strip()
 
     print(job_title + " -> " + city)
 
