@@ -50,4 +50,4 @@ for num in iteration:
 print("Total jobs: " + str(len(finaljobs)))
 
 #se incarca datele in baza de date
-loadingData(finaljobs, "182b157-bb68-e3c5-5146-5f27dcd7a4c8", "Zentiva")
+loadingData(finaljobs, "Zentiva")

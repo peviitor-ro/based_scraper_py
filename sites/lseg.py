@@ -45,7 +45,7 @@ for num in iteration:
 
 print("Total jobs: " + str(len(finalJobs)))
 
-loadingData(finalJobs, "182b157-bb68-e3c5-5146-5f27dcd7a4c8", company.get("company"))
+loadingData(finalJobs, company.get("company"))
 
 logoUrl = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT-Tp_lBl4hy9WFitdNzAtRw2tgxLYnxf1lyNrnXx8h&s"
 

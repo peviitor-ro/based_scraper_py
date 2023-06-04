@@ -39,7 +39,7 @@ for page in range(len(paginations)):
 
 print("Total jobs: " + str(len(finalJobs)))
 
-loadingData(finalJobs, "182b157-bb68-e3c5-5146-5f27dcd7a4c8", company.get("company"))
+loadingData(finalJobs, company.get("company"))
 
 logoUrl = "https://vtlogo.com/wp-content/uploads/2021/05/inetum-vector-logo-small.png"
 

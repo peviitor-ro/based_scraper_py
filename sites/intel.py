@@ -38,7 +38,7 @@ for job in jobs:
 
 print("Total jobs: " + str(len(finalJobs)))
 
-loadingData(finalJobs, "182b157-bb68-e3c5-5146-5f27dcd7a4c8", company.get("company"))
+loadingData(finalJobs, company.get("company"))
 
 logoUrl = "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7d/Intel_logo_%282006-2020%29.svg/800px-Intel_logo_%282006-2020%29.svg.png"
 

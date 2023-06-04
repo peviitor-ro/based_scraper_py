@@ -44,4 +44,4 @@ for page in range(1, numberPages + 1):
 print("Total jobs: " + str(len(finaljobs)))
 
 #Incarcam datele in baza de date
-loadingData(finaljobs, "182b157-bb68-e3c5-5146-5f27dcd7a4c8", "Selgros")
+loadingData(finaljobs, "Selgros")

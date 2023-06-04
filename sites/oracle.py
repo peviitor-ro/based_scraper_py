@@ -36,7 +36,7 @@ for job in jobs:
 
 print("Total jobs: " + str(len(finaljobs)))
 
-loadingData(finaljobs, "182b157-bb68-e3c5-5146-5f27dcd7a4c8", "Oracle")
+loadingData(finaljobs, "Oracle")
 
 logoUrl = "https://www.oracle.com/a/ocom/img/oracle-rgb-c74634.png"
 

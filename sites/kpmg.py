@@ -50,4 +50,4 @@ while jobs:
 print("Total jobs: " + str(len(finalJobs)))
 
 #se incarca datele in baza de date
-loadingData(finalJobs, "182b157-bb68-e3c5-5146-5f27dcd7a4c8", "KPMG")
+loadingData(finalJobs, "KPMG")

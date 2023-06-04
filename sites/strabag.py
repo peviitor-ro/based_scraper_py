@@ -46,7 +46,7 @@ for job in jobs:
 
 print("Total jobs: " + str(len(finaljobs)))
 
-loadingData(finaljobs, "182b157-bb68-e3c5-5146-5f27dcd7a4c8", "Strabag")
+loadingData(finaljobs, "Strabag")
 
 logoUrl = "https://jobboerse.strabag.at/img/strabag-logo-300px.png"
 

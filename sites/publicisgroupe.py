@@ -31,7 +31,7 @@ for job in jobs:
 
 print("Total jobs: " + str(len(finalJobs)))
 
-loadingData(finalJobs, "182b157-bb68-e3c5-5146-5f27dcd7a4c8", company.get("company"))
+loadingData(finalJobs, company.get("company"))
 
 logoUrl = "https://c.smartrecruiters.com/sr-company-logo-prod-aws-dc1/58822766e4b0680b1154ae69/huge?r=s3&_1533642429153"
 

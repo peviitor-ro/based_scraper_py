@@ -2,6 +2,7 @@ from bs4 import BeautifulSoup
 import requests
 from lxml import etree
 import json
+import os
 
 class Scraper:
     """
@@ -201,13 +202,15 @@ class Rules:
         return BeautifulSoup(etree.tostring(self.xpath[0]), "html.parser")
     
 
-def loadingData(data : dict, apikey : str, company : str):
+def loadingData(data : dict, company : str):
     """
     Încarcă datele din fișierul de intrare.
     :return: un dicționar cu datele din fișierul de intrare
     """
     clean = "https://API.peviitor.ro/v4/clean/"
     cleanContentType = "application/x-www-form-urlencoded"
+
+    apikey = os.environ.get("APIKEY")
 
     update = "https://api.peviitor.ro/v4/update/"
     updateContentType = "application/json"

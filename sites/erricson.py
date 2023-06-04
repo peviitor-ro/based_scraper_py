@@ -39,7 +39,7 @@ for number in querystings:
 
 print("Total jobs: " + str(len(finaljobs)))
 
-loadingData(finaljobs, "182b157-bb68-e3c5-5146-5f27dcd7a4c8", "Ericsson")
+loadingData(finaljobs, "Ericsson")
 
 logoUrl = "https://1000logos.net/wp-content/uploads/2021/05/Ericsson-logo-500x281.png"
 

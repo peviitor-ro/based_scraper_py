@@ -39,7 +39,7 @@ for row in paginate:
 
 print("Total jobs: " + str(len(finalJobs)))
 
-loadingData(finalJobs, "182b157-bb68-e3c5-5146-5f27dcd7a4c8", company.get("company"))
+loadingData(finalJobs, company.get("company"))
 
 logoUrl = "https://rmkcdn.successfactors.com/e1d74a18/3cf7a194-92ba-497b-8c9b-a.jpg"
 
