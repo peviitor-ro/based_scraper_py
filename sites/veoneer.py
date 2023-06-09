@@ -2,7 +2,7 @@ from scraper_peviitor import Scraper, loadingData, Rules
 import uuid
 import json
 
-url = "https://veoneerromania.teamtailor.com/jobs"
+url = "https://veoneerro.teamtailor.com/jobs"
 
 company = {"company": "Veoneer"}
 finalJobs = list()
@@ -10,13 +10,17 @@ finalJobs = list()
 scraper = Scraper(url)
 rules = Rules(scraper)
 
-jobs = rules.getTags("li", {"class": "transition-opacity duration-150 border rounded block-grid-item border-block-base-text border-opacity-15"})
+jobs = rules.getTag("div", {"class":"mx-auto text-lg block-max-w--lg"}).find_all("li", {"class": "w-full"})
 
 for job in jobs:
     id = uuid.uuid4()
     job_title = job.find("span", {"class": "company-link-style"}).text.strip()
     job_link = job.find("a").get("href")
-    city = "Romania"
+    city = ""
+    try:
+        city = job.find("div", {"class": "mt-1 text-md"}).find_all("span")[2].split(",")[0].strip()
+    except:
+        city = job.find("div", {"class": "mt-1 text-md"}).find_all("span")[2].text.strip()
 
     print(job_title + " -> " + city)
 
