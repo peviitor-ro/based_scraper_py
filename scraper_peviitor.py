@@ -72,7 +72,7 @@ class Scraper:
             Sesiunea HTTP.
         """
 
-        response = self.session.post(*args ,**kwargs)
+        response = self.session.post(*args ,**kwargs, timeout=10)
 
         return response
     
