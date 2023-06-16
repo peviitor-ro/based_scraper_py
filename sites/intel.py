@@ -40,7 +40,7 @@ print("Total jobs: " + str(len(finalJobs)))
 
 loadingData(finalJobs, company.get("company"))
 
-logoUrl = "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7d/Intel_logo_%282006-2020%29.svg/800px-Intel_logo_%282006-2020%29.svg.png"
+logoUrl = "https://tbcdn.talentbrew.com/company/599/gst-v1_0/img/logo/logo-intel-blue.svg"
 
 scraper.session.headers.update({
     "Content-Type": "application/json",
