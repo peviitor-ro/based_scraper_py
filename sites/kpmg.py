@@ -23,7 +23,7 @@ jobs = []
 try:
     jobs = scraper.post(apiUrl, json=data).json().get("Results")
 except:
-    pass
+    print({"succes":"no jobs found"})
 
 
 finalJobs = list()

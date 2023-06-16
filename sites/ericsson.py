@@ -41,7 +41,7 @@ print("Total jobs: " + str(len(finaljobs)))
 
 loadingData(finaljobs, "Ericsson")
 
-logoUrl = "https://1000logos.net/wp-content/uploads/2021/05/Ericsson-logo-500x281.png"
+logoUrl = "https://logos-world.net/wp-content/uploads/2020/12/Ericsson-Logo-700x394.png"
 
 scraper.session.headers.update({
     "Content-Type": "application/json",
