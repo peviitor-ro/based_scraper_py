@@ -18,7 +18,6 @@ d = [
 scraper = Scraper()
 
 for data in d:
-
     response = scraper.post(url, json.dumps(data))
     html = response.json().get("html")
     scraper.soup = html
@@ -34,8 +33,6 @@ for data in d:
             job_link = job.get("href")
             city = location
 
-            print(job_title + " -> " + city)
-
             finalJobs.append({
                 "id": str(id),
                 "job_title": job_title,
@@ -45,7 +42,7 @@ for data in d:
                 "city": city
             })
 
-print("Total jobs: " + str(len(finalJobs)))
+print(finalJobs)
 
 loadingData(finalJobs, company.get("company"))
 

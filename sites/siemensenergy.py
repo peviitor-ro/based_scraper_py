@@ -24,9 +24,6 @@ for page in pages:
         id = uuid.uuid4()
         job_title = job.find("a").text.strip()
         job_link = job.find("a").get("href")
-        city = "Romania"
-
-        print(job_title + " -> " + city)
         
         finalJobs.append({
             "id": str(id),
@@ -34,10 +31,10 @@ for page in pages:
             "job_link": job_link,
             "company": company.get("company"),
             "country": "Romania",
-            "city": city
+            "city": "Romania"
         })
 
-print("Total jobs: " + str(len(finalJobs)))
+print(finalJobs)
 
 loadingData(finalJobs, company.get("company"))
 

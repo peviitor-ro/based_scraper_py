@@ -24,8 +24,6 @@ for job in jobs:
         job_link = "https://jobs.jobvite.com" + job.find("a").get("href")
         city = job.find("td", {"class": "jv-job-list-location"}).text.split(",")[0].strip()
 
-        print(job_title + " -> " + city)
-
         finalJobs.append({
             "id": str(id),
             "job_title": job_title,
@@ -35,7 +33,7 @@ for job in jobs:
             "city": city
         })
 
-print("Total jobs: " + str(len(finalJobs)))
+print(finalJobs)
 
 loadingData(finalJobs, company.get("company"))
 

@@ -16,9 +16,7 @@ data = {
 scraper = Scraper()
 rules = Rules(scraper)
 
-
 while True:
-
     html = scraper.session.post(url, data=data)
     scraper.soup = html.text
 
@@ -49,7 +47,6 @@ for job in finalJobs:
     job_link = job[1]
     city = job[4]
 
-    print(job_title + " -> " + city)
     jobs.append({
         "id": str(id),
         "job_title": job_title,
@@ -59,7 +56,7 @@ for job in finalJobs:
         "city": city
     })
 
-print("Total jobs: " + str(len(jobs)))
+print(jobs)
 
 loadingData(jobs, company.get("company"))
 

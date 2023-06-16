@@ -9,6 +9,7 @@ rules = Rules(scraper)
 #Obtinem toate joburile
 jobs = rules.getTags('a', {'class': 'box-listing-job'})
 
+company = {"company": "Autonom"}
 finalJobs = list()
 
 #Pentru fiecare job, extragem datele si le adaugam in lista finalJobs
@@ -16,25 +17,22 @@ for job in jobs:
     id = uuid.uuid4()
     job_title = job.find('p', {"class":"nume-listing-job"}).text
     job_link = job['href']
-    company = "Autonom"
-    country = "Romania"
     citys = job.find_all('span', {"class":"locatie-job"})
 
     for city in citys:
         city = city.text
 
-        print(job_title + " -> " + city)
         finalJobs.append({
             "id": str(id),
             "job_title": job_title,
             "job_link": job_link,
-            "company": company,
-            "country": country,
+            "company": company.get("company"),
+            "country": "Romania",
             "city": city
         })
 
 #Afisam numarul de joburi
-print("Total jobs: " + str(len(finalJobs)))
+print(finalJobs)
 
 #Incarcam datele in baza de date
-loadingData(finalJobs, "Autonom")
+loadingData(finalJobs, company.get("company"))

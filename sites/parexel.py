@@ -26,8 +26,6 @@ for job in jobs:
     else:
         city = job.find("span", {"class": "job-location"}).text.split(",")[0].strip()
 
-    print(job_title + " -> " + city)
-
     finalJobs.append({
         "id": str(id),
         "job_title": job_title,
@@ -37,7 +35,7 @@ for job in jobs:
         "company": company.get("company")
     })
 
-print("Total jobs: " + str(len(finalJobs)))
+print(finalJobs)
 
 loadingData(finalJobs, company.get("company"))
 

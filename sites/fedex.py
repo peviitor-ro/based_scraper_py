@@ -1,5 +1,4 @@
 from scraper_peviitor import Scraper, loadingData
-
 import uuid
 
 #Folosim ScraperSelenium deoaarece joburile sunt incarcate prin AJAX
@@ -8,6 +7,7 @@ scraper = Scraper(url)
 
 jobs = scraper.getJson().get('jobs')
 
+company = {"company": "FedEx"}
 finaljobs = list()
 
 #Iteram prin joburi si le adaugam in lista finaljobs
@@ -16,24 +16,19 @@ for job in jobs:
     id = uuid.uuid4()
     job_title = obj.get('title')
     job_link = obj.get('meta_data').get('canonical_url')
-    company = "FedEx"
-    country = "Romania"
     city = obj.get("city")
-
-    print(job_title + " -> " + city)
 
     finaljobs.append({
         "id": str(id),
         "job_title": job_title,
         "job_link": job_link,
-        "company": company,
-        "country": country,
+        "company": company.get("company"),
+        "country": "Romania",
         "city": city,
     })
 
 #Afisam numarul de joburi
-print("Total jobs: " + str(len(finaljobs)))
+print(finaljobs)
 
 #Incarcam joburile in baza de date
-loadingData(finaljobs, "FedEx")
-
+loadingData(finaljobs, company.get("company"))

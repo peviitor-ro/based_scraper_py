@@ -1,4 +1,4 @@
-from scraper_peviitor import Scraper, Rules, loadingData
+from scraper_peviitor import Scraper, loadingData
 import uuid
 import json
 import re
@@ -20,8 +20,6 @@ for job in jobs:
     job_title = job.get("job_title")
     job_link = "https://www.randstad.ro" + job.get("url")
     city = job.get("city")
-
-    print(job_title + " -> " + city)
     
     finalJobs.append({
         "id": str(id),
@@ -32,7 +30,7 @@ for job in jobs:
         "city": city
     })
 
-print("Total jobs: " + str(len(finalJobs)))
+print(finalJobs)
 
 loadingData(finalJobs, company.get("company"))
 

@@ -7,30 +7,28 @@ scraper = Scraper(apiUrl)
 
 jobs = scraper.getJson().get("jobs")
 
+company = {"company": "UiPath"}
 finalJobs = list()
 
 for job in jobs:
     job = job.get("data")
     country_code = job.get("country_code")
+    
     if country_code == "RO":
         id = uuid.uuid4()
         job_title = job.get("title")
         job_link = job.get("meta_data").get("canonical_url")
-        company = "UiPath"
-        country = "Romania"
         city = job.get("city")
-
-        print(job_title + " -> " + city)
 
         finalJobs.append({
             "id": str(id),
             "job_title": job_title,
             "job_link": job_link,
-            "company": company,
-            "country": country,
+            "company": company.get("company"),
+            "country": "Romania",
             "city": city
         })
 
-print("Total jobs: " + str(len(finalJobs)))
+print(finalJobs)
 
-loadingData(finalJobs, "UiPath")
+loadingData(finalJobs, company.get("company"))

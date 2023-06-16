@@ -15,21 +15,18 @@ for job in jobs:
     id = uuid.uuid4()
     job_title = job.get("title")
     job_link = "https://www.amazon.jobs" + job.get("job_path")
-    country = "Romania"
     city = job.get("normalized_location").split(",")[0]
-
-    print(job_title + " -> " + city)
     
     finalJobs.append({
         "id": str(id),
         "job_title": job_title,
         "job_link": job_link,
-        "country": country,
+        "country": "Romania",
         "city": city,
         "company": company.get("company")
     })
 
-print("Total jobs: " + str(len(finalJobs)))
+print(finalJobs)
 
 loadingData(finalJobs, company.get("company"))
 
@@ -44,4 +41,3 @@ scraper.post( "https://api.peviitor.ro/v1/logo/add/" ,json.dumps([
         "logo":logoUrl
     }
 ]))
-

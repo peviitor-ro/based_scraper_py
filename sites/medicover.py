@@ -1,5 +1,4 @@
 from scraper_peviitor import Scraper, loadingData
-
 import uuid
 
 url = "https://mingle.ro/api/session?company=medicover"
@@ -17,15 +16,14 @@ scraper.url = apiUrl
 #Luam json-ul
 jobs = scraper.getJson().get("data").get("results")
 
+company = {"company": "Medicover"}
 finalJobs = list()
 
 #Pentru fiecare job
 for job in jobs:
     id = uuid.uuid4()
     job_title = job.get("jobTitle")
-    job_link = "https://medicover.mingle.ro/en/apply/" + job.get("publicUid") 
-    company = "Medicover"
-    country = "Romania"
+    job_link = "https://medicover.mingle.ro/en/apply/" + job.get("publicUid")
     city = job.get("locations")
 
     if city is None:
@@ -37,17 +35,13 @@ for job in jobs:
         "id": str(id),
         "job_title": job_title,
         "job_link": job_link,
-        "company": company,
-        "country": country,
+        "company": company.get("company"),
+        "country": "Romania",
         "city": city
     })
 
-    print(job_title + " -> " + city)
-
 #Numarul de joburi gasite
-print("Total jobs: " + str(len(finalJobs)))
+print(finalJobs)
 
 #Incarc joburile in baza de date
-loadingData(finalJobs, "Medicover")
-
-
+loadingData(finalJobs, company.get("company"))

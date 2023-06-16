@@ -21,8 +21,6 @@ for job in jobs:
     job_title = job.get("title")
     job_link = job.get("applyUrl")
     city = job.get("city")
-
-    print(job_title + " -> " + city)
     
     finalJobs.append({
         "id": str(id),
@@ -33,7 +31,7 @@ for job in jobs:
         "city": city
     })
 
-print("Total jobs: " + str(len(finalJobs))) 
+print(finalJobs) 
 
 loadingData(finalJobs, company.get("company"))
 

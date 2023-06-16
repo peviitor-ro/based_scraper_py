@@ -17,8 +17,6 @@ for job in jobs:
     job_title = job.find("h2").text.strip()
     job_link = "https://www.intesasanpaolobank.ro" + job.find("a").get("href")
     city = job.find("p").text.strip()
-
-    print(job_title + " -> " + city)
     
     finalJobs.append({
         "id": str(id),
@@ -29,7 +27,7 @@ for job in jobs:
         "city": city
     })
 
-print("Total jobs: " + str(len(finalJobs)))
+print(finalJobs)
 
 loadingData(finalJobs, company.get("company"))
 

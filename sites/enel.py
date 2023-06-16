@@ -6,8 +6,8 @@ scraper = Scraper("https://jobs.enel.com/en_US/careers/JobOpeningsRomania")
 
 rules = Rules(scraper)
 
+company = {"company": "Enel"}
 finaljobs = list()
-
 
 while True:
     #Cautam joburile care au clasa article--result
@@ -21,19 +21,14 @@ while True:
         id = uuid.uuid4()
         job_title = element.find("h3").text.strip()
         job_link = element.find("a")["href"]
-        company = "Enel"
-        country = "Romania"
-        city = "Romania"
-
-        print(job_title + " -> " + city)
 
         finaljobs.append({
             "id": str(id),
             "job_title": job_title,
             "job_link": job_link,
-            "company": company,
-            "country": country,
-            "city": city
+            "company": company.get("company"),
+            "country": "Romania",
+            "city": "Romania"
         })
 
     try:
@@ -44,10 +39,10 @@ while True:
    
     scraper.url = nextPageLink
 #Afisam numarul total de joburi
-print("Total jobs: " + str(len(finaljobs)))
+print(finaljobs)
 
 #Incarcam datele in baza de date
-loadingData(finaljobs, "Enel")
+loadingData(finaljobs, company.get("company"))
 
 
 

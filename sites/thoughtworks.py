@@ -20,8 +20,6 @@ for job in jobs:
         job_link = "https://www.thoughtworks.com/careers/jobs/" + str(job.get("sourceSystemId"))
         city = job.get("location")
 
-        print(job_title + " -> " + city)
-
         finalJobs.append({
             "id": str(id),
             "job_title": job_title,
@@ -31,7 +29,7 @@ for job in jobs:
             "company": company.get("company")
         })
 
-print("Total jobs: " + str(len(finalJobs)))
+print(finalJobs)
 
 loadingData(finalJobs, company.get("company"))
 

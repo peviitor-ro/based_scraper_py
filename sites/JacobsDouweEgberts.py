@@ -12,27 +12,22 @@ rules = Rules(scraper)
 
 jobs = rules.getTags("li", {"class": "app-smartRecruiterSearchResult-list__item"})
 
-print("Total jobs: " + str(len(jobs)))
-
 for job in jobs:
     id = uuid.uuid4()
     job_title = job.find("span", { "class":"job-name"}).text.strip()
     job_link = "https://careers-ro.jacobsdouweegberts.com" + job.find("a").get("href")
-    country = "Romania"
     city = job.find("span", { "class":"job-city"}).text.strip()
-
-    print(job_title + " -> " + city)
 
     finaljobs.append({
         "id": str(id),
         "job_title": job_title,
         "job_link": job_link,
-        "country": country,
+        "country": "Romania",
         "city": city,
         "company": company.get("company")
     })
 
-print("Total jobs: " + str(len(finaljobs)))
+print(finaljobs)
 
 loadingData(finaljobs, company.get("company"))
 

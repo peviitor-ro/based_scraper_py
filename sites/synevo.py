@@ -8,6 +8,7 @@ rules = Rules(scraper)
 #Luam toate categoriile de joburi
 jobsCategory = rules.getTags("div", {"class": "job-cat-post"})
 
+company = {"company": "Synevo"}
 finaljobs = list()
 
 #Pentru fiecare categorie de joburi luam linkul si mergem pe pagina
@@ -30,23 +31,20 @@ for jobCategory in jobsCategory:
             citys = rules.getTag("div", {"class": "jobs-info-city"}).find("b").text.split(",")
         except:
             citys = [rules.getTag("div", {"class": "jobs-info-city"}).find("b").text]
-        print(job_title + " -> " + citys[0])
 
         #Cream un dictionar cu jobul si il adaugam in lista finala
         for city in citys:
-            job = {
+            finaljobs.append({
                 "id": str(uuid.uuid4()),
                 "job_title": job_title,
                 "job_link": scraper.url,
-                "company": "Synevo",
+                "company": company.get("company"),
                 "country": "Romania",
                 "city": city.strip(),
-            }
-            finaljobs.append(job)
+            })
 
 #Afisam numarul total de joburi
-print("Total jobs: " + str(len(finaljobs)))
+print(finaljobs)
 
 #Incarcam datele in baza de date
-loadingData(finaljobs, "Synevo")
-
+loadingData(finaljobs, company.get("company"))

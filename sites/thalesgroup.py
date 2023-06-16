@@ -29,21 +29,18 @@ for num in iteration:
         id = uuid.uuid4()
         job_title = job.get("title")
         job_link = "https://thales.wd3.myworkdayjobs.com/en-US/Careers" + job.get("externalPath")
-        country = "Romania"
         city = job.get("locationsText").split(",")[0]
-
-        print(job_title + " -> " + city)
 
         finalJobs.append({
             "id": str(id),
             "job_title": job_title,
             "job_link": job_link,
             "company": company.get("company"),
-            "country": country,
+            "country": "Romania",
             "city": city
         })
 
-print("Total jobs: " + str(len(finalJobs)))
+print(finalJobs)
 
 loadingData(finalJobs, company.get("company"))
 

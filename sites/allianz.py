@@ -7,6 +7,7 @@ url = "https://careers.allianz.com/search/?searchby=location&createNewAlert=fals
 #Numarul de rezultate de pe pagina
 numberOfResults = 0
 
+company = {"company": "Allianz"}
 finaljobs = list()
 
 #Cream un nou scraper
@@ -30,24 +31,18 @@ for number in queryStrings:
         id = uuid.uuid4()
         job_title = element.find("a").text.strip()
         job_link = "https://careers.allianz.com" + element.find("a").get("href")
-        company = "Allianz"
-        country = "Romania"
-        city = "Romania"
 
-        job = {
+        finaljobs.append({
             "id": str(id),
             "job_title": job_title,
             "job_link": job_link,
-            "company": company,
-            "country": country,
-            "city": city,
-        }
-        print(job_title + " -> " + city)
-
-        finaljobs.append(job)
+            "company": company.get("company"),
+            "country": "Romania",
+            "city": "Romania",
+        })
 
 #Afisam numarul de total de joburi
-print("Total jobs: " + str(len(finaljobs)))
+print(finaljobs)
 
 #Incarcam datele in baza de date
-loadingData(finaljobs, "Allianz")
+loadingData(finaljobs, company.get("company"))

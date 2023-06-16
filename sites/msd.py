@@ -29,8 +29,6 @@ for query in querys:
         job_title = job.get("title")
         job_link = "https://jobs.msd.com/gb/en/job/" + job.get("jobId")
         city = job.get("city")
-
-        print(job_title + " -> " + city)
         
         finalJobs.append({
             "id": str(id),
@@ -41,7 +39,7 @@ for query in querys:
             "city": city
         })
 
-print("Total jobs: " + str(len(finalJobs))) 
+print(finalJobs) 
 
 loadingData(finalJobs, company.get("company"))
 

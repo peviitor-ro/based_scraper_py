@@ -1,6 +1,5 @@
 from scraper_peviitor import Scraper, Rules, loadingData
 import uuid
-
 import re
 
 scraper = Scraper()
@@ -10,6 +9,7 @@ regex  = re.compile(r"search-results-(.*?)-bodyEl")
 pageNumber = 1
 foundedJobs = True
 
+company = {"company": "ElectronicArts"}
 finalJobs = list()
 
 while foundedJobs:
@@ -28,24 +28,19 @@ while foundedJobs:
         id = str(uuid.uuid4())
         job_title = job.find_all("td")[1].text.strip()
         job_link = job.find("a").get("href")
-        company = "ElectronicArts"
-        country = "Romania"
-        city = "Romania"
-
-        print(job_title + " -> " + city)
 
         finalJobs.append(
             {
                 "id": id,
                 "job_title": job_title,
                 "job_link": job_link,
-                "company": company,
-                "country": country,
-                "city": city,
+                "company": company.get("company"),
+                "country": "Romania",
+                "city": "Romania",
             })
 
     pageNumber += 1
 
-print("Total jobs: " + str(len(finalJobs)))
+print(finalJobs)
 
-loadingData(finalJobs, "ElectronicArts")
+loadingData(finalJobs, company.get("company"))

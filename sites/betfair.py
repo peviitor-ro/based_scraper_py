@@ -1,5 +1,4 @@
 from scraper_peviitor import Scraper, Rules, loadingData
-
 import uuid
 
 url = "https://www.betfairromania.ro/find-a-job/?search=&country=Romania&pagesize=1000#results"
@@ -9,27 +8,24 @@ rules = Rules(scraper)
 
 jobs = rules.getTags("div", {"class": "card-job"})
 
+company = {"company": "Betfair"}
 finalJobs = list()
 
 for job in jobs:
     id = uuid.uuid4()
     job_title = job.find("h2", {"class":"card-title"}).text.strip()
     job_link = "https://www.betfairromania.ro" + job.find("a").get("href")
-    company = "Betfair"
-    country = "Romania"
     city = job.find("li").text.split("-")[-1].strip()
-
-    print(job_title + " -> " + city)
 
     finalJobs.append({
         "id": str(id),
         "job_title": job_title,
         "job_link": job_link,
-        "company": company,
-        "country": country,
+        "company": company.get("company"),
+        "country": "Romania",
         "city": city
     })
 
-print("Total jobs: " + str(len(finalJobs)))
+print(finalJobs)
 
-loadingData(finalJobs, "Betfair")
+loadingData(finalJobs, company.get("company"))

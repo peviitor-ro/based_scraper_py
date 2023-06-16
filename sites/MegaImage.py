@@ -1,5 +1,4 @@
 from scraper_peviitor import Scraper, loadingData
-
 import uuid
 
 url = "https://cariere.mega-image.ro/joburi"
@@ -21,6 +20,7 @@ pageNumber = 1
 
 scraper.session.headers.update(headers)
 
+company = {"company": "MegaImage"}
 finalJobs = list()
 
 while True:
@@ -36,25 +36,19 @@ while True:
         id = uuid.uuid4()
         job_title = job.get("title")
         job_link = "https://cariere.mega-image.ro/post-vacant/" + str(job.get("id")) + "/" + job.get("slug")
-        company = "MegaImage"
-        country = "Romania"
         city = job.get("city")
 
-        print(job_title + " -> " + city)
-
-        finalJobs.append(
-            {
+        finalJobs.append({
                 "id": str(id),
                 "job_title": job_title,
                 "job_link": job_link,
-                "company": company,
-                "country": country,
+                "company": company.get("company"),
+                "country": "Romania",
                 "city": city,
-            }
-        )
+            })
     
     pageNumber += 1
 
-print("Total jobs: " + str(len(finalJobs)))
+print(finalJobs)
 
-loadingData(finalJobs, "MegaImage")
+loadingData(finalJobs, company.get("company"))

@@ -1,5 +1,4 @@
 from scraper_peviitor import Scraper, loadingData, Rules
-
 import uuid
 import re
 
@@ -16,7 +15,6 @@ body = rules.getTag("body")
 
 #Se extrage tokenul din pagina
 token = regex.search(str(body)).group(1)
-
 autorization = f"Bearer {token}"
 
 #Se updateaza header-ul cu tokenul
@@ -27,7 +25,7 @@ data = {"careerSiteId":20,"careerSitePageId":20,"pageNumber":1,"pageSize":100,"c
 #Se face request-ul catre API
 jobs = scraper.post(apiUrl, json=data).json().get("data").get("requisitions")
 
-
+company = {"company": "Linde"}
 finalJobs = list()
 
 #Se extrag joburile din raspunsul API-ului
@@ -35,28 +33,23 @@ for job in jobs:
     id = str(uuid.uuid4())
     job_title = job.get("displayJobTitle")
     job_link = "https://linde.csod.com/ux/ats/careersite/20/home/requisition/" + str(job.get("requisitionId")) + "?c=linde"
-    company = "Linde"
-    country = "Romania"
+
     if job.get("locations")[-1].get("city"):
         city = job.get("locations")[-1].get("city")
     else:
         city = "Romania"
 
-    finalJobs.append(
-        {
+    finalJobs.append({
             "id": id,
             "job_title": job_title,
             "job_link": job_link,
-            "company": company,
-            "country": country,
+            "company": company.get("company"),
+            "country": "Romania",
             "city": city,
-        }
-    )
-
-    print(job_title + " -> " + city)
+        })
 
 #Se afiseaza numarul de joburi extrase
-print("Total jobs: " + str(len(finalJobs)))
+print(finalJobs)
 
 #Incarcam joburile in baza de date
-loadingData(finalJobs, "Linde")
+loadingData(finalJobs, company.get("company"))

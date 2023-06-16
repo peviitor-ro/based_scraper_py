@@ -17,15 +17,11 @@ rules = Rules(scraper)
 
 jobs = rules.getTag("div", {"id": "search-results-list"}).findAll("li")
 
-print(len(jobs))
-
 for job in jobs:
     id = uuid.uuid4()
     job_title = job.find("h2").text.strip()
     job_link = "https://ro.cariera.primark.com" + job.find("a").get("href")
     city = job.find("span", {"class": "job-location"}).text.split(",")[0].strip()
-
-    print(job_title + " -> " + city)
 
     finalJobs.append({
         "id": str(id),
@@ -36,7 +32,7 @@ for job in jobs:
         "city": city
     })
 
-print("Total jobs: " + str(len(finalJobs)))
+print(finalJobs)
 
 loadingData(finalJobs, company.get("company"))
 

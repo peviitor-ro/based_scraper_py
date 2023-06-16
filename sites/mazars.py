@@ -21,21 +21,18 @@ for job in jobs:
     id = uuid.uuid4()
     job_title = job.find("p", {"class":"job-title"}).text.strip()
     job_link = job.find("a").get("href")
-    country = "Romania"
     city = job.find_all("p")[1].text.split(":")[1].strip()
-
-    print(job_title + " -> " + city)
     
     finalJobs.append({
         "id": str(id),
         "job_title": job_title,
         "job_link": job_link,
-        "country": country,
+        "country": "Romania",
         "city": city,
         "company": company.get("company")
     })
 
-print("Total jobs: " + str(len(finalJobs)))
+print(finalJobs)
 
 loadingData(finalJobs, company.get("company"))
 

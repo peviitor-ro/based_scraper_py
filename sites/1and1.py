@@ -4,11 +4,10 @@ import json
 
 url = "https://www.1and1.ro/jobs.json"
 
-company = {"company": "1&1"}  
+company = {"company": "1and1"}  
 finalJobs = list()
 
 scraper = Scraper() 
-
 scraper.url = url
 
 jobs = scraper.getJson().get("jobs")
@@ -17,21 +16,18 @@ for job in jobs:
     id = uuid.uuid4()
     job_title = job.get("JobTitle")
     job_link = "https://www.1and1.ro/careers/" + job.get("RefURL")
-    country = "Romania"
     city = job.get("Location")
-
-    print(job_title + " -> " + city)
     
     finalJobs.append({
         "id": str(id),
         "job_title": job_title,
         "job_link": job_link,
-        "country": country,
+        "country": "Romania",
         "city": city,
         "company": company.get("company")
     })
 
-print("Total jobs: " + str(len(finalJobs)))
+print(finalJobs)
 
 loadingData(finalJobs, company.get("company"))
 

@@ -8,6 +8,7 @@ scraper = Scraper(url)
 rules = Rules(scraper)
 
 #Un set pentru a nu avea duplicate
+company = {"company": "BRD"}
 j = set()
 
 #Cautam elementele care contin joburile 
@@ -28,12 +29,7 @@ for element in elements:
         title = job.find("div", {"class": "card-header"}).text
         link = "https://www.brd.ro" + job.find("a")["href"]
 
-        j.add(
-            (
-                title,
-                link,
-            )
-        )
+        j.add((title, link))
 finalJobs = list()
 
 #Pentru fiecare job din set, extragem titlul si link-ul 
@@ -42,24 +38,19 @@ for job in j:
     id = uuid.uuid4()
     job_title = job[0]
     job_link = job[1]
-    company = "BRD"
-    country = "Romania"
-    city = "Romania"
 
     finalJobs.append(
         {
             "id": str(id),
             "job_title": job_title,
             "job_link": job_link,
-            "company": company,
-            "country": country,
-            "city": city,
+            "company": company.get("company"),
+            "country": "Romania",
+            "city": "Romania",
         }
     )
-    print(job_title + " -> " + city)
-
 #Afisam numarul total de joburi gasite
-print("Total jobs: " + str(len(finalJobs)))
+print(finalJobs)
 
 #Salvam datele in baza de date
-loadingData(finalJobs, "BRD")
+loadingData(finalJobs, company.get("company"))

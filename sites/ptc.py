@@ -20,21 +20,18 @@ for page in pages:
         id = uuid.uuid4()
         job_title = job.get("name")
         job_link = "https://ptc.eightfold.ai/careers?pid=" + str(job.get("id")) + "&domain=ptc.com&sort_by=relevance"
-        country = "Romania"
         city = job.get("location").split(",")[0]
-
-        print(job_title + " -> " + city)
         
         finalJobs.append({
             "id": str(id),
             "job_title": job_title,
             "job_link": job_link,
-            "country": country,
+            "country": "Romania",
             "city": city,
             "company": company.get("company")
         })
 
-print("Total jobs: " + str(len(finalJobs)))
+print(finalJobs)
 
 loadingData(finalJobs, company.get("company"))
 

@@ -16,24 +16,20 @@ for job in jobs:
     id = uuid.uuid4()
     job_title = job.find("a").text.strip()
     job_link = "https://jobs.webasto.com" + job.find("a").get("href")
-    country = "Romania"
     city = job.find("span", {"class": "jobLocation"}).text.split(",")[0].strip()
-    company = "Webasto"
-
-    print(job_title + " -> " + city)
 
     finaljobs.append({
         "id": str(id),
         "job_title": job_title,
         "job_link": job_link,
-        "company": company,
-        "country": country,
+        "company": company.get("company"),
+        "country": "Romania",
         "city": city
     })
 
-print("Total jobs: " + str(len(finaljobs)))
+print(finaljobs)
 
-loadingData(finaljobs, "Webasto")
+loadingData(finaljobs, company.get("company"))
 
 logoUrl = "https://www.webasto-career.com/build/images/webasto.png"
 
@@ -42,7 +38,7 @@ scraper.session.headers.update({
 })
 scraper.post( "https://api.peviitor.ro/v1/logo/add/" ,json.dumps([
     {
-        "id":"Webasto",
+        "id":company.get("company"),
         "logo":logoUrl
     }
 ]))

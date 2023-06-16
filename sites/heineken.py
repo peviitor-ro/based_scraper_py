@@ -5,9 +5,9 @@ scraper = Scraper()
 rules = Rules(scraper)
 
 jobsFound = True
-
 startRow = 0
 
+company = {"company": "Heineken"}
 finalJobs = list()
 
 while jobsFound:
@@ -20,23 +20,19 @@ while jobsFound:
         id = uuid.uuid4()
         job_title = job.find("span", {"class": "jobTitle"}).text.strip()
         job_link = "https://careers.theheinekencompany.com" + job.find("a", {"class": "jobTitle-link"}).get("href")
-        company = "Heineken"
-        country = "Romania"
         city = job.find("span", {"class": "jobLocation"}).text.split(",")[0].strip()
-
-        print(job_title + " -> " + city)
 
         finalJobs.append({
             "id": str(id),
             "job_title": job_title,
             "job_link": job_link,
-            "company": company,
-            "country": country,
+            "company": company.get("company"),
+            "country": "Romania",
             "city": city
         })
 
     startRow += 25
 
-print("Total jobs: " + str(len(finalJobs)))
+print(finalJobs)
 
-loadingData(finalJobs, "Heineken")
+loadingData(finalJobs, company.get("company"))

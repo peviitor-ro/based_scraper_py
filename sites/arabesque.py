@@ -3,13 +3,13 @@ import uuid
 
 url = "https://cariere.arabesque.ro"
 
-
 scraper = Scraper(url)
 rules = Rules(scraper)
 
 #Luam toate categoriile de joburi
 categories = rules.getTags("div", {"class": "arabesque_homepage_template_categorie"})
 
+company = {"company": "Arabesque"}
 finalJobs = list()
 
 #Pentru fiecare categorie de joburi
@@ -39,21 +39,16 @@ for category in categories:
         id = uuid.uuid4()
         job_title = job.find("h4").text.strip()
         job_link = job.get("id").replace("post-", jobUrl + "&job_id=")
-        company = "Arabesque"
-        country = "Romania"
-        city = "Romania"
-
-        print(job_title + " -> " + city)
 
         finalJobs.append({
             "id": str(id),
             "job_title": job_title,
             "job_link": job_link,
-            "company": company,
-            "country": country,
-            "city": city
+            "company": company.get("company"),
+            "country": "Romania",
+            "city": "Romania",
         })
 
-print("Total jobs: " + str(len(finalJobs)))
+print(finalJobs)
 
-loadingData(finalJobs, "Arabesque")
+loadingData(finalJobs, company.get("company"))

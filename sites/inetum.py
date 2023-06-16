@@ -26,8 +26,6 @@ for page in range(len(paginations)):
         job_link = "https://www.inetum.com" + job.find("a").get("href")
         city = job.find("p", {"class": "card-text"}).text.split("-")[-1].strip()
 
-        print(job_title + " -> " + city)
-
         finalJobs.append({
             "id": str(id),
             "job_title": job_title,
@@ -37,7 +35,7 @@ for page in range(len(paginations)):
             "city": city
         })
 
-print("Total jobs: " + str(len(finalJobs)))
+print(finalJobs)
 
 loadingData(finalJobs, company.get("company"))
 
@@ -52,4 +50,3 @@ scraper.post( "https://api.peviitor.ro/v1/logo/add/" ,json.dumps([
         "logo":logoUrl
     }
 ]))
-

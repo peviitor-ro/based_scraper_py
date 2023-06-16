@@ -9,6 +9,7 @@ rules = Rules(scraper)
 #Obtinem numarul total de pagini
 numberPages = int(rules.getTag("a", {"class": "last"}).find_all("span")[1].text)
 
+company = {"company": "Selgros"}
 finaljobs = list()
 
 #Iteram prin fiecare pagina
@@ -25,23 +26,20 @@ for page in range(1, numberPages + 1):
         id = uuid.uuid4()
         job_title = job.find("div", {"class":"title"}).text
         job_link = job.find("a")["href"]
-        company = "Selgros"
-        country = "Romania"
         city = job.find("div", {"class":"type-location"}).text.split(",")[1]
-        print(job_title + " -> " + city)
 
         finaljobs.append({
             "id": str(id),
             "job_title": job_title,
             "job_link": job_link,
-            "company": company,
-            "country": country,
+            "company": company.get("company"),
+            "country": "Romania",
             "city": city
         })
 
 
 #Afisam numarul total de joburi
-print("Total jobs: " + str(len(finaljobs)))
+print(finaljobs)
 
 #Incarcam datele in baza de date
-loadingData(finaljobs, "Selgros")
+loadingData(finaljobs, company.get("company"))

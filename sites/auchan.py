@@ -18,28 +18,26 @@ jobs = re.search(regex, doomBody.prettify()).group(1)
 
 jobs = json.loads("{" + jobs + "}")
 
+company = {"company": "Auchan"}
 finaljobs = list()
 
 for job in jobs.get("PositionList"):
     id = uuid.uuid4()
     job_title = job.get("PositionName")
     job_link = "https://cariere.auchan.ro/" + f"Position/Details?id={job.get('PositionId')}"
-    company = "Auchan"
-    country = "Romania"
     city = job.get("CityList")
     
-    print(job_title + " -> " + city)
     finaljobs.append({
         "id": str(id),
         "job_title": job_title,
         "job_link": job_link,
-        "company": company,
-        "country": country,
+        "company": company.get("company"),
+        "country": "Romania",
         "city": city
     })
 
 #Afisam numarul total de joburi
-print("Total jobs: " + str(len(finaljobs)))
+print(finaljobs)
 
 #Incarcam datele in baza de date
-loadingData(finaljobs, "Auchan")
+loadingData(finaljobs, company.get("company"))

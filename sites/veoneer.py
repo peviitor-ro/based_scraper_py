@@ -22,8 +22,6 @@ for job in jobs:
     except:
         city = job.find("div", {"class": "mt-1 text-md"}).find_all("span")[2].text.strip()
 
-    print(job_title + " -> " + city)
-
     finalJobs.append({
         "id": str(id),
         "job_title": job_title,
@@ -33,7 +31,7 @@ for job in jobs:
         "company": company.get("company")
     })
 
-print("Total jobs: " + str(len(finalJobs)))
+print(finalJobs)
 
 loadingData(finalJobs, company.get("company"))
 
@@ -48,4 +46,3 @@ scraper.post( "https://api.peviitor.ro/v1/logo/add/" ,json.dumps([
         "logo":logoUrl
     }
 ]))
-

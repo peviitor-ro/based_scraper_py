@@ -15,17 +15,12 @@ scraper.session.headers.update({
 scraper.url = url
 rules = Rules(scraper)
 
-
 jobs = rules.getTag("section", {"id": "search-results-list"}).findAll("li")
 
 for job in jobs:
     id = uuid.uuid4()
     job_title = job.find("h2").text.strip()
     job_link = "https://jobs.intel.com" + job.find("a").get("href")
-    city = "Romania"
-
-    print(job_title + " -> " + city)
-    print(job_link)
 
     finalJobs.append({
         "id": str(id),
@@ -33,10 +28,10 @@ for job in jobs:
         "job_link": job_link,
         "company": company.get("company"),
         "country": "Romania",
-        "city": city
+        "city": "Romania"
     })
 
-print("Total jobs: " + str(len(finalJobs)))
+print(finalJobs)
 
 loadingData(finalJobs, company.get("company"))
 

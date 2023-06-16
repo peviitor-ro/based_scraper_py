@@ -1,5 +1,4 @@
 from scraper_peviitor import Scraper, loadingData
-
 import uuid
 
 #urlul pentru a veadea numarul total de joburi
@@ -13,6 +12,7 @@ number_of_jobs = scraper.getJson().get("facets").get("country").get("Romania")
 #Cream o lista cu numerele de la 0 la numarul total de joburi, cu pasul de 10 pentru a putea extrage joburile
 iteratii = [i for i in range(0, number_of_jobs, 10)]
 
+company = {"company": "Vodafone"}
 finalJobs = list()
 
 #Iteram prin lista de numere si extragem joburile
@@ -28,22 +28,19 @@ for num in iteratii:
             id = uuid.uuid4()
             job_title = job.get("name")
             job_link = f"https://jobs.vodafone.com/careers?query=Romania&pid={job.get('id')}&domain=vodafone.com&sort_by=relevance"
-            company = "Vodafone"
-            country = "Romania"
             location = job.get("location").split(",")[0]
 
             finalJobs.append({
                 "id": str(id),
                 "job_title": job_title,
                 "job_link": job_link,
-                "company": company,
+                "company": company.get("company"),
                 "country": country,
                 "city": location
             })
-        print(job_title + " -> " + location)
 
 #Afisam numarul total de joburi
-print("Total jobs: " + str(len(finalJobs)))
+print(finalJobs)
 
 # Încărcăm job-urile în baza de date
-loadingData(finalJobs, "Vodafone")
+loadingData(finalJobs, company.get("company"))

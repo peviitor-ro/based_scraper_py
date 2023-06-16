@@ -21,6 +21,7 @@ numberOfJobs = scraper.post(apiUrl, json=data).json().get("total")
 #Cream o lista cu numerele de la 0 la numarul total de joburi, cu pasul de 20
 iteration = [i for i in range(0, numberOfJobs, 20)]
 
+company = {"company": "Pfizer"}
 finaljobs = list()
 
 #Pentru fiecare numar din lista, extragem joburile
@@ -31,23 +32,18 @@ for num in iteration:
         id = uuid.uuid4()
         job_title = job.get("title")
         job_link = "https://pfizer.wd1.myworkdayjobs.com/en-US/PfizerCareers" + job.get("externalPath")
-        company = "Pfizer"
-        country = "Romania"
-        city = "Romania"
 
         finaljobs.append({
             "id": str(id),
             "job_title": job_title,
             "job_link": job_link,
-            "company": company,
-            "country": country,
-            "city": city
+            "company": company.get("company"),
+            "country": "Romania",
+            "city": "Romania"
         })
 
-        print(job_title + " -> " + city)
-
 #afisam numarul total de joburi gasite
-print("Total jobs: " + str(len(finaljobs)))
+print(finaljobs)
 
 #se incarca datele in baza de date
-loadingData(finaljobs, "Pfizer")
+loadingData(finaljobs, company.get("company"))

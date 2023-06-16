@@ -20,17 +20,13 @@ while True:
             id = uuid.uuid4()
             job_title = job.find("a").text.strip()
             job_link = job.find("a").get("href")
-            country = "Romania"
-            city = "Romania"
-
-            print(job_title + " -> " + city)
             
             finalJobs.append({
                 "id": str(id),
                 "job_title": job_title,
                 "job_link": job_link,
-                "country": country,
-                "city": city,
+                "country": "Romania",
+                "city": "Romania",
                 "company": company.get("company")
             })
     else:
@@ -38,7 +34,7 @@ while True:
 
     page += 1
 
-print("Total jobs: " + str(len(finalJobs)))
+print(finalJobs)
 
 loadingData(finalJobs, company.get("company"))
 

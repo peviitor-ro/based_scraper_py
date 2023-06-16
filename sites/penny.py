@@ -11,6 +11,7 @@ pageNum = 1
 #Cautam elementele care contin joburile si locatiile
 jobs = rules.getTags("div", {"class": "job_position"})
 
+company = {"company": "Penny"}
 finalJobs = list()
 
 #Pentru fiecare job, extragem titlul, link-ul, compania, tara si orasul
@@ -19,20 +20,18 @@ while jobs:
         id = uuid.uuid4()
         job_title = job.find("span", {"itemprop": "title"}).text.strip()
         job_link = job.find("a", {"itemprop": "url"}).get("href")
-        company = "Penny"
-        country = "Romania"
+
         try: 
             city = job.find("span", {"itemprop": "addressLocality"}).text.strip()
         except:
             city = "Romania"
-        print(job_title + " -> " + city)
 
         finalJobs.append({
             "id": str(id),
             "job_title": job_title,
             "job_link": job_link,
-            "company": company,
-            "country": country,
+            "company": company.get("company"),
+            "country": "Romania",
             "city": city
         })
     #Setam pagina urmatoare
@@ -43,7 +42,7 @@ while jobs:
     jobs = rules.getTags("div", {"class": "job_position"})
 
 #Afisam numarul total de joburi gasite
-print("Total jobs: " + str(len(finalJobs)))
+print(finalJobs)
 
 #Incarcam datele in baza de date
-loadingData(finalJobs, "Penny")
+loadingData(finalJobs, company.get("company"))

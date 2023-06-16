@@ -22,24 +22,20 @@ for number in querystings:
         id = uuid.uuid4()
         job_title = job.find("a").text.strip()
         job_link = "https://jobs.ericsson.com" + job.find("a").get("href")
-        country = "Romania"
-        company = "Ericsson"
         city = job.find("span", {"class": "jobLocation"}).text.split(",")[0].strip()
-
-        print(job_title + " -> " + city)
         
         finaljobs.append({
             "id": str(id),
             "job_title": job_title,
             "job_link": job_link,
-            "country": country,
-            "company": company,
+            "country": "Romania",
+            "company": company.get("company"),
             "city": city
         })
 
-print("Total jobs: " + str(len(finaljobs)))
+print(finaljobs)
 
-loadingData(finaljobs, "Ericsson")
+loadingData(finaljobs, company.get("company"))
 
 logoUrl = "https://logos-world.net/wp-content/uploads/2020/12/Ericsson-Logo-700x394.png"
 
@@ -48,7 +44,7 @@ scraper.session.headers.update({
 })
 scraper.post( "https://api.peviitor.ro/v1/logo/add/" ,json.dumps([
     {
-        "id":"Ericsson",
+        "id":company.get("company"),
         "logo":logoUrl
     }
 ]))

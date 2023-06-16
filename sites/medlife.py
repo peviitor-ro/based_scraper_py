@@ -11,6 +11,7 @@ totalJobs = int(rules.getTag("div", {"class":"title-header-listing"}).find("p").
 
 pageNumbers = [*range(0, totalJobs, 7 )]
 
+company = {"company": "Medlife"}
 finalJobs = list()
 
 #Iteram prin fiecare pagina
@@ -27,23 +28,19 @@ for page in range(len(pageNumbers)):
         id = uuid.uuid4()
         job_title = element.find("div", {"class":"card-title-joburi-detalii"}).find_all("div")[0].text
         job_link = element["onclick"].split("'")[1]
-        company = "Medlife"
-        country = "Romania"
         city = element.find("div", {"class":"detaii-job"}).find_all("div")[0].text.strip()
-        print(job_title + " -> " + city)
 
         finalJobs.append({
             "id": str(id),
             "job_title": job_title,
             "job_link": job_link,
-            "company": company,
-            "country": country,
+            "company": company.get("company"),
+            "country": "Romania",
             "city": city
         })
 
-
 #Afisam numarul total de joburi
-print("Total jobs: " + str(len(finalJobs)))
+print(finalJobs)
 
 #Incarcam datele in baza de date
-loadingData(finalJobs, "Medlife")
+loadingData(finalJobs, company.get("company"))

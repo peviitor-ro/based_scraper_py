@@ -12,6 +12,7 @@ jobs = int(rules.getTag("span", {"class": "paginationLabel"}).find_all("b")[1].t
 #Cream o lista cu toate query-urile
 queryList = [*range(0, jobs, 25)]
 
+company = {"company": "Rompetrol"}
 finaljobs = list()
 
 #Iteram prin fiecare query
@@ -28,22 +29,19 @@ for query in queryList:
         id = uuid.uuid4()
         job_title = job.find("a").text
         job_link = "https://careers.rompetrol.com" + job.find("a")["href"]
-        company = "Rompetrol"
-        country = "Romania"
         city = job.find("span", {"class": "jobLocation"}).text.split(",")[0].strip()
-        print(job_title + " -> " + city)
 
         finaljobs.append({
             "id": str(id),
             "job_title": job_title,
             "job_link": job_link,
-            "company": company,
-            "country": country,
+            "company": company.get("company"),
+            "country": "Romania",
             "city": city
         })
 
 #Afisam numarul total de joburi
-print("Total jobs: " + str(len(finaljobs)))
+print(finaljobs)
 
 #Incarcam datele in baza de date
-loadingData(finaljobs, "Rompetrol")
+loadingData(finaljobs, company.get("company"))

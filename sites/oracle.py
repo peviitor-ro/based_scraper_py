@@ -16,27 +16,24 @@ for job in jobs:
     id = uuid.uuid4()
     job_title = job.get("Title")
     job_link = "https://careers.oracle.com/jobs/#en/sites/jobsearch/job/" + job.get("Id")
-    country = "Romania"
-    company = "Oracle"
+
     try:
         city = job.get("PrimaryLocation").split(",")[0]
     except:
         city = "Romania"
-
-    print(job_title + " -> " + city)
     
     finaljobs.append({
         "id": str(id),
         "job_title": job_title,
         "job_link": job_link,
-        "company": company,
-        "country": country,
+        "company": company.get("company"),
+        "country": "Romania",
         "city": city
     })
 
-print("Total jobs: " + str(len(finaljobs)))
+print(finaljobs)
 
-loadingData(finaljobs, "Oracle")
+loadingData(finaljobs, company.get("company"))
 
 logoUrl = "https://www.oracle.com/a/ocom/img/oracle-rgb-c74634.png"
 
@@ -45,7 +42,7 @@ scraper.session.headers.update({
 })
 scraper.post( "https://api.peviitor.ro/v1/logo/add/" ,json.dumps([
     {
-        "id":"Oracle",
+        "id":company.get("company"),
         "logo":logoUrl
     }
 ]))

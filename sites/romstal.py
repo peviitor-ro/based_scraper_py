@@ -10,6 +10,7 @@ rules = Rules(scraper)
 #Luam toate joburile
 jobs = rules.getTags('li', {'class': 'job-tile'})
 
+company = {"company": "Romstal"}
 finalJobs = list()
 
 #Pentru fiecare job luam titlul, linkul, compania, tara si orasul
@@ -17,26 +18,22 @@ for job in jobs:
     id = uuid.uuid4()
     job_title = job.find('a', {"class":"jobTitle-link"}).text.strip()
     job_link ="https://cariere.romstal.ro" + job.find('a', {"class":"jobTitle-link"})['href']
-    company = "Romstal"
-    country = "Romania"
     city = job.find('div', {"class":"location"}).find('div').text.split(',')[0].strip()
 
     if "SECTOR" in city:
         city = "Bucharest"
 
-    print(job_title + " -> " + city)
-
     finalJobs.append({
         "id": str(id),
         "job_title": job_title,
         "job_link": job_link,
-        "company": company,
-        "country": country,
+        "company": company.get("company"),
+        "country": "Romania",
         "city": city
     })
 
 #Afisam numarul de joburi
-print("Total jobs: " + str(len(finalJobs)))
+print(finalJobs)
 
 #Incarcam datele in baza de date
-loadingData(finalJobs, "Romstal")
+loadingData(finalJobs, company.get("company"))

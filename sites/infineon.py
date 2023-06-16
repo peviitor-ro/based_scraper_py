@@ -1,4 +1,4 @@
-from scraper_peviitor import Scraper, Rules, loadingData
+from scraper_peviitor import Scraper, loadingData
 import uuid
 import json
 
@@ -28,21 +28,18 @@ for job in jobs:
     id = uuid.uuid4()
     job_title = job.get("title")
     job_link = "https://www.infineon.com" + job.get("detail_page_url")
-    country = "Romania"
     city = job.get("location")[0]
-
-    print(job_title + " -> " + city)
     
     finaljobs.append({
         "id": str(id),
         "job_title": job_title,
         "job_link": job_link,
-        "country": country,
+        "country": "Romania",
         "city": city,
         "company": company.get("company")
     })
 
-print("Total jobs: " + str(len(finaljobs)))
+print(finaljobs)
 
 loadingData(finaljobs, company.get("company"))
 
@@ -57,4 +54,3 @@ scraper.post( "https://api.peviitor.ro/v1/logo/add/" ,json.dumps([
         "logo":logoUrl
     }
 ]))
-

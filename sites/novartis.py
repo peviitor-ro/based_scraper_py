@@ -14,23 +14,18 @@ jobs = rules.getTag("table", {"class": "views-view-table"}).find("tbody").find_a
 page = 0
 
 while len(jobs) > 0:
-    print(len(jobs))
     for job in jobs:
         id = uuid.uuid4()
         job_title = job.find("a").text.strip()
         job_link = "https://www.novartis.com" + job.find("a").get("href")
-        country = "Romania"
         city = job.find("td", {"class": "views-field-field-job-work-location"}).text.strip()
-        company = "Novartis"
-
-        print(job_title + " -> " + city)
         
         finaljobs.append({
             "id": str(id),
             "job_title": job_title,
             "job_link": job_link,
-            "company": company,
-            "country": country,
+            "company": company.get("company"),
+            "country": "Romania",
             "city": city
         })
 
@@ -41,9 +36,9 @@ while len(jobs) > 0:
     except:
         jobs = list()
 
-print("Total jobs: " + str(len(finaljobs)))
+print(finaljobs)
 
-loadingData(finaljobs, "Novartis")
+loadingData(finaljobs, company.get("company"))
 
 logoUrl = "https://www.novartis.com/ro-ro/themes/custom/nvs_arctic/logo.svg"
 
@@ -52,7 +47,7 @@ scraper.session.headers.update({
 })
 scraper.post( "https://api.peviitor.ro/v1/logo/add/" ,json.dumps([
     {
-        "id":"Novartis",
+        "id":company.get("company"),
         "logo":logoUrl
     }
 ]))

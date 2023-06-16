@@ -17,8 +17,6 @@ for job in jobs:
     job_link = "https://careers.danone.com/en-global/jobs/" + job.get("url")
     city = job.get("city")
 
-    print(job_title + " -> " + city)
-
     finalJobs.append({
         "id": str(id),
         "job_title": job_title,
@@ -28,7 +26,7 @@ for job in jobs:
         "city": city
     })
 
-print("Total jobs: " + str(len(finalJobs)))
+print(finalJobs)
 
 loadingData(finalJobs, company.get("company"))
 

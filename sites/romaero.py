@@ -7,6 +7,7 @@ rules = Rules(scraper)
 
 jobs = rules.getTags("tr")
 
+company = {"company": "Romaero"}
 finalJobs = list()
 
 for job in jobs:
@@ -14,24 +15,19 @@ for job in jobs:
         id = uuid.uuid4()
         job_title = job.find("strong").text.strip()
         job_link = job.find("a").get("href")
-        company = "Romaero"
-        country = "Romania"
-        city = "Romania"
 
         finalJobs.append({
             "id": str(id),
             "job_title": job_title,
             "job_link": job_link,
-            "company": company,
-            "country": country,
-            "city": city
+            "company": company.get("company"),
+            "country": "Romania",
+            "city": "Romania"
         })
-
-        print(job_title + " -> " + city)
 
     except:
         pass
 
-print("Total jobs: " + str(len(finalJobs)))
+print(finalJobs)
 
-loadingData(finalJobs, "Romaero")
+loadingData(finalJobs, company.get("company"))

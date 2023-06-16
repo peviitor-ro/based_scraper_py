@@ -19,9 +19,6 @@ for job in jobs:
 
     if city == None:
         city = "Romania"
-
-    print(job_title + " -> " + city)
-    print(job_link)
     
     finalJobs.append({
         "id": str(id),
@@ -32,7 +29,7 @@ for job in jobs:
         "city": city
     })
 
-print("Total jobs: " + str(len(finalJobs)))
+print(finalJobs)
 
 loadingData(finalJobs, company.get("company"))
 
