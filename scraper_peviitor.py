@@ -216,10 +216,6 @@ def loadingData(data : dict, company : str):
     updateContentType = "application/json"
 
     r = requests.post(clean, headers={"apikey": apikey, "Content-Type": cleanContentType}, data={"company": company})
-    print("Cleaning data for company " + company + "...")
 
     if len(data) > 0:
-        r = requests.post(update, headers={"apikey": apikey, "Content-Type": updateContentType}, data = json.dumps(data))
-        print("Updating data for company " + company + "...")
-
-    
+        r = requests.post(update, headers={"apikey": apikey, "Content-Type": updateContentType}, data = json.dumps(data))   
