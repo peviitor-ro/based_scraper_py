@@ -48,7 +48,7 @@ for jobs in jobsPerPage:
         })
 
 #Afisam numarul de joburi
-print(json.dumps(finalJobs, indent=4))
+print(json.dumps(finaljobs, indent=4))
 
 #Incarcam joburile in baza de date
 loadingData(finaljobs, company.get("company"))

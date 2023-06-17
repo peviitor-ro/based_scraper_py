@@ -40,7 +40,7 @@ while True:
    
     scraper.url = nextPageLink
 #Afisam numarul total de joburi
-print(json.dumps(finalJobs, indent=4))
+print(json.dumps(finaljobs, indent=4))
 
 #Incarcam datele in baza de date
 loadingData(finaljobs, company.get("company"))
