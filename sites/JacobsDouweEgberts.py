@@ -27,7 +27,7 @@ for job in jobs:
         "company": company.get("company")
     })
 
-print(finaljobs)
+print(json.dumps(finaljobs, indent=4))
 
 loadingData(finaljobs, company.get("company"))
 

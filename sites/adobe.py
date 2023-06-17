@@ -39,7 +39,7 @@ for query in querys:
             "city": city
         })
 
-print(finalJobs) 
+print(json.dumps(finalJobs, indent=4)) 
 
 loadingData(finalJobs, company.get("company"))
 

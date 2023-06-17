@@ -34,7 +34,7 @@ while True:
 
     page += 1
 
-print(finalJobs)
+print(json.dumps(finalJobs, indent=4))
 
 loadingData(finalJobs, company.get("company"))
 

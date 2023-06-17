@@ -1,5 +1,6 @@
 from scraper_peviitor import Scraper, loadingData
 import uuid
+import json
 
 data = {"locations": [], "workAreas": [], "contractType": [], "fulltext": "Romania", "order_by": "relevance", "page": 1}
 url = "https://career.hm.com/wp-json/hm/v1/sr/jobs/search?_locale=user"
@@ -33,7 +34,7 @@ while jobs.get("jobs"):
     jobs = scraper.post(url, data).json()
 
 # Se afișează numărul de job-uri extrase
-print(finalJobs)
+print(json.dumps(finalJobs, indent=4))
 
 #Salvarea datelor în baza de date
 loadingData(finalJobs, company.get("company"))

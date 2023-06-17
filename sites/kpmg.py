@@ -1,5 +1,6 @@
 from scraper_peviitor import Scraper, loadingData
 import uuid
+import json
 
 apiUrl = " https://careers.kpmg.ro/api/Talentlyft/jobs/filter"
 
@@ -47,7 +48,7 @@ while jobs:
     jobs = scraper.post(apiUrl, json=data).json().get("Results")
 
 #afisam numarul total de joburi gasite
-print(finalJobs)
+print(json.dumps(finalJobs, indent=4))
 
 #se incarca datele in baza de date
 loadingData(finalJobs, company.get("company"))

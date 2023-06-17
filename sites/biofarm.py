@@ -1,5 +1,6 @@
 from scraper_peviitor import Scraper, loadingData, Rules
 import uuid
+import json
 
 url = "https://www.biofarm.ro/cariere/job-uri-disponibile"
 
@@ -25,6 +26,6 @@ for job in jobs:
         "city": "Romania"
     })
 
-print(finalJobs)
+print(json.dumps(finalJobs, indent=4))
 
 loadingData(finalJobs, company.get("company"))

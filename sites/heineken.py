@@ -1,5 +1,6 @@
 from scraper_peviitor import Scraper, Rules, loadingData
 import uuid
+import json
 
 scraper = Scraper()
 rules = Rules(scraper)
@@ -33,6 +34,6 @@ while jobsFound:
 
     startRow += 25
 
-print(finalJobs)
+print(json.dumps(finalJobs, indent=4))
 
 loadingData(finalJobs, company.get("company"))

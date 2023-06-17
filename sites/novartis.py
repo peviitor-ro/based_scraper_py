@@ -36,7 +36,7 @@ while len(jobs) > 0:
     except:
         jobs = list()
 
-print(finaljobs)
+print(json.dumps(finaljobs, indent=4))
 
 loadingData(finaljobs, company.get("company"))
 

@@ -1,5 +1,6 @@
 from scraper_peviitor import Scraper, Rules, loadingData
 import uuid
+import json
 
 url = "https://cariere.penny.ro/joburi/"
 scraper = Scraper(url)
@@ -42,7 +43,7 @@ while jobs:
     jobs = rules.getTags("div", {"class": "job_position"})
 
 #Afisam numarul total de joburi gasite
-print(finalJobs)
+print(json.dumps(finalJobs, indent=4))
 
 #Incarcam datele in baza de date
 loadingData(finalJobs, company.get("company"))

@@ -31,7 +31,7 @@ for job in jobs:
         "city": "Romania"
     })
 
-print(finalJobs)
+print(json.dumps(finalJobs, indent=4))
 
 loadingData(finalJobs, company.get("company"))
 

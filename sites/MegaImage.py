@@ -1,5 +1,6 @@
 from scraper_peviitor import Scraper, loadingData
 import uuid
+import json
 
 url = "https://cariere.mega-image.ro/joburi"
 
@@ -49,6 +50,6 @@ while True:
     
     pageNumber += 1
 
-print(finalJobs)
+print(json.dumps(finalJobs, indent=4))
 
 loadingData(finalJobs, company.get("company"))

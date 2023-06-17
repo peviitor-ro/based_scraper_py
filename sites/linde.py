@@ -1,6 +1,7 @@
 from scraper_peviitor import Scraper, loadingData, Rules
 import uuid
 import re
+import json
 
 regex = re.compile(r'"token":"(.*?)"')
 
@@ -49,7 +50,7 @@ for job in jobs:
         })
 
 #Se afiseaza numarul de joburi extrase
-print(finalJobs)
+print(json.dumps(finalJobs, indent=4))
 
 #Incarcam joburile in baza de date
 loadingData(finalJobs, company.get("company"))

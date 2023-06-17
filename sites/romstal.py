@@ -2,6 +2,7 @@
 
 from scraper_peviitor import Scraper, Rules, loadingData
 import uuid
+import json
 
 #Cream o instanta de tip Scraper
 scraper = Scraper("https://cariere.romstal.ro/search/?createNewAlert=false&q=&locationsearch=&optionsFacetsDD_location=&optionsFacetsDD_department=")
@@ -33,7 +34,7 @@ for job in jobs:
     })
 
 #Afisam numarul de joburi
-print(finalJobs)
+print(json.dumps(finalJobs, indent=4))
 
 #Incarcam datele in baza de date
 loadingData(finalJobs, company.get("company"))

@@ -1,5 +1,7 @@
 from scraper_peviitor import Scraper, Rules, loadingData
 import uuid
+import json
+
 url = "https://romaero.com/cariere/locuri-de-munca-romaero/"
 
 scraper = Scraper(url)
@@ -28,6 +30,6 @@ for job in jobs:
     except:
         pass
 
-print(finalJobs)
+print(json.dumps(finalJobs, indent=4))
 
 loadingData(finalJobs, company.get("company"))

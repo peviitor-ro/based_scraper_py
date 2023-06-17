@@ -1,5 +1,6 @@
 from scraper_peviitor import Scraper, loadingData
 import uuid
+import json
 
 #urlul pentru a veadea numarul total de joburi
 jobsUrl = "https://jobs.vodafone.com/api/apply/v2/jobs/"
@@ -40,7 +41,7 @@ for num in iteratii:
             })
 
 #Afisam numarul total de joburi
-print(finalJobs)
+print(json.dumps(finalJobs, indent=4))
 
 # Încărcăm job-urile în baza de date
 loadingData(finalJobs, company.get("company"))

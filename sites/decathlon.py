@@ -1,5 +1,6 @@
 from scraper_peviitor import Scraper, loadingData
 import uuid
+import json
 
 #Folosesc selenium deoarece joburile sunt incarcate prin ajax
 scraper = Scraper('https://apply.workable.com//api/v1/widget/accounts/404273')
@@ -25,7 +26,7 @@ for job in jobs:
 
 
 #Afisa numarul de joburi
-print(finalJobs)
+print(json.dumps(finalJobs, indent=4))
 
 #Incarc joburile in baza de date
 loadingData(finalJobs, company.get("company"))

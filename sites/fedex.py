@@ -1,5 +1,6 @@
 from scraper_peviitor import Scraper, loadingData
 import uuid
+import json
 
 #Folosim ScraperSelenium deoaarece joburile sunt incarcate prin AJAX
 url = 'https://careers.fedex.com/api/jobs?lang=ro-RO&location=Rom%25C3%25A2nia&woe=12&stretch=10&stretchUnit=MILES&page=1&limit=100&sortBy=relevance&descending=false&internal=false&brand=FedEx%20Express%20EU'
@@ -28,7 +29,7 @@ for job in jobs:
     })
 
 #Afisam numarul de joburi
-print(finaljobs)
+print(json.dumps(finaljobs, indent=4))
 
 #Incarcam joburile in baza de date
 loadingData(finaljobs, company.get("company"))

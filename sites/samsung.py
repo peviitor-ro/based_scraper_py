@@ -1,6 +1,6 @@
 from scraper_peviitor import Scraper, loadingData
 import uuid
-
+import json
 
 apiUrl = "https://sec.wd3.myworkdayjobs.com/wday/cxs/sec/Samsung_Careers/jobs"
 scraper = Scraper()
@@ -44,7 +44,7 @@ for num in iteration:
         })
 
 #afisam numarul total de joburi gasite
-print(finaljobs)
+print(json.dumps(finaljobs, indent=4))
 
 #se incarca datele in baza de date
 loadingData(finaljobs, company.get("company"))

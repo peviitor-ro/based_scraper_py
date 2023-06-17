@@ -1,5 +1,6 @@
 from scraper_peviitor import Scraper, Rules, loadingData
 import uuid
+import json
 
 url = "https://www.betfairromania.ro/find-a-job/?search=&country=Romania&pagesize=1000#results"
 
@@ -26,6 +27,6 @@ for job in jobs:
         "city": city
     })
 
-print(finalJobs)
+print(json.dumps(finalJobs, indent=4))
 
 loadingData(finalJobs, company.get("company"))

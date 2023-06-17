@@ -1,5 +1,6 @@
 from scraper_peviitor import Scraper, loadingData
 import uuid
+import json
 
 url = "https://mingle.ro/api/session?company=medicover"
 apiUrl = "https://mingle.ro/api/boards/mingle/jobs?q=companyUid~eq~%22medicover%22&page=0&pageSize=30&sort=modifiedDate~DESC"
@@ -41,7 +42,7 @@ for job in jobs:
     })
 
 #Numarul de joburi gasite
-print(finalJobs)
+print(json.dumps(finalJobs, indent=4))
 
 #Incarc joburile in baza de date
 loadingData(finalJobs, company.get("company"))

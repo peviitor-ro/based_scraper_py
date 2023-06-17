@@ -1,5 +1,6 @@
 from scraper_peviitor import Scraper, loadingData
 import uuid
+import json
 
 apiUrl = "https://zentiva.wd3.myworkdayjobs.com/wday/cxs/zentiva/Zentiva/jobs"
 scraper = Scraper()
@@ -44,7 +45,7 @@ for num in iteration:
         })
 
 #afisam numarul total de joburi gasite
-print(finaljobs)
+print(json.dumps(finaljobs, indent=4))
 
 #se incarca datele in baza de date
 loadingData(finaljobs, company.get("company"))

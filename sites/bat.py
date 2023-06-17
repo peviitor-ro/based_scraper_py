@@ -1,5 +1,6 @@
 from scraper_peviitor import Scraper, loadingData, Rules
 import uuid
+import json
 
 url = "https://careers.bat.com/search-jobs/results?ActiveFacetID=0&CurrentPage=1&RecordsPerPage=1000&Distance=100&RadiusUnitType=0&Location=Romania&Latitude=46.00000&Longitude=25.00000&ShowRadius=False&IsPagination=False&FacetType=0&SearchResultsModuleName=Search+Results&SearchFiltersModuleName=Search+Filters&SortCriteria=0&SortDirection=0&SearchType=1&LocationType=2&LocationPath=798549&OrganizationIds=1045&ResultsType=0"
 
@@ -36,6 +37,6 @@ for job in jobs:
         }
     )
 
-print(finalJobs)
+print(json.dumps(finalJobs, indent=4))
 
 loadingData(finalJobs, company.get("company"))

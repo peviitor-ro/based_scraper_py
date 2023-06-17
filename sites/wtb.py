@@ -56,7 +56,7 @@ for job in finalJobs:
         "city": city
     })
 
-print(jobs)
+print(json.dumps(jobs, indent=4))
 
 loadingData(jobs, company.get("company"))
 

@@ -1,5 +1,6 @@
 from scraper_peviitor import Scraper, Rules, loadingData
 import uuid
+import json
 
 #Cream o instanta a clasei Scraper
 url = "https://www.selgros.ro/posturi-disponibile?p=1"
@@ -39,7 +40,7 @@ for page in range(1, numberPages + 1):
 
 
 #Afisam numarul total de joburi
-print(finaljobs)
+print(json.dumps(finaljobs, indent=4))
 
 #Incarcam datele in baza de date
 loadingData(finaljobs, company.get("company"))

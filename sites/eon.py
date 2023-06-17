@@ -1,5 +1,6 @@
 from scraper_peviitor import Scraper, Rules, loadingData
 import uuid
+import json
 
 #Folosim ScraperSelenium deoarece numarul de joburi este incarcat prin AJAX
 scraper = Scraper("https://careers.eon.com/romania/go/Toate-joburile-din-Romania/3727401?utm_source=pagina-cariere-ro")
@@ -39,7 +40,7 @@ for page in totalJobs:
         })
 
 #Afisam numarul de joburi extrase
-print(finalJobs)
+print(json.dumps(finalJobs, indent=4))
 
 #Incarcam joburile in baza de date
 loadingData(finalJobs, company.get("company"))

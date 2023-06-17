@@ -1,5 +1,6 @@
 from scraper_peviitor import Scraper, Rules, loadingData
 import uuid
+import json
 
 #Aici se creeaza o instanta a clasei Scraper
 scraper = Scraper("https://jobs.enel.com/en_US/careers/JobOpeningsRomania")
@@ -39,7 +40,7 @@ while True:
    
     scraper.url = nextPageLink
 #Afisam numarul total de joburi
-print(finaljobs)
+print(json.dumps(finalJobs, indent=4))
 
 #Incarcam datele in baza de date
 loadingData(finaljobs, company.get("company"))

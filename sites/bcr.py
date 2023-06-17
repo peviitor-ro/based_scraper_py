@@ -1,5 +1,6 @@
 from scraper_peviitor import Scraper, Rules, loadingData
 import uuid
+import json
 
 #Cream o instanta a clasei Scraper
 scraper = Scraper("https://erstegroup-careers.com/bcr/search/?createNewAlert=false&q=&locations")
@@ -28,7 +29,7 @@ for element in elements:
     })
 
 #afișăm numărul total de joburi
-print(finalJobs)
+print(json.dumps(finalJobs, indent=4))
 
 #Salvăm datele in baza de date
 loadingData(finalJobs, company.get("company"))
