@@ -3,6 +3,7 @@ import requests
 from lxml import etree
 import json
 import os
+import time
 
 class Scraper:
     """
@@ -217,5 +218,6 @@ def loadingData(data : dict, company : str):
 
     r = requests.post(clean, headers={"apikey": apikey, "Content-Type": cleanContentType}, data={"company": company})
 
+    time.sleep(0.5)
     if len(data) > 0:
         r = requests.post(update, headers={"apikey": apikey, "Content-Type": updateContentType}, data = json.dumps(data))   
