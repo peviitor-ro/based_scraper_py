@@ -12,7 +12,7 @@ rules = Rules(scraper)
 
 totalJobs = int(rules.getTag("span", {"class": "paginationLabel"}).find_all("b")[-1].text.strip())
 
-paginate = [*range(1, totalJobs, 50)]
+paginate = [*range(0, totalJobs, 50)]
 
 for page in paginate:
     url = f"https://jobs.atos.net/go/Jobs-in-Romania/3686501/{page}/?q=&sortColumn=referencedate&sortDirection=desc"
