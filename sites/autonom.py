@@ -18,19 +18,16 @@ for job in jobs:
     id = uuid.uuid4()
     job_title = job.find('p', {"class":"nume-listing-job"}).text
     job_link = job['href']
-    citys = job.find_all('span', {"class":"locatie-job"})
+    city = job.find_all('span', {"class":"locatie-job"})
 
-    for city in citys:
-        city = city.text
-
-        finalJobs.append({
-            "id": str(id),
-            "job_title": job_title,
-            "job_link": job_link,
-            "company": company.get("company"),
-            "country": "Romania",
-            "city": city
-        })
+    finalJobs.append({
+        "id": str(id),
+        "job_title": job_title,
+        "job_link": job_link,
+        "company": company.get("company"),
+        "country": "Romania",
+        "city": city[0].text,
+    })
 
 #Afisam numarul de joburi
 print(json.dumps(finalJobs, indent=4))
