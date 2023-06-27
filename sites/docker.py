@@ -18,23 +18,25 @@ data = {
     "query":"query ApiJobBoardWithTeams($organizationHostedJobsPageName: String!) {\n  jobBoard: jobBoardWithTeams(\n    organizationHostedJobsPageName: $organizationHostedJobsPageName\n  ) {\n    teams {\n      id\n      name\n      parentTeamId\n      __typename\n    }\n    jobPostings {\n      id\n      title\n      teamId\n      locationId\n      locationName\n      employmentType\n      secondaryLocations {\n        ...JobPostingSecondaryLocationParts\n        __typename\n      }\n      compensationTierSummary\n      __typename\n    }\n    __typename\n  }\n}\n\nfragment JobPostingSecondaryLocationParts on JobPostingSecondaryLocation {\n  locationId\n  locationName\n  __typename\n}"
     }
 
-# scraper.post(url, data=json.dumps(data))
-
 jobs = scraper.post(url, data=json.dumps(data)).json().get("data").get("jobBoard").get("jobPostings")
 
 for job in jobs:
     id = uuid.uuid4()
     job_title = job.get("title")
     job_link = "https://www.docker.com/career-openings/?ashby_jid=" + job.get("id")
+    countrys = job.get("secondaryLocations")
 
-    finalJobs.append({
-        "id": str(id),
-        "job_title": job_title,
-        "job_link": job_link,
-        "company": company.get("company"),
-        "country": "Romania",
-        "city": "Romania"
-    })
+    for country in countrys:
+        city = country.get("locationName")
+        if city == "Romania":
+            finalJobs.append({
+                "id": str(id),
+                "job_title": job_title,
+                "job_link": job_link,
+                "company": company.get("company"),
+                "country": "Romania",
+                "city": city
+            })
 
 print(json.dumps(finalJobs, indent=4))
 
