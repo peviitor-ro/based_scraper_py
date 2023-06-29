@@ -3,14 +3,14 @@ import uuid
 import json
 
 #Cream o instanta a clasei Scraper
-scraper = Scraper("https://d-career.org/Draexlmaier/go/DRÄXLMAIER-Job-Opportunities-in-Romania-%28Romanian%29/4196801/125/?q=&sortColumn=referencedate&sortDirection=desc")
+scraper = Scraper("https://d-career.org/Draexlmaier/go/DRÄXLMAIER-Job-Opportunities-in-Romania-%28Romanian%29/4196801/0/?q=&sortColumn=referencedate&sortDirection=desc")
 rules = Rules(scraper)
 
 #Cautam numarul de joburi
-jobsnumbers = int(rules.getXpath('//*[@id="job-table"]/div[1]/div/div/div/span[1]/b[2]').text)
-
+jobsnumbers = rules.getTag("span", {"class":"paginationLabel"}).find_all("b")[1].text
+print(jobsnumbers)
 #Cream o lista cu numerele de joburi de 25 in 25
-jobsPerPage = [i for i in range(0 , jobsnumbers, 25) ]
+jobsPerPage = [i for i in range(0 , int(jobsnumbers), 25) ]
 
 #Cream un dictionar in care vom salva joburile
 company = {"company": "Draxlmaier"}
