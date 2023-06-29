@@ -8,7 +8,7 @@ rules = Rules(scraper)
 
 #Cautam numarul de joburi
 jobsnumbers = rules.getTag("span", {"class":"paginationLabel"}).find_all("b")[1].text
-print(jobsnumbers)
+
 #Cream o lista cu numerele de joburi de 25 in 25
 jobsPerPage = [i for i in range(0 , int(jobsnumbers), 25) ]
 
