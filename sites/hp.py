@@ -19,6 +19,9 @@ for job in jobs:
     job_link = job.get("url")
     city = job.get("primary_city")
 
+    if "https://jobs.hp.com/" not in job_link:
+        job_link = "https://jobs.hp.com/jobdetails/" + str(job.get("id"))
+
     finalJobs.append({
             "id": id,
             "job_title": job_title,
