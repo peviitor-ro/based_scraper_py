@@ -208,13 +208,30 @@ def loadingData(data : dict, company : str):
     Încarcă datele din fișierul de intrare.
     :return: un dicționar cu datele din fișierul de intrare
     """
-    clean = "https://API.peviitor.ro/v4/clean/"
+
+    resolveApi = "https://dev.laurentiumarian.ro/scraper/based_scraper_py/"
+
+    V4clean = "https://API.peviitor.ro/v4/clean/"
+    V1clean = "https://api.peviitor.ro/v1/clean/"
     cleanContentType = "application/x-www-form-urlencoded"
 
     apikey = os.environ.get("APIKEY")
 
-    update = "https://api.peviitor.ro/v4/update/"
+    V4update = "https://api.peviitor.ro/v4/update/"
+    V1update = " https://api.peviitor.ro/v1/update/"
     updateContentType = "application/json"
+
+    status = {"status": company}
+    r = requests.post(resolveApi, data = status)
+    response = r.json()
+
+    if response.get("status") == "inactive":
+        clean = V4clean
+        update = V4update
+    else:
+        clean = V1clean
+        update = V1update
+        requests.post(V4clean, headers={"apikey": apikey, "Content-Type": cleanContentType}, data={"company": company})
 
     r = requests.post(clean, headers={"apikey": apikey, "Content-Type": cleanContentType}, data={"company": company})
 
