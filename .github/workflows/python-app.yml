@@ -6,8 +6,8 @@ name: Python application
 on:
   # push:
   #   branches: [ main ]
-  schedule:
-    - cron: '50 18 * * *'
+  #schedule:
+    #- cron: '50 18 * * *'
   workflow_dispatch:    
 
 permissions:
