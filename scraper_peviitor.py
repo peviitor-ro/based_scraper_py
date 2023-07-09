@@ -221,11 +221,11 @@ def loadingData(data : dict, company : str):
     V1update = " https://api.peviitor.ro/v1/update/"
     updateContentType = "application/json"
 
-    status = {"status": company}
+    status = {"status": company + ".py"}
     r = requests.post(resolveApi, data = status)
     response = r.json()
 
-    if response.get("status") == "inactive":
+    if response.get("status") == "active":
         clean = V4clean
         update = V4update
     else:
