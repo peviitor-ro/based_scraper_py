@@ -10,7 +10,7 @@ rules = Rules(scraper)
 number_of_jobs = int(rules.getTag("div", {"class": "page-subtitle-counter"}).text.split(" ")[0])
 
 #Cream o lista cu numerele de joburi de 10 in 10
-pages = [*range(1, number_of_jobs, 10)]
+pages = [*range(0, number_of_jobs, 10)]
 
 company = {"company": "OTPBank"}
 finalJobs = list()
