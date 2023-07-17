@@ -31,5 +31,6 @@ jobs:
     - name: Runing Scrapers
       env: 
         APIKEY: ${{ secrets.APIKEY }}
+        Grasum_Key: ${{ secrets.GRASUM_KEY }}
       run: |
         python3 sites/main.py
