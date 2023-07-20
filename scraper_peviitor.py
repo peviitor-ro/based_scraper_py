@@ -225,13 +225,13 @@ def loadingData(data : dict, company : str):
     r = requests.post(resolveApi, data = status)
     response = r.json()
 
-    if response.get("status") == "active":
-        clean = V4clean
-        update = V4update
-    else:
-        clean = V1clean
-        update = V1update
-        requests.post(V4clean, headers={"apikey": apikey, "Content-Type": cleanContentType}, data={"company": company})
+    # if response.get("status") == "active":
+    clean = V4clean
+    update = V4update
+    # else:
+    #     clean = V1clean
+    #     update = V1update
+    #     requests.post(V4clean, headers={"apikey": apikey, "Content-Type": cleanContentType}, data={"company": company})
 
     r = requests.post(clean, headers={"apikey": apikey, "Content-Type": cleanContentType}, data={"company": company})
 
