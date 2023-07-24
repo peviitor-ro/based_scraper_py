@@ -22,7 +22,7 @@ Pentru a instala biblioteca **scraper_peviitor**, urmați următorii pași:
 - Navigați la directorul **based_scraper_py**. Rulați comanda `cd based_scraper_py` pentru a naviga la acest director.
 - Creați mediu virtual de lucru.`python3 -m venv env`
 - Activează mediu virtual de lucru. Rulați comanda `source env/bin/activate` pentru al activa.
-- Rulați comanda `python3 setup.py develop` pentru a instala **scraper_peviitor**.
+- Rulați comanda `pip install -e .` pentru a instala **scraper_peviitor**.
 
 ## Exemple de utilizare 
 1. Descărcarea conținutului de la un anumit URL:

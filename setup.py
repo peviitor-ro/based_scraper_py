@@ -10,15 +10,7 @@ setup(
     packages=find_packages(),
 
     install_requires=[
-        'beautifulsoup4==4.9.3',
-        'bs4==0.0.1',
-        'certifi==2020.12.5',
-        'chardet==4.0.0',
-        'idna==2.10',
-        'lxml==4.9.2',
-        'requests==2.25.1',
-        'soupsieve==2.2',
-        'urllib3==1.26.3',
+        'peviitor_pyscraper',
     ],
     python_requires='>=3.6',
 )
