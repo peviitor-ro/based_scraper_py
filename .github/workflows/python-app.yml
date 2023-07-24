@@ -27,7 +27,7 @@ jobs:
     - name: Install dependencies
       run: |
         python3 -m pip install --upgrade pip
-        python3 setup.py develop
+        pip install -e .
     - name: Runing Scrapers
       env: 
         APIKEY: ${{ secrets.APIKEY }}
