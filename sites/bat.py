@@ -40,3 +40,15 @@ for job in jobs:
 print(json.dumps(finalJobs, indent=4))
 
 loadingData(finalJobs, company.get("company"))
+
+logoUrl = "https://cdn.radancy.eu/company/1045/v2_0/img/temporary/shared/bat-logo.svg"
+
+scraper.session.headers.update({
+    "Content-Type": "application/json",
+})
+scraper.post( "https://api.peviitor.ro/v1/logo/add" ,json.dumps([
+    {
+        "id":company.get("company"),
+        "logo":logoUrl
+    }
+]))
