@@ -39,7 +39,7 @@ print(json.dumps(finalJobs, indent=4))
 
 loadingData(finalJobs, company.get("company"))
 
-logoUrl = "https://www.parexel.com/application/files/7915/5664/0483/Parexel_Master_Logo_RGB.png"
+logoUrl = "https://www.parexel.com/packages/parexel/themes/parexel/img/logo.svg"
 
 scraper.session.headers.update({
     "Content-Type": "application/json",
