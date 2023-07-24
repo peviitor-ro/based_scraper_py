@@ -2,7 +2,7 @@ from scraper_peviitor import Scraper, Rules, loadingData
 import uuid
 import json
 
-url = "https://www.wtb.ro/wp-sitemap-posts-post-1.xml"
+url = "https://www.wtb.ro/wp-admin/admin-ajax.php"
 
 company = {"company": "WTB"}
 finalJobs = set()
