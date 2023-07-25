@@ -11,6 +11,7 @@ for site in os.listdir(path):
         action = subprocess.run(['python', os.path.join(path, site)], capture_output=True)   
         if action.returncode != 0:
             errors = action.stderr.decode('utf-8')
+            print(errors)
             print("Error in " + site)
             print("Sending trigger to API ...")
             r = requests.post(resolveApi, data = {"file": site})
