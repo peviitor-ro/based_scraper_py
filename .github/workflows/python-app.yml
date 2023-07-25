@@ -11,17 +11,6 @@ permissions:
 jobs:
   build:
 
-    runs-on: ubuntu-20.04
-    steps:
-    - uses: actions/checkout@v3
-    - name: Use Node.js 14.x
-      uses: actions/setup-node@v2
-      with:
-        node-version: '14.x'
-    - name: Install dependencies
-      run: |
-        npm i peviitor_jsscraper
-        
     steps:
     - uses: actions/checkout@v3
     - name: Set up Python 3.10
@@ -32,6 +21,7 @@ jobs:
       run: |
         python3 -m pip install --upgrade pip
         python3 setup.py develop
+        npm i peviitor_jsscraper
     - name: Runing Scrapers
       env: 
         APIKEY: ${{ secrets.APIKEY }}
