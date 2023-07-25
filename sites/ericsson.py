@@ -1,50 +1,35 @@
-from scraper_peviitor import Scraper, Rules, loadingData
-import uuid
-import json
+from scraper.Scraper import Scraper
+from utils import (create_job, clean, update, publish, publish_logo, show_jobs)
+from math import ceil
 
-url = "https://jobs.ericsson.com/search/?q=&locationsearch=Romania"
+url = "https://jobs.ericsson.com/api/apply/v2/jobs?domain=ericsson.com&start=0&num=10&location=Romania&domain=ericsson.com&sort_by=relevance"
 
-company = {"company": "Ericsson"}
-finaljobs = list()
+company = "Ericsson"
+jobs = list()
 
-scraper = Scraper(url)
-rules = Rules(scraper)
+scraper = Scraper()
+scraper.get_from_url(url, "JSON")
 
-totaljobs = int(scraper.soup.find("span", {"class": "paginationLabel"}).find_all("b")[1].text)
-step = 25
+tota_jobs = scraper.markup["count"]
+step = 10
 
-querystings = [*range(0, totaljobs, step)]
+pages = ceil(tota_jobs / step)
 
-for number in querystings:
-    scraper.url = url + f"&startrow={number}"
-    jobs = rules.getTag("table", {"class": "searchResults"}).find("tbody").find_all("tr")
-    for job in jobs:
-        id = uuid.uuid4()
-        job_title = job.find("a").text.strip()
-        job_link = "https://jobs.ericsson.com" + job.find("a").get("href")
-        city = job.find("span", {"class": "jobLocation"}).text.split(",")[0].strip()
-        
-        finaljobs.append({
-            "id": str(id),
-            "job_title": job_title,
-            "job_link": job_link,
-            "country": "Romania",
-            "company": company.get("company"),
-            "city": city
-        })
+for page in range(pages):
+    url = f"https://jobs.ericsson.com/api/apply/v2/jobs?domain=ericsson.com&start={page * step}&num={step}&location=Romania&domain=ericsson.com&sort_by=relevance"
+    scraper.get_from_url(url, "JSON")
 
-print(json.dumps(finaljobs, indent=4))
+    for job in scraper.markup["positions"]:
+        jobs.append(create_job(
+            job_title=job["name"],
+            job_link=job["canonicalPositionUrl"],
+            company=company,
+            country="Romania",
+            city=job["location"].split(" ")[0]
+        ))
 
-loadingData(finaljobs, company.get("company"))
+for version in [1, 4]:
+    publish(version, company, jobs, "APIKEY")
 
-logoUrl = "https://logos-world.net/wp-content/uploads/2020/12/Ericsson-Logo-700x394.png"
-
-scraper.session.headers.update({
-    "Content-Type": "application/json",
-})
-scraper.post( "https://api.peviitor.ro/v1/logo/add/" ,json.dumps([
-    {
-        "id":company.get("company"),
-        "logo":logoUrl
-    }
-]))
+publish_logo(company, "https://logos-world.net/wp-content/uploads/2020/12/Ericsson-Logo-700x394.png")
+show_jobs(jobs)
