@@ -1,61 +1,32 @@
-from bs4 import BeautifulSoup
-from urllib.parse import urljoin
-import requests
-import json
-import uuid
-import os
+from scraper.Scraper import Scraper
+from utils import (create_job, publish_logo, publish, show_jobs)
 
-def parse_sitemap(url):
-    response = requests.get(url)
+company = "AlliantTiriac"
 
-    # check the response status code, 200 means OK
-    if response.status_code == 200:
-        # parse the sitemap XML
-        sitemap = BeautifulSoup(response.content, 'xml')
-        urls = [element.text for element in sitemap.find_all('loc') if 'cariere-posturi-disponibile/' in element.text]
-        return urls
+url = "https://www.allianztiriac.ro/ro_RO/cariere/cariere-posturi-disponibile.html#TabVerticalNegative11694447096"
 
-def scrape_data(url):
-    response = requests.get(url)
-    soup = BeautifulSoup(response.content, 'html.parser')
-    job_title = soup.select_one('h1.c-heading')
-    job_title = job_title.text.strip() if job_title else None
-    job_location = soup.select_one('h5.c-heading')
-    job_location = job_location.text.strip() if job_location else None
-    job_url = soup.find_all("a", class_="c-link c-link--block c-link--icon-right")
+scraper = Scraper()
+scraper.get_from_url(url)
 
-    if job_url:
-        relative_url = job_url.get('href')
-        job_link = urljoin(url, relative_url)
+jobs = []
 
-    else:
-        job_url = None
+jobs_titles = scraper.find("div", class_="c-tabs__content").find_all("h1", class_="c-heading--subsection-large")
+jobs_links = scraper.find("div", class_="c-tabs__content").find_all("a", class_="c-link")
+jobs_elements = tuple(zip(jobs_titles,jobs_links))
 
-    return job_title, job_location, job_url
+for job in jobs_elements:
+    jobs.append(
+        create_job(
+            job_title=job[0].text.strip(),
+            job_link="https://www.allianztiriac.ro" + job[1]["href"],
+            country="Romania",
+            city="Romania",
+            company=company
+        )
+    )
 
-sitemap_url = 'https://www.allianztiriac.ro/sitemap.xml'
-urls = parse_sitemap(sitemap_url)
+for version in [1,4]:
+    publish(version,company, jobs, "APIKEY")
 
-final_jobs = []
-for url in urls:
-    title, location, link = scrape_data(url)
-    id = uuid.uuid4()
-    final_jobs.append({
-        'id': str(id),
-        'job_title': title,
-        'job_link': link,
-        'job_location': location,
-        'job_city': 'Bucuresti',
-         })
-    return final_jobs
-
-api_key = os.environ.get('Grasum_Key')
-
-clean_data = requests.post('https://api.peviitor.ro/v4/clean/', headers={'Content_Type': 'application/x-www-form-urlencoded', 'apikey': api_key}, data={'company': 'allianztiriac'})
-
-update_data = requests.post('https://api.peviitor.ro/v4/update/', headers={'Content_Type': 'application/json', 'apikey': api_key}, data=json.dumps(data))
-
-requests.post('https://api.peviitor.ro/v1/logo/add/', headers={'Content_Type': 'application/json'}, data=json.dumps({'id': 'allianztiriac', 'logo': 'https://www.allianztiriac.ro/content/dam/onemarketing/cee/azro/media/logo_azt/allianz_tiriac_logo.png'}))
-
-print(json.dumps(data, indent=4))
-
+publish_logo(company, "https://www.allianztiriac.ro/content/dam/onemarketing/cee/azro/media/logo_azt/allianz_tiriac_logo.png")
+show_jobs(jobs)
