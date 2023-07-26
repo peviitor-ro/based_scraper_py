@@ -1,4 +1,5 @@
 from scraper.Scraper import Scraper
+from utils import (create_job, publish_logo, publish, show_jobs)
 
 company = 'Acrom'
 
@@ -11,14 +12,14 @@ jobs = []
 
 jobs_elements = scraper.markup.get('data').get('results')
 
-for job in job_elements:
+for job in jobs_elements:
     jobs.append(
         create_job(
             job_title=job.get('jobTitle'),
-            job_link='https://acrom.mingle.ro/en/apply' + job.get('publicUid'),
-            country='Romania'
-            city=job.get('locations')[0].get('name')
-            company=company
+            job_link='https://acrom.mingle.ro/en/apply/' + job.get('publicUid'),
+            country='Romania',
+            city=job.get('locations')[0].get('name'),
+            company=company,
             )
         )
 for version in [1,4]:
