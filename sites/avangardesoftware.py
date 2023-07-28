@@ -45,7 +45,7 @@ clean_data = requests.post('https://api.peviitor.ro/v4/clean/', headers={'Conten
 
 update_data = requests.post('https://api.peviitor.ro/v4/update/', headers={'Content_Type': 'application/json', 'apikey': api_key}, data=json.dumps(final_jobs))
 
-requests.post('https://api.peviitor.ro/v1/logo/add/', headers={'Content_Type': 'application/json'}, data=json.dumps({'id': company, 'logo': 'https://avangarde-software.com/wp-content/uploads/2020/03/Avangarde-Software-Logo-1.png'}))
+requests.post('https://api.peviitor.ro/v1/logo/add/', headers={'Content_Type': 'application/json'}, data=json.dumps([{'id': company, 'logo': 'https://avangarde-software.com/wp-content/uploads/2020/03/Avangarde-Software-Logo-1.png'}]))
 
 print(json.dumps(final_jobs, indent=4))
 
