@@ -20,8 +20,9 @@ final_jobs = []
 for job in jobs:
     job_link = job['href']
     job_title = job.find('h4').get_text(strip=True)
-    location = job.find('div', class_='job__description--location').find('h5').get_text(strip=True)
-    
+    location_slpit = job.find('div', class_='job__description--location').find('h5').get_text(strip=True).split(',')
+    location_city = location_slpit[0]
+    location_country = location_slpit[1].split('|')[0].strip()
 
     # Concatenate base_url with job_link
     full_job_link = base_url + "/" + job_link
@@ -30,7 +31,8 @@ for job in jobs:
         'id': str(uuid.uuid4()),
         'job_link': full_job_link,
         'job_title': job_title,
-        'location': location,
+        'city': location_city,
+        'country': location_country,
         'company': company
     })
 
@@ -40,6 +42,6 @@ clean_data = requests.post('https://api.peviitor.ro/v4/clean/', headers={'Conten
 
 update_data = requests.post('https://api.peviitor.ro/v4/update/', headers={'Content_Type': 'application/json', 'apikey': api_key}, data=json.dumps(final_jobs))
 
-requests.post('https://api.peviitor.ro/v1/logo/add/', headers={'Content_Type': 'application/json'}, data=json.dumps([{'id': company, 'logo': 'https://www.evozon.com/wp-content/uploads/2021/03/Group-813.svg'}]))
+requests.post('https://api.peviitor.ro/v1/logo/add/', headers={'Content_Type': 'application/json'}, data=json.dumps([{'id': company, 'logo': 'https://mcro.tech/static/mcro-unicorn-logo-24cdacabaf115019db9895d78b862afb.svg'}]))
 
 print(json.dumps(final_jobs, indent=4))
