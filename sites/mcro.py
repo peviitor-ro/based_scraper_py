@@ -4,29 +4,33 @@ import uuid
 import os
 from bs4 import BeautifulSoup
 
-company = "evozone"
-url = 'https://www.evozon.com/careers/'
+company = 'Mcro'
+base_url = 'https://mcro.tech'
+careers_url = base_url + '/careers/'
 
-response = requests.get(url)
+response = requests.get(careers_url)
 html_markup = response.text
 
 soup = BeautifulSoup(html_markup, 'html.parser')
 
-jobs = soup.find_all('div', class_='job-name')
+jobs = soup.find_all('a', class_='job')
 
 final_jobs = []
 
 for job in jobs:
-    a_tag = job.find('a')
-    url = a_tag['href']
-    job_title = a_tag.get_text(strip=True)
+    job_link = job['href']
+    job_title = job.find('h4').get_text(strip=True)
+    location = job.find('div', class_='job__description--location').find('h5').get_text(strip=True)
     
+
+    # Concatenate base_url with job_link
+    full_job_link = base_url + "/" + job_link
+
     final_jobs.append({
         'id': str(uuid.uuid4()),
-        'job_link': url,
+        'job_link': full_job_link,
         'job_title': job_title,
-        'city': 'Cluj-Napoca',
-        'country': 'Romania',
+        'location': location,
         'company': company
     })
 
