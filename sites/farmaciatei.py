@@ -11,8 +11,6 @@ jobs = []
 
 jobs_elements = scraper.find('div', class_='cariere').find_all('div', class_='card')
 
-print(len(jobs_elements))
-
 i = 0
 for job in jobs_elements:
     city_element = job.find('h4').text.split(',')
