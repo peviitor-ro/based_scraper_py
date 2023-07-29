@@ -1,7 +1,7 @@
 from scraper.Scraper import Scraper
 from utils import (create_job, publish_logo, publish, show_jobs)
 
-company = "AlliantTiriac"
+company = "AllianzTiriac"
 
 url = "https://www.allianztiriac.ro/ro_RO/cariere/cariere-posturi-disponibile.html#TabVerticalNegative11694447096"
 
