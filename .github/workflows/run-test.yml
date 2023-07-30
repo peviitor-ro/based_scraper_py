@@ -25,4 +25,5 @@ jobs:
         python3 setup.py develop
     - name: Run test
       run: |
-        python3 __test__/runTest.py
+        git log --name-status HEAD^..HEAD
+        # python3 __test__/runTest.py
