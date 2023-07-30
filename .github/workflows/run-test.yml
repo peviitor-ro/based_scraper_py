@@ -25,5 +25,4 @@ jobs:
         python3 setup.py develop
     - name: Run test
       run: |
-        git diff --name-only HEAD HEAD~1
-        # python3 __test__/runTest.py
+        python3 __test__/runTest.py
