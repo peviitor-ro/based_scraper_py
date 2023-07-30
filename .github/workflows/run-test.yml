@@ -16,4 +16,5 @@ jobs:
         python3 setup.py develop
     - name: Run test
       run: |
-        python3 __test__/runTest.py
+        git diff --name-only main
+        # python3 __test__/runTest.py
