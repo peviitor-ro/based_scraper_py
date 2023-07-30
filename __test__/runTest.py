@@ -7,12 +7,12 @@ commit = subprocess.run(["git", "show", hash], capture_output=True).stdout.decod
 pattern = re.compile(r"(\+\+\+ b/sites/.*?\.py)", re.DOTALL)
 
 try:
-    matches = pattern.findall(commit)[0].split('+++ b/')[1]
+    file = pattern.findall(commit)[0].split('+++ b/')[1]
 except:
-    matches = ''
+    file = ''
 
-if matches.startswith('sites/'):
-    run_file = subprocess.run(["python3", matches], capture_output=True).stdout.decode('utf-8')
+if file.startswith('sites/'):
+    run_file = subprocess.run(["python3", file], capture_output=True).stdout.decode('utf-8')
 
     pattern = re.compile(r"(\[.*?\])", re.DOTALL)
     matches = pattern.findall(run_file)
@@ -28,3 +28,7 @@ if matches.startswith('sites/'):
             
             if value == None:
                 raise Exception(f"Key {key} has no value! \n {job}")
+
+    print(f'✅ {file}')
+else:
+    print(f'{file} is not a scraper file!')
