@@ -2,17 +2,11 @@ import subprocess
 import json
 import re 
 
-hash =  subprocess.run(["git", "rev-parse", "HEAD"], capture_output=True).stdout.decode('utf-8').strip()
-commit = subprocess.run(["git", "show", hash], capture_output=True).stdout.decode('utf-8')
-pattern = re.compile(r"(\+\+\+ b/sites/.*?\.py)", re.DOTALL)
+process = subprocess.run(['git', 'diff', '--name-only', 'HEAD', 'HEAD~1'], capture_output=True)
+file = process.stdout.decode('utf-8').split('\n')[0]
 
-try:
-    matches = pattern.findall(commit)[0].split('+++ b/')[1]
-except:
-    matches = ''
-
-if matches.startswith('sites/'):
-    run_file = subprocess.run(["python3", matches], capture_output=True).stdout.decode('utf-8')
+if file.startswith('sites/'):
+    run_file = subprocess.run(["python3", file], capture_output=True).stdout.decode('utf-8')
 
     pattern = re.compile(r"(\[.*?\])", re.DOTALL)
     matches = pattern.findall(run_file)
@@ -28,3 +22,7 @@ if matches.startswith('sites/'):
             
             if value == None:
                 raise Exception(f"Key {key} has no value! \n {job}")
+
+    print(f'✅ {file}')
+else:
+    print(f'File is not a scraper!')
