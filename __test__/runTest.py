@@ -2,8 +2,9 @@ import subprocess
 import json
 import re 
 
-commit =  subprocess.run(["git", "log", "--name-status", "HEAD^..HEAD"], capture_output=True).stdout.decode('utf-8').split('M\t')[1].strip()
-
+hash =  subprocess.run(["git", "rev-parse", "HEAD"], capture_output=True).stdout.decode('utf-8').strip()
+commit = subprocess.run(["git", "show", hash], capture_output=True).stdout.decode('utf-8').splitlines()[9].split(' ')[1].replace('b/', '')
+print(commit)
 if commit.startswith('sites/'):
     run_file = subprocess.run(["python3", commit], capture_output=True).stdout.decode('utf-8')
 
