@@ -9,7 +9,7 @@ pattern = re.compile(r"(\+\+\+ b/sites/.*?\.py)", re.DOTALL)
 try:
     matches = pattern.findall(commit)[0].split('+++ b/')[1]
 except:
-    matches = 
+    matches = ''
 
 if matches.startswith('sites/'):
     run_file = subprocess.run(["python3", matches], capture_output=True).stdout.decode('utf-8')
