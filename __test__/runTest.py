@@ -6,7 +6,10 @@ hash =  subprocess.run(["git", "rev-parse", "HEAD"], capture_output=True).stdout
 commit = subprocess.run(["git", "show", hash], capture_output=True).stdout.decode('utf-8')
 pattern = re.compile(r"(\+\+\+ b/sites/.*?\.py)", re.DOTALL)
 
-matches = pattern.findall(commit)[0].split('+++ b/')[1]
+try:
+    matches = pattern.findall(commit)[0].split('+++ b/')[1]
+except:
+    matches = 
 
 if matches.startswith('sites/'):
     run_file = subprocess.run(["python3", matches], capture_output=True).stdout.decode('utf-8')
