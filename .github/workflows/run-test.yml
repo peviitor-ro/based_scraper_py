@@ -25,4 +25,4 @@ jobs:
         python3 setup.py develop
     - name: Run test
       run: |
-        python3 __tests__/test.py
+        python3 __test__/test.py
