@@ -3,10 +3,13 @@ import json
 import re 
 
 hash =  subprocess.run(["git", "rev-parse", "HEAD"], capture_output=True).stdout.decode('utf-8').strip()
-commit = subprocess.run(["git", "show", hash], capture_output=True).stdout.decode('utf-8').splitlines()[9].split(' ')[1].replace('b/', '')
-print(commit)
-if commit.startswith('sites/'):
-    run_file = subprocess.run(["python3", commit], capture_output=True).stdout.decode('utf-8')
+commit = subprocess.run(["git", "show", hash], capture_output=True).stdout.decode('utf-8')
+pattern = re.compile(r"(\+\+\+ b/sites/.*?\.py)", re.DOTALL)
+
+matches = pattern.findall(commit)[0].split('+++ b/')[1]
+
+if matches.startswith('sites/'):
+    run_file = subprocess.run(["python3", matches], capture_output=True).stdout.decode('utf-8')
 
     pattern = re.compile(r"(\[.*?\])", re.DOTALL)
     matches = pattern.findall(run_file)
