@@ -30,7 +30,7 @@ for job in jobs_elements:
                 city = city_element[-2]
 
             jobs.append(create_job(
-                job_title=element.text,
+                job_title=element.text.replace('🐾', '').replace('📈', '').strip(),
                 job_link=url,
                 city=city,
                 country="Romania",
