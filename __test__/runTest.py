@@ -2,7 +2,7 @@ import subprocess
 import json
 import re 
 
-process = subprocess.run(['git', 'diff', '--name-only', 'main'], capture_output=True)
+process = subprocess.run(['git', 'diff', '--name-only', 'HEAD', 'HEAD~1'], capture_output=True)
 file = process.stdout.decode('utf-8').split('\n')[0]
 
 if file.startswith('sites/'):
