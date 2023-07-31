@@ -19,8 +19,8 @@ for job in jobs_elements:
         company=company,
     ))
 
-#for version in [1,4]:
-#    publish(version, company, jobs, 'APIKEY')
+for version in [1,4]:
+    publish(version, company, jobs, 'APIKEY')
 
 publish_logo(company, 'https://gep.icims.com/icims2/servlet/icims2?module=AppInert&action=download&id=96578&hashed=855987836')
 show_jobs(jobs)
