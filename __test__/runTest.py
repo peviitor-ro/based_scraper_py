@@ -5,7 +5,7 @@ import re
 process = subprocess.run(['git', 'diff', '--name-only', 'HEAD', 'HEAD~1'], capture_output=True)
 files = process.stdout.decode('utf-8').split('\n')
 files = list(filter(None, files))
-
+print(files)
 for file in files:
     if file.startswith('sites/'):
         run_file = subprocess.run(["python3", file], capture_output=True).stdout.decode('utf-8')
