@@ -12,15 +12,15 @@ jobs_elements = scraper.find('div', class_='iCIMS_JobsTable').find_all('div', cl
 
 for job in jobs_elements:
     jobs.append(create_job(
-        job_title=job.find('div', class_='title').text.strip(),
+        job_title=job.find('div', class_='title').text.strip().replace('Title\n\n', ''),
         job_link=job.find('a', class_='iCIMS_Anchor')['href'],
         city='Cluj-Napoca',
         country='Romania',
         company=company,
     ))
 
-for version in [1,4]:
-    publish(version, company, jobs, 'APIKEY')
+#for version in [1,4]:
+#    publish(version, company, jobs, 'APIKEY')
 
 publish_logo(company, 'https://gep.icims.com/icims2/servlet/icims2?module=AppInert&action=download&id=96578&hashed=855987836')
 show_jobs(jobs)
