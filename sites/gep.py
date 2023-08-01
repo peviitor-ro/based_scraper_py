@@ -12,7 +12,7 @@ jobs_elements = scraper.find('div', class_='iCIMS_JobsTable').find_all('div', cl
 
 for job in jobs_elements:
     jobs.append(create_job(
-        job_title=job.find('div', class_='title').text.strip(),
+        job_title=job.find('div', class_='title').text.strip().replace('Title\n\n', ''),
         job_link=job.find('a', class_='iCIMS_Anchor')['href'],
         city='Cluj-Napoca',
         country='Romania',
