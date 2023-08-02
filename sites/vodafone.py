@@ -1,47 +1,41 @@
-from scraper_peviitor import Scraper, loadingData
-import uuid
-import json
+import requests
+import re
+from utils import *
 
-#urlul pentru a veadea numarul total de joburi
-jobsUrl = "https://jobs.vodafone.com/api/apply/v2/jobs/"
+# List of sitemap URLs
+sitemap_urls = [
+    "https://jobs.vodafone.com/careers/sitemap_cat.txt?domain=vodafone.com",  
+    "https://jobs.vodafone.com/careers/sitemap.txt?domain=vodafone.com",
+]
 
-scraper = Scraper(jobsUrl)
+company = 'Vodafone'
 
-#extragem numarul total de joburi
-number_of_jobs = scraper.getJson().get("facets").get("country").get("Romania")
+final_jobs = []
 
-#Cream o lista cu numerele de la 0 la numarul total de joburi, cu pasul de 10 pentru a putea extrage joburile
-iteratii = [i for i in range(0, number_of_jobs, 10)]
+for sitemap_url in sitemap_urls:
+    response = requests.get(sitemap_url)
 
-company = {"company": "Vodafone"}
-finalJobs = list()
+    # split the response text by newline to get a list of URLs
+    urls = response.text.split('\n')
 
-#Iteram prin lista de numere si extragem joburile
-for num in iteratii:
-    url = f"https://jobs.vodafone.com/api/apply/v2/jobs?domain=vodafone.com&start={num}&num=10&query=Romania&domain=vodafone.com&sort_by=relevance"
-    scraper.url = url
+    # filter and print URLs containing '-rou?'
+    for url in urls:
+        if '-rou?' in url:
+            job_part = url.split('/')[-1]
+            job_title_parts = job_part.split('-')[1:-3]
+            job_title = ' '.join([word.capitalize() for word in job_title_parts])
 
-    jobs = scraper.getJson().get("positions")
-    
-    for job in jobs:
-        country = job.get("location").split(",")[-1].strip()
-        if country == "ROU" or country == "Romania":
-            id = uuid.uuid4()
-            job_title = job.get("name")
-            job_link = f"https://jobs.vodafone.com/careers?query=Romania&pid={job.get('id')}&domain=vodafone.com&sort_by=relevance"
-            location = job.get("location").split(",")[0]
+            final_jobs.append(create_job(
+                job_title = job_title,
+                company = company,
+                country = 'Romania',
+                city = 'Bucharest',
+                job_link = url
+            ))
 
-            finalJobs.append({
-                "id": str(id),
-                "job_title": job_title,
-                "job_link": job_link,
-                "company": company.get("company"),
-                "country": country,
-                "city": location
-            })
+for version in [1,4]:
+    publish(version, company, final_jobs, 'Grasum_Key')
 
-#Afisam numarul total de joburi
-print(json.dumps(finalJobs, indent=4))
+publish_logo(company, 'https://static.vscdn.net/images/careers/demo/eightfolddemo-vodafone2/8d898eb4-685e-441a-9b64-9.png')
 
-# Încărcăm job-urile în baza de date
-loadingData(finalJobs, company.get("company"))
+print(json.dumps(final_jobs, indent=4))
