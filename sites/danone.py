@@ -30,7 +30,7 @@ print(json.dumps(finalJobs, indent=4))
 
 loadingData(finalJobs, company.get("company"))
 
-logoUrl = "https://careers.danone.com/content/dam/danone-corp/hr/global/homepage/logo.png"
+logoUrl = "https://upload.wikimedia.org/wikipedia/commons/1/13/DANONE_LOGO_VERTICAL.png"
 
 scraper.session.headers.update({
     "Content-Type": "application/json",
