@@ -32,12 +32,12 @@ for url in urls:
                     company = company,
                     country = 'Romania',
                     city = locations,
-                    job_url = job_url
+                    job_link = job_url
                 )
             )
 
 for version in [1,4]:
-    publish(version, company, final_jobs, 'Grasum_Key')
+        publish(version, company, final_jobs, 'Grasum_Key')
 
 publish_logo(company, 'https://www.bancatransilvania.ro/themes/bancatransilvania/assets/images/logos/bt-cariere.svg')
 
