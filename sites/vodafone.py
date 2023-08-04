@@ -2,36 +2,33 @@ import requests
 import re
 from utils import *
 
-# List of sitemap URLs
-sitemap_urls = [
-    "https://jobs.vodafone.com/careers/sitemap_cat.txt?domain=vodafone.com",  
-    "https://jobs.vodafone.com/careers/sitemap.txt?domain=vodafone.com",
-]
+sitemap_url = "https://jobs.vodafone.com/careers/sitemap.txt?domain=vodafone.com"
 
 company = 'Vodafone'
-
 final_jobs = []
 
-for sitemap_url in sitemap_urls:
-    response = requests.get(sitemap_url)
+response = requests.get(sitemap_url)
 
-    # split the response text by newline to get a list of URLs
-    urls = response.text.split('\n')
+# split the response text by newline to get a list of URLs
+urls = response.text.split('\n')
 
-    # filter and print URLs containing '-rou?'
-    for url in urls:
-        if '-rou?' in url:
-            job_part = url.split('/')[-1]
-            job_title_parts = job_part.split('-')[1:-3]
-            job_title = ' '.join([word.capitalize() for word in job_title_parts])
+# filter and print URLs containing '-rou?'
+for url in urls:
+    if '-rou?' in url:
+        url_part = url.split('/')
+        last_part = url_part[-1]
+        last_part_split = last_part.split('-')
 
-            final_jobs.append(create_job(
-                job_title = job_title,
-                company = company,
-                country = 'Romania',
-                city = 'Bucharest',
-                job_link = url
-            ))
+        job_title_parts = last_part_split[1:-2]
+        job_title = ' '.join([word.capitalize() for word in job_title_parts])
+
+        final_jobs.append(create_job(
+            job_title = job_title,
+            company = company,
+            country = 'Romania',
+            city = 'Bucharest',
+            job_link = url
+        ))
 
 for version in [1,4]:
     publish(version, company, final_jobs, 'Grasum_Key')
