@@ -20,6 +20,9 @@ for url in urls:
         last_part_split = last_part.split('-')
 
         job_title_parts = last_part_split[1:-2]
+
+        job_title_parts = list(dict.fromkeys(job_title_parts))
+
         job_title = ' '.join([word.capitalize() for word in job_title_parts])
 
         final_jobs.append(create_job(
