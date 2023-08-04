@@ -23,6 +23,7 @@ for url in urls:
         job_url = 'https://www.ejobs.ro' + job_element.find('a')['href']
         location = location_element.text.strip() 
         location = location.replace('\u0219', 's') # replacing ș with s
+        location = location.split('si alte')[0]
         locations = ', '.join(location.split(',')[:3]).strip() # get the first three cities
 
 
