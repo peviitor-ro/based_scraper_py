@@ -8,39 +8,30 @@ company = 'CARTOFISSERIE'
 r = requests.get(url)
 soup = BeautifulSoup(r.text, 'html.parser')
 
-job_elements = soup.find_all('h2', class_='JCContentMiddle__Title')
-location_elements = soup.find_all('span', class_='JCContentMiddle__Info')
+job_elements = soup.find('main', class_='CDInner__Main').find_all('div', class_='JobCard')
 
-job_titles = [job.text.strip() for job in job_elements]
-job_urls = ['https://www.ejobs.ro' + job.find('a')['href'] for job in job_elements]
-locations = []
-
-for location_element in location_elements:
-    location = location_element.text.strip()
-    location = location.replace('\u0219', 's')
-    location = location.split('si alte')[0]
-    locations.append(', '.join(location.split(',')[:3]).strip())
-
-seen_jobs = set()
 final_jobs = []
 
-for title, url, loc in zip(job_titles, job_urls, locations):
-    job_id = (title, url, loc)
-    if job_id not in seen_jobs:
-        final_jobs.append(
-            create_job(
-                job_title=title,
-                company=company,
-                country='Romania',
-                city=loc,
-                job_link=url
-            )
-        )
-        seen_jobs.add(job_id)
+for job in job_elements:
+    job_title = job.find('h2', class_='JCContentMiddle__Title').text.strip()
+    job_url = job.find('h2', class_='JCContentMiddle__Title').find('a')['href']
+    job_url = 'https://www.ejobs.ro' + job_url
+    job_location = job.find('span', class_='JCContentMiddle__Info').text.replace('\u0219', 's').split('si alte')[0].split(',')
+    country = 'Romania'
+    company = company
+    final_jobs.append(
+            {
+                'job_title' : job_title,
+                'job_url' : job_url,
+                'city' : job_location,
+                'country' : country,
+                'company' : company
+            }
+    )
 
-for version in [1,4]:
-    publish(version, company, final_jobs, 'Grasum_Key')
+#for version in [1,4]:
+    #    publish(version, company, final_jobs, 'Grasum_Key')
 
-publish_logo(company, 'https://content.ejobs.ro/img/logos/2/286239.png')
+#publish_logo(company, 'https://content.ejobs.ro/img/logos/2/286239.png')
 
 print(json.dumps(final_jobs, indent=4))
