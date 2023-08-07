@@ -15,32 +15,24 @@ for url in urls:
     r = requests.get(url)
     soup = BeautifulSoup(r.text, 'html.parser')
 
-    job_elements = soup.find_all('h2', class_='JCContentMiddle__Title')
-    location_elements = soup.find_all('span', class_='JCContentMiddle__Info')
+    job_elements = soup.find('main', class_='CDInner__Main').find_all('div', class_='JobCard')
 
-    for job_element, location_element in zip(job_elements, location_elements):
-        job_title = job_element.text.strip()
-        job_url = 'https://www.ejobs.ro' + job_element.find('a')['href']
-        location = location_element.text.strip() 
-        location = location.replace('\u0219', 's') # replacing ș with s
-        location = location.split('si alte')[0]
-        locations = ', '.join(location.split(',')[:3]).strip() # get the first three cities
+    final_jobs.extend([
+        {
+            'job_title': job.find('h2', class_='JCContentMiddle__Title').text.strip(),
+            'job_url': job.find('h2', class_='JCContentMiddle__Title').find('a')['href'],
+            'job_location': job.find('span', class_='JCContentMiddle__Info').text.replace('\u0219', 's').split('si alte')[0].split(','),
+            'country': 'Romania',
+            'company': company
+        }
+        for job in job_elements
+    ])
 
 
-        final_jobs.append(
-                create_job(
-                    job_title = job_title,
-                    company = company,
-                    country = 'Romania',
-                    city = locations,
-                    job_link = job_url
-                )
-            )
+#for version in [1,4]:
+#    publish(version, company, final_jobs, 'Grasum_Key')
 
-for version in [1,4]:
-        publish(version, company, final_jobs, 'Grasum_Key')
-
-publish_logo(company, 'https://www.bancatransilvania.ro/themes/bancatransilvania/assets/images/logos/bt-cariere.svg')
+#publish_logo(company, 'https://www.bancatransilvania.ro/themes/bancatransilvania/assets/images/logos/bt-cariere.svg')
 
 
 print(json.dumps(final_jobs, indent=4))
