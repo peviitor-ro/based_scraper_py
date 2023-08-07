@@ -2,7 +2,7 @@ import requests
 from bs4 import BeautifulSoup
 from utils import *
 
-company = 'bancatransilvania'
+company = 'BANCATRANSILVANIA'
 urls = [
     'https://www.ejobs.ro/company/banca-transilvania/8092',
     'https://www.ejobs.ro/company/banca-transilvania/8092/2',
@@ -29,10 +29,10 @@ for url in urls:
     ])
 
 
-#for version in [1,4]:
-#    publish(version, company, final_jobs, 'Grasum_Key')
+for version in [1,4]:
+    publish(version, company, final_jobs, 'Grasum_Key')
 
-#publish_logo(company, 'https://www.bancatransilvania.ro/themes/bancatransilvania/assets/images/logos/bt-cariere.svg')
+publish_logo(company, 'https://www.bancatransilvania.ro/themes/bancatransilvania/assets/images/logos/bt-cariere.svg')
 
 
 print(json.dumps(final_jobs, indent=4))
