@@ -20,7 +20,7 @@ for url in urls:
     final_jobs.extend([
         {
             'job_title': job.find('h2', class_='JCContentMiddle__Title').text.strip(),
-            'job_url': job.find('h2', class_='JCContentMiddle__Title').find('a')['href'],
+            'job_link': 'https://www.ejobs.ro' + job.find('h2', class_='JCContentMiddle__Title').find('a')['href'],
             'job_location': job.find('span', class_='JCContentMiddle__Info').text.replace('\u0219', 's').split('si alte')[0].split(','),
             'country': 'Romania',
             'company': company

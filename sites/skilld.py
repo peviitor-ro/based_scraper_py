@@ -2,8 +2,8 @@ import requests
 from bs4 import BeautifulSoup
 from utils import *
 
-url = 'https://www.ejobs.ro/company/preturi-pentru-tine/194591'
-company = 'PPT'
+url = 'https://www.ejobs.ro/company/skilld-by-ejobs/317733'
+company = 'SKILLD'
 
 r = requests.get(url)
 soup = BeautifulSoup(r.text, 'html.parser')
@@ -32,6 +32,6 @@ for job in job_elements:
 for version in [1,4]:
     publish(version, company, final_jobs, 'Grasum_Key')
 
-publish_logo(company, 'https://content.ejobs.ro/img/logos/1/194591.png')
+publish_logo(company, 'https://content.ejobs.ro/img/logos/3/317733.png')
 
 print(json.dumps(final_jobs, indent=4))
