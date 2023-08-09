@@ -1,38 +1,27 @@
-from scraper_peviitor import Scraper, Rules, loadingData
-import uuid
-import json
+from scraper.Scraper import Scraper
+from utils import (publish, publish_logo, create_job, show_jobs)
 
-url = "https://romaero.com/cariere/locuri-de-munca-romaero/"
+company = 'Romaero'
+url = 'https://romaero.com/cariere/locuri-de-munca-romaero/'
 
-scraper = Scraper(url)
-rules = Rules(scraper)
+scraper = Scraper()
+scraper.get_from_url(url)
 
-jobs = rules.getTag("table", {"id": "myTable"}).find("tbody").find_all("tr")
+jobs = []
 
-company = {"company": "Romaero"}
-finalJobs = list()
+jobs_elements = scraper.find("table", {"id": "myTable"}).find("tbody").find_all("tr")
 
-for job in jobs:
-    try:
-        id = uuid.uuid4()
-        try:
-            job_title = job.find("strong").text.strip()
-        except:
-            job_title = job.find("b").text.strip()
-        job_link = job.find("a").get("href")
+for job in range(1, len(jobs_elements)):
+    jobs.append(create_job(
+        job_title=jobs_elements[job].find_all("td")[0].text.strip(),
+        job_link=jobs_elements[job].find_all("td")[-1].find("a")["href"],
+        city='Bucuresti',
+        country='Romania',
+        company=company,
+    ))
 
-        finalJobs.append({
-            "id": str(id),
-            "job_title": job_title,
-            "job_link": job_link,
-            "company": company.get("company"),
-            "country": "Romania",
-            "city": "Romania"
-        })
-    except:
-        pass
+for version in [1,4]:
+    publish(version, company, jobs, 'APIKEY')
 
-print(json.dumps(finalJobs, indent=4))
-print(len(finalJobs))
+show_jobs(jobs)
 
-loadingData(finalJobs, company.get("company"))
