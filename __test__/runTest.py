@@ -34,7 +34,8 @@ import requests
 #         print(f'✅ {file}')
 # else:
 process = subprocess.run(['git', 'remote', 'add','upstream', 'https://github.com/peviitor-ro/based_scraper_py.git'], capture_output=True)
-process = subprocess.run(['git', 'diff', '--name-only'], capture_output=True)
+process = subprocess.run(['git', 'fetch', 'upstream'], capture_output=True)
+process = subprocess.run(['git', 'diff', '--name-only', '@{upstream}'], capture_output=True)
 files = process.stdout.decode('utf-8').split('\n')
 files = list(filter(None, files))
 
