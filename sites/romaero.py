@@ -9,8 +9,6 @@ scraper.get_from_url(url)
 
 jobs = []
 
-
-
 jobs_elements = scraper.find("table", {"id": "myTable"}).find("tbody").find_all("tr")
 
 for job in range(1, len(jobs_elements)):
