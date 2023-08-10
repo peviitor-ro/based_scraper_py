@@ -3,7 +3,6 @@ import json
 import re 
 import os
 import requests
-from sites.main import exclude, path, resolveApi
 
 # response = requests.get(resolveApi)
 # files = [file for file in response.json()[1].values() if file not in exclude]
