@@ -1,41 +1,68 @@
-import requests
-import re
-from utils import *
+from scraper.Scraper import Scraper
+from utils import (publish, publish_logo, create_job, show_jobs)
+from math import ceil
 
-sitemap_url = "https://jobs.vodafone.com/careers/sitemap.txt?domain=vodafone.com"
+url = " https://jobs.vodafone.com/api/apply/v2/jobs?domain=vodafone.com&start=0&num=10&domain=vodafone.com&sort_by=relevance"
+
+countrys = {
+    "ALB":"Albania",
+    "AUS":"Australia",
+    "CHN":"China",
+    "CZE":"Czech Republic",
+    "EGY":"Egypt",
+    "DEU":"Germany",
+    "Ghana":"Ghana",
+    "GRC":"Greece",
+    "HUN":"Hungary",
+    "IND":"India",
+    "IRL":"Ireland",
+    "ITA":"Italy",
+    "LUX":"Luxembourg",
+    "MLT":"Malta",
+    "MOZ":"Mozambique",
+    "PRT":"Portugal",
+    "ROU":"Romania",
+    "SGO":"Singapore",
+    "ZAF":"South Africa",
+    "ESP":"Spain",
+    "TZA":"Tanzania, United Republic Of",
+    "TUR":"Turkey",
+    "GBR":"United Kingdom",
+    "USA":"United States"
+}
 
 company = 'Vodafone'
-final_jobs = []
+jobs = []
 
-response = requests.get(sitemap_url)
+scraper = Scraper(url)
+scraper.get_from_url(url, "JSON")
 
-# split the response text by newline to get a list of URLs
-urls = response.text.split('\n')
+total_jobs = scraper.markup["count"]
+step = 10
+pages = ceil(total_jobs / step)
 
-# filter and print URLs containing '-rou?'
-for url in urls:
-    if '-rou?' in url:
-        url_part = url.split('/')
-        last_part = url_part[-1]
-        last_part_split = last_part.split('-')
+for page in range(0, pages):
+    url = f"https://jobs.vodafone.com/api/apply/v2/jobs?domain=vodafone.com&start={page * step}&num={step}&domain=vodafone.com&sort_by=relevance"
+    scraper.get_from_url(url, "JSON")
+    for job in scraper.markup["positions"]:
+        locations = job["location"].split(",")
+        country = locations[-1].strip()
+        city = locations[0].strip()
 
-        job_title_parts = last_part_split[1:-2]
+        if countrys.get(country) != None:
+            country = countrys.get(country)
 
-        job_title_parts = list(dict.fromkeys(job_title_parts))
-
-        job_title = ' '.join([word.capitalize() for word in job_title_parts])
-
-        final_jobs.append(create_job(
-            job_title = job_title,
-            company = company,
-            country = 'Romania',
-            city = 'Bucharest',
-            job_link = url
+        jobs.append(create_job(
+            job_title=job["name"],
+            job_link=job["canonicalPositionUrl"],
+            city=city,
+            country=country,
+            company=company,
         ))
 
 for version in [1,4]:
-    publish(version, company, final_jobs, 'Grasum_Key')
+    publish(version, company, jobs, 'Grasum_Key')
 
 publish_logo(company, 'https://static.vscdn.net/images/careers/demo/eightfolddemo-vodafone2/8d898eb4-685e-441a-9b64-9.png')
 
-print(json.dumps(final_jobs, indent=4))
+show_jobs(jobs)
