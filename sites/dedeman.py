@@ -36,6 +36,6 @@ for job in job_announces:
 for version in [1, 4]:
     publish(version, company, final_jobs, 'Grasum_Key')
 
-publish_logo(company, 'https://recrutare.dedeman.ro/assets/images/logo.svg?v=12')
+publish_logo(company, 'https://i.dedeman.ro/dedereact/design/images/logo.svg')
 
 print(json.dumps(final_jobs, indent=4, sort_keys=True)) 
