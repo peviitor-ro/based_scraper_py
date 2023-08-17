@@ -40,6 +40,6 @@ for job in jobs_elements:
 for version in [1,4]:
     publish(version, company, jobs, 'APIKEY')
 
-publish_logo(company, 'https://images.admiralcloud.com/customer_609/cd351ef9-39bc-4e90-8ad6-89a887c05abc?response-content-disposition=inline%3B%20filename%3DAHK-Ro_NEU.svg&Expires=1690980719&Key-Pair-Id=K3XAA2YI8CUDC&Signature=PVTskdmMypVkDOEi3WbNcSGOzyaWbaSimVIXonQjx8clmcajJiq1JN7a8stBGPZ6-MD4uf8GyxHqANtWAwmzWvCEavnKglj6ilw9YygknnkmrBz6iNsUS-O0Jwhxt834PT9D3yvK3QiYDFAJ0p7r6Gk~zKavgyDcrmN2nkvDEnKwwGOYcVwXqT1e2KoVLE5hgg5sIjHEprkDFOpjatmIDc366aoAmhpxk5Ovs5z0hFfJcsWNDilOhAQb1kZfj-ksu0WosO0grpE1Zp3LhRxvLccbHQ2M5deQ73K9imCE7gqLCAXndrs7IxZJCjGcs8-j-4ETt~Lg1o7YVvbA9lz90w__')
+publish_logo(company, 'https://upload.wikimedia.org/wikipedia/commons/thumb/a/a9/AHK-Logo.svg/512px-AHK-Logo.svg.png')
 show_jobs(jobs)
 

@@ -1,46 +1,30 @@
-from scraper_peviitor import Scraper, loadingData
-import uuid
+from scraper.Scraper import Scraper
+from utils import (publish, publish_logo, create_job, show_jobs)
 import json
-
 url = "https://careers.veeam.com/api/vacancy"
 
-company = {"company": "Veeam"}
-finalJobs = list()
+company = "Veeam"
+jobs = []
 
-scraper = Scraper(url)
+scraper = Scraper()
+scraper.get_from_url(url, "JSON")
 
-jobs = scraper.getJson()
+jobs_elements = scraper.markup
 
-for job in jobs:
-    country = job.get("location")[0].get("country")
+for job in jobs_elements:
+    city = job["location"][0]["city"]
+    if city == None:
+        city = job["location"][0]["country"]
+    jobs.append(create_job(
+        job_title=job["title"],
+        job_link=job["applyUrl"],
+        city=city,
+        country=job["location"][0]["country"],
+        company=company,
+    ))
 
-    if country == "Romania":
-        id = uuid.uuid4()
-        job_title = job.get("title")
-        job_link = job.get("applyUrl")
-        city = job.get("location")[0].get("city")
+for version in [1,4]:
+    publish(version, company, jobs, 'APIKEY')
 
-        finalJobs.append({
-            "id": str(id),
-            "job_title": job_title,
-            "job_link": job_link,
-            "country": country,
-            "city": city,
-            "company": company.get("company")
-        })
-
-print(json.dumps(finalJobs, indent=4)) 
-
-loadingData(finalJobs, company.get("company"))
-
-logoUrl = "https://img.veeam.com/careers/logo/veeam/veeam_logo_bg.svg"
-
-scraper.session.headers.update({
-    "Content-Type": "application/json",
-})
-scraper.post( "https://api.peviitor.ro/v1/logo/add/" ,json.dumps([
-    {
-        "id":company.get("company"),
-        "logo":logoUrl
-    }
-]))
+publish_logo(company, 'https://img.veeam.com/careers/logo/veeam/veeam_logo_bg.svg')
+show_jobs(jobs)  
