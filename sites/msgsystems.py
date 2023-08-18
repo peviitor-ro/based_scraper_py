@@ -32,4 +32,3 @@ for version in [1,4]:
 publish_logo(company, 'https://www.msg-systems.ro/images/20200219_Logo_msg.svg')
 
 print(json.dumps(final_jobs, indent=4))
-print(len(final_jobs))
