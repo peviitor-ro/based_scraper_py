@@ -21,7 +21,7 @@ for job_item in soup.find_all('div', class_='job-item'):
     final_jobs.append({
         'job_title': job_title,
         'job_link': job_link,
-        'job_location': job_city,
+        'city': job_city,
         'country': 'Romania',
         'company': company
     })
