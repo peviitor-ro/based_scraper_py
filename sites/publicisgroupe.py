@@ -1,44 +1,29 @@
-from scraper_peviitor import Scraper, loadingData, Rules
-import uuid
-import json
+from scraper.Scraper import Scraper
+from utils import (publish, publish_logo, create_job, show_jobs)
 
 url = "https://careers.smartrecruiters.com/PublicisGroupe?search=Romania"
 
-company = {"company": "PublicisGroupe"}
+company = "PublicisGroupe"
 finalJobs = list()
 
-scraper = Scraper(url)
-rules = Rules(scraper)
+scraper = Scraper()
+scraper.get_from_url(url)
 
-jobs = rules.getTags("li", {"class": "job"})
+jobs_containers = scraper.find_all("section", class_="openings-section")
 
-for job in jobs:
-    id = uuid.uuid4()
-    job_title = job.find("h4", {"class":"job-title"}).text.strip()
-    job_link = job.find("a").get("href")
-    city = job.find("p", {"class": "job-desc"}).find("span").text.split(",")[0].strip()
+for job_container in jobs_containers:
+    jobs = job_container.find("ul", class_="opening-jobs grid--gutter padding--none js-group-list").find_all("li")
+    for job in jobs:
+        finalJobs.append(create_job(
+            job_title=job.find("h4").text,
+            job_link=job.find("a")['href'],
+            country="Romania",
+            city="Romania",
+            company=company,
+        ))
 
-    finalJobs.append({
-        "id": str(id),
-        "job_title": job_title,
-        "job_link": job_link,
-        "country": "Romania",
-        "city": city,
-        "company": company.get("company")
-    })
+for version in [1,4]:
+    publish(version, company, finalJobs, 'APIKEY')
 
-print(json.dumps(finalJobs, indent=4))
-
-loadingData(finalJobs, company.get("company"))
-
-logoUrl = "https://c.smartrecruiters.com/sr-company-logo-prod-aws-dc1/58822766e4b0680b1154ae69/huge?r=s3&_1533642429153"
-
-scraper.session.headers.update({
-    "Content-Type": "application/json",
-})
-scraper.post( "https://api.peviitor.ro/v1/logo/add/" ,json.dumps([
-    {
-        "id":company.get("company"),
-        "logo":logoUrl
-    }
-]))
+publish_logo(company, "https://c.smartrecruiters.com/sr-company-logo-prod-aws-dc1/58822766e4b0680b1154ae69/huge?r=s3&_1533642429153")
+show_jobs(finalJobs)
