@@ -3,6 +3,7 @@ import json
 from bs4 import BeautifulSoup
 from utils import *
 
+#url = 'https://www.8x8.com/careers?city=cluj-napoca&country=romania'
 url = 'https://jobs.lever.co/8x8?location=Cluj-Napoca%2C%20Romania'
 company = '8x8'
 
