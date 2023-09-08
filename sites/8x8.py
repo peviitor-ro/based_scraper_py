@@ -3,7 +3,7 @@ import json
 from bs4 import BeautifulSoup
 from utils import *
 
-url = 'https://jobs.lever.co/8x8?location=Cluj-Napoca%2C%20Romania'
+url = 'https://jobs.lever.co/8x8'
 company = '8x8'
 
 response = requests.get(url)
