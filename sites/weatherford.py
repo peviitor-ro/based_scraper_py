@@ -1,7 +1,7 @@
 from scraper.Scraper import Scraper
 from utils import (create_job, publish, publish_logo, show_jobs)
 
-url = "https://external-weatherford.icims.com/jobs/search?ss=1&searchRelation=keyword_all&searchLocation=--PLOIESTI&mobile=false&width=1424&height=500&bga=true&needsRedirect=false&jan1offset=120&jun1offset=180&in_iframe=1"
+url = "https://external-weatherford.icims.com/jobs/search?ss=1&searchRelation=keyword_all&searchLocation=13526--&mobile=false&width=1424&height=500&bga=true&needsRedirect=false&jan1offset=120&jun1offset=180&in_iframe=1"
 
 company = "Weatherford"
 jobs = []
