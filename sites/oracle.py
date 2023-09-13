@@ -1,48 +1,35 @@
-from scraper_peviitor import Scraper, Rules, loadingData
-import uuid
-import json
+from scraper.Scraper import Scraper
+from utils import (publish, publish_logo, create_job, show_jobs)
+from math import ceil
 
-url = "https://eeho.fa.us2.oraclecloud.com/hcmRestApi/resources/latest/recruitingCEJobRequisitions?onlyData=true&expand=requisitionList.secondaryLocations,flexFieldsFacet.values&finder=findReqs;siteNumber=CX_45001,facetsList=LOCATIONS%3BWORK_LOCATIONS%3BWORKPLACE_TYPES%3BTITLES%3BCATEGORIES%3BORGANIZATIONS%3BPOSTING_DATES%3BFLEX_FIELDS,limit=200,locationId=300000000149199,sortBy=POSTING_DATES_DESC"
+url = 'https://eeho.fa.us2.oraclecloud.com/hcmRestApi/resources/latest/recruitingCEJobRequisitions?onlyData=true&expand=requisitionList.secondaryLocations,flexFieldsFacet.values&finder=findReqs;siteNumber=CX_45001,facetsList=LOCATIONS%3BWORK_LOCATIONS%3BWORKPLACE_TYPES%3BTITLES%3BCATEGORIES%3BORGANIZATIONS%3BPOSTING_DATES%3BFLEX_FIELDS,limit=1,locationId=300000000149199,sortBy=POSTING_DATES_DESC'
 
-company = {"company": "Oracle"}
-finaljobs = list()
+company = 'Oracle'
+jobs = []
 
-scraper = Scraper(url)
-rules = Rules(scraper)
+scraper = Scraper()
+scraper.get_from_url(url, 'JSON')
 
-jobs = scraper.getJson().get("items")[0].get("requisitionList")
+total_jobs = scraper.markup.get('items')[0].get('TotalJobsCount')
 
-for job in jobs:
-    id = uuid.uuid4()
-    job_title = job.get("Title")
-    job_link = "https://careers.oracle.com/jobs/#en/sites/jobsearch/job/" + job.get("Id")
+step = 200
+pages = ceil(total_jobs / step)
 
-    try:
-        city = job.get("PrimaryLocation").split(",")[0]
-    except:
-        city = "Romania"
+for page in range(pages):
+    url = f'https://eeho.fa.us2.oraclecloud.com/hcmRestApi/resources/latest/recruitingCEJobRequisitions?onlyData=true&expand=requisitionList.secondaryLocations,flexFieldsFacet.values&finder=findReqs;siteNumber=CX_45001,facetsList=LOCATIONS%3BWORK_LOCATIONS%3BWORKPLACE_TYPES%3BTITLES%3BCATEGORIES%3BORGANIZATIONS%3BPOSTING_DATES%3BFLEX_FIELDS,limit={step},locationId=300000000149199,sortBy=POSTING_DATES_DESC,,offset={page * step}'
+    scraper.get_from_url(url, 'JSON')
     
-    finaljobs.append({
-        "id": str(id),
-        "job_title": job_title,
-        "job_link": job_link,
-        "company": company.get("company"),
-        "country": "Romania",
-        "city": city
-    })
+    for job in scraper.markup.get('items')[0].get('requisitionList'):
+        jobs.append(create_job(
+            job_title=job.get('Title'),
+            job_link=f'https://careers.oracle.com/jobs/#en/sites/jobsearch/job/{job.get("Id")}',
+            company=company,
+            country='Romania',
+            city=job.get('PrimaryLocation').split(',')[0]
+        ))
 
-print(json.dumps(finaljobs, indent=4))
+for version in [1,4]:
+    publish(version, company, jobs, 'APIKEY')
 
-loadingData(finaljobs, company.get("company"))
-
-logoUrl = "https://www.oracle.com/a/ocom/img/oracle-rgb-c74634.png"
-
-scraper.session.headers.update({
-    "Content-Type": "application/json",
-})
-scraper.post( "https://api.peviitor.ro/v1/logo/add/" ,json.dumps([
-    {
-        "id":company.get("company"),
-        "logo":logoUrl
-    }
-]))
+publish_logo(company, 'https://www.oracle.com/a/ocom/img/oracle-rgb-c74634.png')
+show_jobs(jobs)
