@@ -136,3 +136,4 @@ dmypy.json
 wget-log
 exclude/
 /node_modules
+Delete.py
