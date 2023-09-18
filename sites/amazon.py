@@ -1,43 +1,48 @@
-from scraper_peviitor import Scraper, loadingData
-import uuid
-import json
 
-url = "https://www.amazon.jobs/en/search.json?normalized_country_code%5B%5D=ROU&radius=24km&facets%5B%5D=normalized_country_code&facets%5B%5D=normalized_state_name&facets%5B%5D=normalized_city_name&facets%5B%5D=location&facets%5B%5D=business_category&facets%5B%5D=category&facets%5B%5D=schedule_type_id&facets%5B%5D=employee_class&facets%5B%5D=normalized_location&facets%5B%5D=job_function_id&facets%5B%5D=is_manager&facets%5B%5D=is_intern&offset=&result_limit=100&sort=relevant&latitude=&longitude=&loc_group_id=&loc_query=&base_query=&city=&country=&region=&county=&query_options=&location%5B%5D=bucharest-romania&"
+from scraper.Scraper import Scraper
+from utils import (create_job, publish_logo, publish, show_jobs)
 
-company = {"company": "Amazon"}
-finalJobs = list()
+company = 'Amazon'
+jobs = []
 
-scraper = Scraper(url)
+scraper = Scraper()
+offset = 0
 
-jobs = scraper.getJson().get("jobs")
+while True:
+    url = f'https://www.amazon.jobs/en/search.json?radius=24km&facets%5B%5D=normalized_country_code&facets%5B%5D=normalized_state_name&facets%5B%5D=normalized_city_name&facets%5B%5D=location&facets%5B%5D=business_category&facets%5B%5D=category&facets%5B%5D=schedule_type_id&facets%5B%5D=employee_class&facets%5B%5D=normalized_location&facets%5B%5D=job_function_id&facets%5B%5D=is_manager&facets%5B%5D=is_intern&offset={offset}&result_limit=100&sort=relevant&latitude=&longitude=&loc_group_id=&loc_query=Romania&base_query=&city=&country=ROU&region=&county=&query_options=&'
+    scraper.get_from_url(url, type='JSON')
 
-for job in jobs:
-    id = uuid.uuid4()
-    job_title = job.get("title")
-    job_link = "https://www.amazon.jobs" + job.get("job_path")
-    city = job.get("normalized_location").split(",")[0]
-    
-    finalJobs.append({
-        "id": str(id),
-        "job_title": job_title,
-        "job_link": job_link,
-        "country": "Romania",
-        "city": city,
-        "company": company.get("company")
-    })
+    jobs_elements = scraper.markup.get('jobs')
 
-print(json.dumps(finalJobs, indent=4))
+    if len(jobs_elements) == 0:
+        break
 
-loadingData(finalJobs, company.get("company"))
+    for job in jobs_elements:
+        city = job.get('city')
+        if city == 'Virtual':
+            jobs.append(
+                create_job(
+                    job_title=job.get('title'),
+                    job_link='https://www.amazon.jobs' + job.get('job_path'),
+                    country='Romania',
+                    remote=True,
+                    company=company,
+                    )
+                )
+        else:
+            jobs.append(
+                create_job(
+                    job_title=job.get('title'),
+                    job_link='https://www.amazon.jobs' + job.get('job_path'),
+                    country='Romania',
+                    city=city,
+                    company=company,
+                    )
+                )
+    offset += 100
+            
+for version in [1,4]:
+    publish(version,company,jobs,'APIKEY')
 
-logoUrl = "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a9/Amazon_logo.svg/603px-Amazon_logo.svg.png"
-
-scraper.session.headers.update({
-    "Content-Type": "application/json",
-})
-scraper.post( "https://api.peviitor.ro/v1/logo/add/" ,json.dumps([
-    {
-        "id":company.get("company"),
-        "logo":logoUrl
-    }
-]))
+publish_logo(company, 'https://upload.wikimedia.org/wikipedia/commons/thumb/a/a9/Amazon_logo.svg/603px-Amazon_logo.svg.png')
+show_jobs(jobs)
