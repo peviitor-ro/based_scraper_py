@@ -17,12 +17,11 @@ total_jobs = json.loads("{" + re.search(pattern, scraper.prettify()).group(1) + 
 
 async def get_jobs():
     jobs = list()
-    for i in range(1, ceil(total_jobs / 10) + 1):
+    for i in range(0, ceil(total_jobs / 10)):
         scraper.get_from_url(url + f'?from={i * 10}&s=1')
         pattern = re.compile(r"phApp.ddo = {(.*?)};", re.DOTALL)
         data = re.search(pattern, scraper.prettify()).group(1)
         jobs += json.loads("{" + data + "}").get("eagerLoadRefineSearch").get("data").get("jobs")
-        print(len(jobs))
     return jobs
     
 async def main():
