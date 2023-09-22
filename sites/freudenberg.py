@@ -2,7 +2,7 @@ from scraper.Scraper import Scraper
 from utils import (publish, publish_logo, create_job, show_jobs)
 
 company = 'Freudenberg'
-url = 'https://jobs.freudenberg.com/Freudenberg/ro/?company=FPM&location=RO'
+url = 'https://jobs.freudenberg.com/Freudenberg/ro/?location=RO'
 
 scraper = Scraper()
 scraper.get_from_url(url)
