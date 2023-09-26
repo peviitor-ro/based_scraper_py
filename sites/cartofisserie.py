@@ -29,9 +29,9 @@ for job in job_elements:
             }
     )
 
-#for version in [1,4]:
-    #    publish(version, company, final_jobs, 'Grasum_Key')
+for version in [1,4]:
+    publish(version, company, final_jobs, 'Grasum_Key')
 
-#publish_logo(company, 'https://content.ejobs.ro/img/logos/2/286239.png')
+publish_logo(company, 'https://content.ejobs.ro/img/logos/2/286239.png')
 
 print(json.dumps(final_jobs, indent=4))
