@@ -18,7 +18,6 @@ for url in urls:
     job_elements = soup.find('div', class_='cards fortech-cards')
 
     for job in job_elements:
-        # Check if the 'href' attribute exists before accessing it
         job_link = job.find('a')
         if job_link and 'title' in job_link.attrs:
             job_title = job_link['title']
@@ -29,6 +28,7 @@ for url in urls:
                     'job_title' : job_title,
                     'job_url' : job_url,
                     'city' : 'Cluj-Napoca',
+                    'county': 'Cluj',
                     'country' : 'Romania',
                     'company' : company
                 }
