@@ -1,54 +1,43 @@
-from scraper_peviitor import Scraper, Rules, loadingData
-import uuid
-import json
+from scraper.Scraper import Scraper
+from utils import (publish, publish_logo, create_job, show_jobs)
 
-url = "https://magnaelectronicsromania.teamtailor.com/jobs?page="
-
-company = {"company": "MagnaElectronics"}
-finalJobs = list()
+company = 'MagnaElectronics'
+url = 'https://magnaelectronicsromania.teamtailor.com/jobs?page='
 
 scraper = Scraper()
-rules = Rules(scraper)
+
+jobs = []
 page = 1
 
 while True:
-    scraper.url = url + str(page)
-    jobs = []
+    scraper.get_from_url(url + str(page), "HTML")
 
-    try:
-        jobs = rules.getTag("div", {"id": "jobs"}).find("div",{"class":"mx-auto text-lg block-max-w--md"}).find_all("li")
-    except:
+    jobsElements = scraper.find_all("li", class_ = "transition-opacity duration-150 border rounded block-grid-item border-block-base-text border-opacity-15")
+
+    print(len(jobsElements))
+    if len(jobsElements) == 0:
         break
 
-    for job in jobs:
-        id = uuid.uuid4()
-        job_title = job.find("span", {"class": "text-block-base-link"}).text.strip()
+    for job in jobsElements:
+        job_title = job.find("span", class_ = "text-block-base-link company-link-style").text.strip()
         job_link = job.find("a").get("href")
-        city = job.find("div", {"class": "mt-1 text-md"}).find_all("span")[2].text.split(",")[0].strip()
+        try:
+            city = job.find("div", class_ = "mt-1 text-md").find_all("span")[2].text.split(",")[0].strip()
+        except:
+            city = "Romania"
 
-        finalJobs.append({
-            "id": str(id),
-            "job_title": job_title,
-            "job_link": job_link,
-            "company": company.get("company"),
-            "country": "Romania",
-            "city": city
-        })
+        jobs.append(create_job(
+            job_title=job_title,
+            job_link=job_link,
+            city=city,
+            country='Romania',
+            company=company,
+        ))
 
     page += 1
+    
+for version in [1,4]:
+    publish(version, company, jobs, 'APIKEY')
 
-print(json.dumps(finalJobs, indent=4))
-
-loadingData(finalJobs, company.get("company"))
-
-logoUrl = "https://images.teamtailor-cdn.com/images/s3/teamtailor-production/logotype-v3/image_uploads/6901fc63-3786-4d8b-8230-aa1bcd971324/original.png"
-
-scraper.session.headers.update({
-    "Content-Type": "application/json",
-})
-scraper.post( "https://api.peviitor.ro/v1/logo/add/" ,json.dumps([
-    {
-        "id":company.get("company"),
-        "logo":logoUrl
-    }
-]))
+publish_logo(company, 'https://images.teamtailor-cdn.com/images/s3/teamtailor-production/logotype-v3/image_uploads/6901fc63-3786-4d8b-8230-aa1bcd971324/original.png')
+show_jobs(jobs)
