@@ -27,6 +27,7 @@ for url in urls:
                 {
                     'job_title' : job_title,
                     'job_url' : job_url,
+                    'remote' : 'remote',
                     'city' : 'Cluj-Napoca',
                     'county': 'Cluj',
                     'country' : 'Romania',
