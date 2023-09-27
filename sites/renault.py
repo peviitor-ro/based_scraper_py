@@ -26,13 +26,15 @@ iteration = [i for i in range(0, numberOfJobs, 20)]
 company = {"company": "Renault"}
 finaljobs = list()
 
+
+
 # Pentru fiecare numar din lista, extragem joburile
 for num in iteration:
     data["offset"] = num
     jobs = scraper.post(apiUrl, json=data).json().get("jobPostings")
     for job in jobs:
         id = uuid.uuid4()
-        job_title = job.get("title")
+        job_title = job.get("title").replace("[", "").replace("]", "")
         job_link = "https://alliancewd.wd3.myworkdayjobs.com/ro-RO/renault-group-careers" + \
             job.get("externalPath")
         city = job.get("bulletFields")[0]
