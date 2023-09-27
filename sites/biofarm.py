@@ -1,31 +1,30 @@
-from scraper_peviitor import Scraper, loadingData, Rules
-import uuid
-import json
+from scraper.Scraper import Scraper
+from utils import (publish, publish_logo, create_job, show_jobs)
 
-url = "https://www.biofarm.ro/cariere/job-uri-disponibile"
+company = 'Biofarm'
+url = 'https://mingle.ro/api/boards/mingle/jobs?q=companyUid~eq~%22biofarm%22&page=0&pageSize=1000&sort=modifiedDate~DESC'
 
-scraper = Scraper(url)
-rules = Rules(scraper)
+scraper = Scraper()
+scraper.get_from_url(url, "JSON")
 
-jobs= rules.getTag("main", {"class": "site-main"}).find("ul").find_all("li")
+jobs = []
 
-company = {"company": "Biofarm"}
-finalJobs = list()
+for job in scraper.markup['data']['results']:
+    try:
+        city = job['locations'][0]['name']
+    except:
+        city = 'Romania'
 
-for job in jobs:
-    id = uuid.uuid4()
-    job_title = job.find("a").text.strip()
-    job_link = job.find("a").get("href")
+    jobs.append(create_job(
+        job_title=job['jobTitle'],
+        job_link='https://biofarm.mingle.ro/ro/embed/apply/' + job['publicUid'],
+        city=city,
+        country='Romania',
+        company=company,
+    ))
 
-    finalJobs.append({
-        "id": str(id),
-        "job_title": job_title,
-        "job_link": job_link,
-        "company": company.get("company"),
-        "country": "Romania",
-        "city": "Romania"
-    })
+for version in [1,4]:
+    publish(version, company, jobs, 'APIKEY')
 
-print(json.dumps(finalJobs, indent=4))
-
-loadingData(finalJobs, company.get("company"))
+publish_logo(company, 'https://www.selgros.ro/themes/contrib/garnet/dist/assets/branding/logo-selgros.svg')
+show_jobs(jobs)

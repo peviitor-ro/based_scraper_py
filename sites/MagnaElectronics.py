@@ -14,7 +14,6 @@ while True:
 
     jobsElements = scraper.find_all("li", class_ = "transition-opacity duration-150 border rounded block-grid-item border-block-base-text border-opacity-15")
 
-    print(len(jobsElements))
     if len(jobsElements) == 0:
         break
 
