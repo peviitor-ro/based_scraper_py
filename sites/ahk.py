@@ -17,25 +17,29 @@ jobs = []
 jobs_elements = scraper.find('div', class_='b-page-content b-page-content--main').find_all("section")
 
 for job in jobs_elements:
-    job_elem = job.find('header')
-    if job_elem:
-        link_element = job.find('a', class_='rte_button--colored')
-        if link_element:
-            parsed = urllib.parse.urlparse(link_element['href'])
-            if bool(parsed.netloc):  # The URL is absolute
-                job_link = link_element['href']
-            else:  # The URL is relative
-                job_link = 'https://www.ahkrumaenien.ro' + link_element['href']
-        else:
-            job_link = None
+    job_elem = job.find('div', class_='g-container')
+    try:
+        if job_elem:
+            link_element = job.find('a', class_='rte_button--colored')
+            if link_element:
+                parsed = urllib.parse.urlparse(link_element['href'])
+                if bool(parsed.netloc):  # The URL is absolute
+                    job_link = link_element['href']
+                else:  # The URL is relative
+                    job_link = 'https://www.ahkrumaenien.ro' + link_element['href']
+            else:
+                job_link = None
 
-        jobs.append(create_job(
-            job_title=job.find('h3').text,
-            job_link=job_link,
-            city='Romania',
-            country='Romania',
-            company=company,
-        ))
+            if job_link:
+                jobs.append(create_job(
+                    job_title=job.find('h3').text,
+                    job_link=job_link,
+                    city='Romania',
+                    country='Romania',
+                    company=company,
+                ))
+    except:
+        continue
 
 for version in [1,4]:
     publish(version, company, jobs, 'APIKEY')
