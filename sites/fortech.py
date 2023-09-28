@@ -26,7 +26,7 @@ for url in urls:
             final_jobs.append(
                 {
                     'job_title' : job_title,
-                    'job_url' : job_url,
+                    'job_link' : job_url,
                     'remote' : 'remote',
                     'city' : 'Cluj-Napoca',
                     'county': 'Cluj',

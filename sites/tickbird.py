@@ -24,7 +24,7 @@ for job in data['data']:
     final_jobs.append(
         {
             'job_title': job_title,
-            'job_url': job_url,
+            'job_link': job_url,
             'city': city,
             'county': state,
             'country': country,
