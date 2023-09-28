@@ -32,7 +32,8 @@ for job in job_elements.find_all('div', class_='career-wrapper'):
                 job_title = job_title,
                 job_link = job_link,
                 country = 'Romania',
-                remote = 'Remote'
+                remote = 'Remote',
+                company = company
             )
         )
     else:
@@ -41,7 +42,8 @@ for job in job_elements.find_all('div', class_='career-wrapper'):
                 job_title = job_title,
                 job_link = job_link,
                 city = city,
-                country = 'Romania'
+                country = 'Romania',
+                company = company
             )
         )
 for version in [1, 4]:
