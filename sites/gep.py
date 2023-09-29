@@ -2,7 +2,7 @@ from scraper.Scraper import Scraper
 from utils import (publish, publish_logo, create_job, show_jobs)
 
 company = 'GEP'
-url = 'https://jobseurope-gep.icims.com/jobs/search?ss=1&searchRelation=keyword_all&searchLocation=13526--Cluj&in_iframe=1'
+url = 'https://jobseurope-gep.icims.com/jobs/search?ss=1&searchRelation=keyword_all&searchLocation=13526&in_iframe=1'
 
 scraper = Scraper()
 scraper.get_from_url(url)
