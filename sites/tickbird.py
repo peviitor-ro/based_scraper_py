@@ -19,7 +19,10 @@ for job in data['data']:
     remote = job.get('Remote_Job', 'No')
     
     if remote == 'Yes':
+        remote = 'remote'
         country = 'Romania'
+    else:
+        remote = 'on-site'
 
     final_jobs.append(
         {
