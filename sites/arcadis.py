@@ -42,16 +42,33 @@ async def main():
     jobs = list()
 
     for job in objs:
-        jobs.append(create_job(
             job_title=job.get("title"),
             job_link=job.get("applyUrl"),
-            company=company,
+            company = 'Arcadis'
             country=job.get("country"),
-            city=job.get("city")
-        ))
+            city=job.get("city"),
+            county = job.get("state"),
+            remote = ''
+
+            if not city and not country:
+                remote = "Yes"
+                city = None
+                county = None
+            else:
+                remote = "On-site"
+
+            jobs.append(create_job(
+                job_title=job_title,
+                job_link=job_link,
+                company=company,
+                country=country,
+                city=city,
+                county=county,
+                remote=remote
+            ))
 
     for version in [1,4]:
         publish(version, company, jobs, 'APIKEY')
-    publish_logo(company, "https://cdn.phenompeople.com/CareerConnectResources/ARCAGLOBAL/images/MicrosoftTeams-image32-1620211091518.png")
+    publish_logo(company, "https://cdn.phenompeople.com/CareerConnectResources/ARCAGLOBAL/images/header-1679586076111.svg")
     show_jobs(jobs)
 asyncio.run(main())
