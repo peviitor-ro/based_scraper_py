@@ -14,7 +14,7 @@ headers = {
     "Content-Type": "application/json",
 }
 
-data = {"appliedFacets":{"locationHierarchy1":["7d7dca02efe30103cd2815e9f401c80a"]},"limit":20,"offset":0,"searchText":""}
+data = {"appliedFacets":{},"limit":20,"offset":0,"searchText":"Romania"}
 
 scraper.session.headers.update(headers)
 
