@@ -21,7 +21,6 @@ def fetch (url, jobs):
     pattern = re.compile(r"phApp.ddo = {(.*?)};", re.DOTALL)
     data = re.search(pattern, scraper.prettify()).group(1)
     jobs += json.loads("{" + data + "}").get("eagerLoadRefineSearch").get("data").get("jobs")
-    print(len(jobs))
 
 async def get_jobs():
     fire = []
