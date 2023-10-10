@@ -1,6 +1,6 @@
 from scraper.Scraper import Scraper
 from utils import (publish, publish_logo, create_job, show_jobs)
-import json
+from getCounty import get_county
 url = "https://careers.veeam.com/api/vacancy"
 
 company = "Veeam"
@@ -16,14 +16,23 @@ for job in jobs_elements:
         country = location["country"]
         city = location["city"]
 
-        if country == "Romania" and (city == "București" or city == "Bucharest"):
-            jobs.append(create_job(
-                job_title=job["title"],
-                job_link=job["applyUrl"],
-                city=city,
-                country=country,
-                company=company,
-            ))
+        if city == "Bucharest":
+            city = "București"
+
+        jobObj = create_job(
+            job_title=job["title"],
+            job_link=job["applyUrl"],
+            city=city,
+            country=country,
+            company=company
+        )
+
+        if country == "Romania":
+            county = get_county(city)
+            jobObj["county"] = county
+
+        jobs.append(jobObj)
+
 
 
 for version in [1,4]:
