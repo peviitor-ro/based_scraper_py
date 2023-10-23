@@ -42,6 +42,3 @@ scraper.post( "https://api.peviitor.ro/v1/logo/add/" ,json.dumps([
         "logo":logoUrl
     }
 ]))
-
-# for testing datasets
-scraper.post("https://dev.laurentiumarian.ro/dataset/based_scraper_py/1and1.py/", json.dumps({"data":len(finalJobs)}))

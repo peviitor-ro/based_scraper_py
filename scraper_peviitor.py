@@ -210,13 +210,16 @@ def loadingData(data : dict, company : str):
     """
 
     apikey = os.environ.get("APIKEY")
-    cleanContentType = "application/x-www-form-urlencoded"
-    updateContentType = "application/json"
+    url_encoded = "application/x-www-form-urlencoded"
+    application_json = "application/json"
 
     for version in [1,4]:
         clean_url = f"https://api.peviitor.ro/v{version}/clean/"
-        requests.post(clean_url, headers={"apikey": apikey, "Content-Type": cleanContentType}, data={"company": company})
+        requests.post(clean_url, headers={"apikey": apikey, "Content-Type": url_encoded}, data={"company": company})
 
         time.sleep(0.5)
         update_url = f"https://api.peviitor.ro/v{version}/update/"
-        requests.post(update_url, headers={"apikey": apikey, "Content-Type": updateContentType}, data = json.dumps(data))
+        requests.post(update_url, headers={"apikey": apikey, "Content-Type": application_json}, data = json.dumps(data))
+
+    data_set_url = f"https://dev.laurentiumarian.ro/dataset/based_scraper_py/{company.lower()}.py/"
+    requests.post(data_set_url, headers={"Content-Type": application_json}, data = json.dumps({"data":len(data)}))
