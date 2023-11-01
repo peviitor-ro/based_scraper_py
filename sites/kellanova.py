@@ -1,17 +1,16 @@
 from scraper_peviitor import Scraper, loadingData, Rules
-import uuid
 import json
+from getCounty import get_county, remove_diacritics
 
-url = "https://jobs.kellogg.com/search/?createNewAlert=false&q=&locationsearch=Romania"
+url = "https://jobs.kellanova.com/search/?createNewAlert=false&q=&locationsearch=Romania&optionsFacetsDD_department=&optionsFacetsDD_country="
 
-company = {"company": "Kelloggs"}
+company = {"company": "Kellanova"}
 finalJobs = list()
 
 scraper = Scraper(url)
 rules = Rules(scraper)
 
 totalJobs = int(rules.getTag("span", {"class": "paginationLabel"}).find_all("b")[-1].text.strip())
-
 paginate = [*range(1, totalJobs, 50)]
 
 for row in paginate:
@@ -21,17 +20,21 @@ for row in paginate:
     jobs = rules.getTag("table", {"id": "searchresults"}).find("tbody").find_all("tr")
 
     for job in jobs:
-        id = uuid.uuid4()
         job_title = job.find("a").text.strip()
-        job_link = "https://jobs.kellogg.com" + job.find("a").get("href")
+        job_link = "https://jobs.kellanova.com" + job.find("a").get("href")
         city = job.find("span", {"class": "jobLocation"}).text.split(",")[0].strip()
 
+        if city == "Bucharest":
+            city = "București"
+
+        county = get_county(city)
+
         finalJobs.append({
-            "id": str(id),
             "job_title": job_title,
             "job_link": job_link,
             "country": "Romania",
-            "city": city,
+            "city": remove_diacritics(city),
+            "county": county,
             "company": company.get("company")
         })
 
