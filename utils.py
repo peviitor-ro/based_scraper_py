@@ -1,11 +1,9 @@
 import requests
-import uuid
 import os
 import json
 
 def create_job(**kwargs):
     job = {}
-    job["id"] = str(uuid.uuid4())
     job.update(kwargs)
     return job
 
