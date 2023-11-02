@@ -19,7 +19,7 @@ for file in files:
 
         scraper_obj = json.loads(matches[0])
 
-        keys = ['id', 'job_title', 'job_link', 'city', 'country', 'company']
+        keys = ['job_title', 'job_link', 'city', 'county','country', 'company']
 
         for job in scraper_obj:
             for key, value in job.items():

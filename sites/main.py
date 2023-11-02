@@ -2,7 +2,7 @@ import os
 import subprocess
 import requests
 
-exclude = ['__init__.py','main.py' , 'kaufland.py', "tesla.py"]
+exclude = ['__init__.py','main.py' , 'kaufland.py', "tesla.py", "kellanova.py"]
 path = os.path.dirname(os.path.abspath(__file__))
 resolveApi = "https://dev.laurentiumarian.ro/scraper/based_scraper_py/"
 
