@@ -49,5 +49,5 @@ for job in jobsElements:
 for version in [1, 4]:
     publish(version, company, jobs, 'DAVIDMONDOC')
 
-publish_logo(company, 'https://www.jobs-continentalhotels.ro/images/logo-cth-white.png')
+publish_logo(company, 'https://www.pngkey.com/png/full/396-3967606_continental-hotels-continental-forum-sibiu-sigla.png')
 show_jobs(jobs)
