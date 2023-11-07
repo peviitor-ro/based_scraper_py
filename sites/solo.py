@@ -19,6 +19,7 @@ for job in raw_jobs:
         "job_link": job_link,
         "company": company,
         "country": country,
+        "county": "Bucuresti",
         "city": city
     })
 
