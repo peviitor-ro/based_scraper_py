@@ -1,5 +1,5 @@
 import requests
-from utils import publish, publish_logo
+from utils import publish, publish_logo, show_jobs
 
 apiurl = "https://cariere.solo.ro/api/jobs/"
 company = "SOLO"
@@ -26,3 +26,4 @@ for v in [1, 4]:
     publish(v, company, jobs, "MSCDAVID")
 
 publish_logo(company, logo)
+show_jobs(jobs)
