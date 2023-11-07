@@ -8,7 +8,7 @@ logo = "https://cariere.solo.ro/assets/img/logo-black.svg"
 raw_jobs = requests.get(apiurl + "list/").json()
 jobs = []
 
-for job in jobs:
+for job in raw_jobs:
     title = job["Title"]
     city = "Bucuresti"
     country = "Romania"
