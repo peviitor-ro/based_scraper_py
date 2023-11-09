@@ -1,6 +1,6 @@
 from scraper.Scraper import Scraper
 from utils import (publish, publish_logo, create_job, show_jobs)
-from getCounty import get_county, remove_diacritics
+from getCounty import get_county
 
 url='https://jobs.ropardo.ro/'
 company='Ropardo'
