@@ -12,13 +12,14 @@ rendered = scraper.get_from_url(url)
 jobs_elements = scraper.find("div", class_="iCIMS_JobsTable").find_all("div", class_="row")
 
 for job in jobs_elements:
-    jobs.append(create_job(
-        company = company,
-        job_title = job.find("div", class_="title").find("a").text,
-        job_link = job.find("div", class_="title").find("a")["href"],
-        country = "Romania",
-        city = "Ploiesti"
-    ))
+    if job.find("div", {'class':'title'}):
+        jobs.append(create_job(
+            company = company,
+            job_title = job.find("div", class_="title").find("a",{'class':'iCIMS_Anchor'}).text.strip(),
+            job_link = job.find("div", class_="title").find("a")["href"],
+            country = "Romania",
+            city = "Ploiesti"
+        ))
 
 for version in [1, 4]:
     publish(version, company, jobs, "APIKEY")
