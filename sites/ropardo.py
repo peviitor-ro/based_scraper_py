@@ -20,7 +20,7 @@ for job in jobsElements:
 
     jobs.append(
         {
-            'job_title':job_title,
+        'job_title':job_title,
          'job_link':job_link,
          'city':city,
          'county':county,
