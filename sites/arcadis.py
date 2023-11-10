@@ -41,7 +41,7 @@ jobs = list()
 for job in response.json().get('refineSearch').get('data').get('jobs'):
     job_title=job.get("title")
     job_link=job.get("applyUrl")
-    country=job.get("country")
+    country="Romania"
     city=job.get("city")
     aditional_location = job.get("multi_location")
 
