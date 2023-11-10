@@ -137,3 +137,5 @@ wget-log
 exclude/
 /node_modules
 Delete.py
+.vscode
+.idea
