@@ -1,6 +1,7 @@
 from scraper.Scraper import Scraper
 import asyncio
 from utils import (publish, publish_logo, create_job, show_jobs)
+from getCounty import get_county
 from math import ceil
 import json
 import re
@@ -41,30 +42,33 @@ async def main():
     jobs = list()
 
     for job in objs:
-            job_title=job.get("title"),
-            job_link=job.get("applyUrl"),
-            company = 'Arcadis'
-            country=job.get("country"),
-            city=job.get("city"),
-            county = job.get("state"),
-            remote = ''
+        job_title=job.get("title")
+        job_link=job.get("applyUrl")
+        country=job.get("country")
+        city=job.get("city")
+        county = job.get("state")
+        remote = ''
 
-            if not city and not country:
-                remote = "Yes"
-                city = None
-                county = None
-            else:
-                remote = "On-site"
+        if not city and not country:
+            remote = "Remote"
+            city = None
+            county = None
+        else:
+            remote = "On-site"
 
-            jobs.append(create_job(
-                job_title=job_title,
-                job_link=job_link,
-                company=company,
-                country=country,
-                city=city,
-                county=county,
-                remote=remote
-            ))
+        if country == "Romania":
+            if city == "Bucharest":city = "Bucuresti"
+            county = get_county(city)
+            if city == "Iasi":county = "Iasi"
+        jobs.append(create_job(
+            job_title=job_title,
+            job_link=job_link,
+            company=company,
+            country=country,
+            city=city,
+            county=county,
+            remote=remote
+        ))
 
     for version in [1,4]:
         publish(version, company, jobs, 'APIKEY')
