@@ -1,77 +1,87 @@
 from scraper.Scraper import Scraper
-import asyncio
-from utils import (publish, publish_logo, create_job, show_jobs)
+from utils import (publish, publish_logo, create_job, show_jobs, translate_city, acurate_city_and_county)
 from getCounty import get_county
-from math import ceil
 import json
-import re
-import threading
 
-url = 'https://careers.arcadis.com/search-results'
+url = 'https://careers.arcadis.com/widgets'
 company = 'Arcadis'
 
 scraper = Scraper()
-scraper.get_from_url(url)
+headers = {
+    'Content-Type': 'application/json',
+}
+scraper.set_headers(headers)
 
-pattern = re.compile(r"phApp.ddo = {(.*?)};", re.DOTALL)
+data = {
+    "lang":"en_global",
+    "deviceType":"desktop",
+    "country":"global",
+    "pageName":"search-results",
+    "ddoKey":"refineSearch",
+    "sortBy":"",
+    "subsearch":"",
+    "from":0,"jobs":True,
+    "counts":True,
+    "all_fields":["category","country","city","state","workplaceTypeCode"],
+    "size":1000,
+    "clearAll":False,
+    "jdsource":"facets",
+    "isSliderEnable":False,
+    "pageId":"page1-migration",
+    "siteType":"external",
+    "location":"","keywords":"",
+    "global":True,
+    "selected_fields":{"country":["Romania"]},
+    "locationData":{}}
 
-total_jobs = json.loads("{" + re.search(pattern, scraper.prettify()).group(1) + "}").get("eagerLoadRefineSearch").get("totalHits")
+response = scraper.post(url, json.dumps(data))
+
 jobs = list()
-def fetch (url, jobs):
-    scraper.get_from_url(url)
-    pattern = re.compile(r"phApp.ddo = {(.*?)};", re.DOTALL)
-    data = re.search(pattern, scraper.prettify()).group(1)
-    jobs += json.loads("{" + data + "}").get("eagerLoadRefineSearch").get("data").get("jobs")
 
-async def get_jobs():
-    fire = []
-    
-    for i in range(0, ceil(total_jobs / 10)):
-        thread = threading.Thread(target=fetch, args=(url + f'?from={i * 10}&s=1', jobs))
-        fire.append(thread)
-    
-    for thread in fire:
-        thread.start()
-    
-    for thread in fire:
-        thread.join()
-    return jobs
+for job in response.json().get('refineSearch').get('data').get('jobs'):
+    job_title=job.get("title")
+    job_link=job.get("applyUrl")
+    country=job.get("country")
+    city=job.get("city")
+    aditional_location = job.get("multi_location")
 
-async def main():
-    objs = await get_jobs()
-    jobs = list()
+    cities = []
+    counties = []
 
-    for job in objs:
-        job_title=job.get("title")
-        job_link=job.get("applyUrl")
-        country=job.get("country")
-        city=job.get("city")
-        county = job.get("state")
-        remote = ''
+    exclude_city = acurate_city_and_county(Iasi={"city": "Iasi", "county": "Iasi"}, Moldavia={"city":"Iasi", "county": "Iasi"})
 
-        if not city and not country:
-            remote = "Remote"
-            city = None
-            county = None
-        else:
-            remote = "On-site"
+    if exclude_city.get(city):
+        cities.append(exclude_city.get(city).get("city"))
+        counties.append(exclude_city.get(city).get("county"))
 
-        if country == "Romania":
-            if city == "Bucharest":city = "Bucuresti"
-            county = get_county(city)
-            if city == "Iasi":county = "Iasi"
-        jobs.append(create_job(
-            job_title=job_title,
-            job_link=job_link,
-            company=company,
-            country=country,
-            city=city,
-            county=county,
-            remote=remote
-        ))
+    elif get_county(translate_city(city)):
+        cities.append(translate_city(city))
+        counties.append(
+            get_county(translate_city(city))
+        )
 
-    for version in [1,4]:
-        publish(version, company, jobs, 'APIKEY')
-    publish_logo(company, "https://cdn.phenompeople.com/CareerConnectResources/ARCAGLOBAL/images/header-1679586076111.svg")
-    show_jobs(jobs)
-asyncio.run(main())
+    for location in aditional_location:
+        aditional_location_city = location.split(",")[0]
+        
+        if exclude_city.get(aditional_location_city) and not exclude_city.get(aditional_location_city).get("city") in cities:
+            cities.append(exclude_city.get(aditional_location_city).get("city"))
+            counties.append(exclude_city.get(aditional_location_city).get("county"))
+        elif get_county(translate_city(aditional_location_city)) and not translate_city(aditional_location_city) in cities:
+            cities.append(translate_city(aditional_location_city))
+            counties.append(
+                get_county(translate_city(aditional_location_city))
+            )
+
+    jobs.append(create_job(
+        job_title=job_title,
+        job_link=job_link,
+        company=company,
+        country=country,
+        city=cities,
+        county=counties,
+    ))
+
+for version in [1,4]:
+    publish(version, company, jobs, 'APIKEY')
+publish_logo(company, "https://cdn.phenompeople.com/CareerConnectResources/ARCAGLOBAL/images/header-1679586076111.svg")
+show_jobs(jobs)
