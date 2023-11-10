@@ -35,3 +35,20 @@ def publish_logo(company, logo_url):
 
 def show_jobs(data):
     print(json.dumps(data, indent=4))
+
+def translate_city(city):
+    cities = {
+        "bucharest": "Bucuresti",
+        "cluj": "Cluj-Napoca",
+    }
+    
+    if cities.get(city.lower()):
+        return cities.get(city.lower())
+    else:
+        return city
+    
+def acurate_city_and_county(**kwargs):
+    city_and_county = {}
+    city_and_county.update(kwargs)
+
+    return city_and_county
