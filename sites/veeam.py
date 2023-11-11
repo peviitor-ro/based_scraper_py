@@ -1,6 +1,7 @@
 from scraper.Scraper import Scraper
-from utils import (publish, publish_logo, create_job, show_jobs)
+from utils import (publish, publish_logo, create_job, show_jobs, translate_city)
 from getCounty import get_county
+
 url = "https://careers.veeam.com/api/vacancy"
 
 company = "Veeam"
@@ -16,24 +17,20 @@ for job in jobs_elements:
         country = location["country"]
         city = location["city"]
 
-        if city == "Bucharest":
-            city = "București"
-
         jobObj = create_job(
             job_title=job["title"],
-            job_link=job["applyUrl"],
+            job_link="https://jobs.smartrecruiters.com/Veeam2/" + job["remoteId"],
             city=city,
             country=country,
             company=company
         )
 
         if country == "Romania":
-            county = get_county(city)
+            jobObj["job_link"] = job["applyUrl"]
+            county = get_county(translate_city(city))
             jobObj["county"] = county
 
         jobs.append(jobObj)
-
-
 
 for version in [1,4]:
     publish(version, company, jobs, 'APIKEY')
