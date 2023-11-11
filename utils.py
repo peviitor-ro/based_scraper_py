@@ -38,8 +38,13 @@ def show_jobs(data):
 
 def translate_city(city):
     cities = {
+        # This is general for all scrapers
         "bucharest": "Bucuresti",
         "cluj": "Cluj-Napoca",
+        # This is for Arabesque Scraper
+        "targul-mures": "Targu Mures",
+        "militari": "Bucuresti",
+        ############################
     }
     
     if cities.get(city.lower()):

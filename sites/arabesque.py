@@ -1,6 +1,7 @@
 from scraper_peviitor import Scraper, Rules, loadingData
-import uuid
 import json
+from getCounty import get_county
+from utils import translate_city, acurate_city_and_county
 
 url = "https://cariere.arabesque.ro"
 
@@ -12,6 +13,10 @@ categories = rules.getTags("div", {"class": "arabesque_homepage_template_categor
 
 company = {"company": "Arabesque"}
 finalJobs = list()
+
+acurate_city = acurate_city_and_county(
+    Iasi={"city": "Iasi", "county": "Iasi"},
+)
 
 #Pentru fiecare categorie de joburi
 for category in categories:
@@ -37,19 +42,37 @@ for category in categories:
         jobs = jobsContainer.find_all("article")
 
     for job in jobs:
-        id = uuid.uuid4()
         job_title = job.find("h4").text.strip()
         job_link = job.get("id").replace("post-", jobUrl + "&job_id=")
+        city = translate_city(job_title.split(" ")[-1].strip().title())
+
+        county = get_county(city)
+
+        if acurate_city.get(city):
+            city = acurate_city.get(city).get("city")
+            county = acurate_city.get(city).get("county")
+
+        elif not county:
+
+            first_name = job_title.split(" ")[-2].strip().title()
+            city = translate_city(first_name + "-" + city)
+            county = get_county(city)
+
+            if not county:
+
+                city = "Bucuresti"
+                county = "Bucuresti"
 
         finalJobs.append({
-            "id": str(id),
             "job_title": job_title,
             "job_link": job_link,
             "company": company.get("company"),
             "country": "Romania",
-            "city": "Romania",
+            "city": city,
+            "county": county
         })
 
 print(json.dumps(finalJobs, indent=4))
 
 loadingData(finalJobs, company.get("company"))
+
