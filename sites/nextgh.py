@@ -1,30 +1,56 @@
-import requests
-from bs4 import BeautifulSoup
-from utils import *
+from scraper.Scraper import Scraper
+from utils import (publish, publish_logo, create_job, show_jobs, translate_city, acurate_city_and_county)
+from getCounty import get_county
 
 url = 'https://careers.smartrecruiters.com/NEXT2'
 company = 'nextgh'
 
-r = requests.get(url)
-soup = BeautifulSoup(r.text, 'html.parser')
+def get_aditional_city(url):
+    scraper = Scraper()
+    scraper.get_from_url(url)
+    country = scraper.find('spl-job-location')["formattedaddress"].split(",")[-1].strip()
+    city = scraper.find('spl-job-location')["formattedaddress"].split(",")[-2].strip()
+    remote = scraper.find('spl-job-location').get("workplacetype").capitalize()
+    data = {}
+    
+    if country == "Romania":
+        city = translate_city(city.replace(" 440247", ""))
+        if city == "Satu Mare":
+            county = "Satu Mare"
+        else:
+            county = get_county(translate_city(city))
 
+        data.update({"city": city, "county": county, "remote": remote , "country": country})
+    else:
+        data.update({"city": city, "county": [], "remote": remote , "country": country})
+
+    return data
+
+scraper = Scraper()
+scraper.get_from_url(url)
+
+jobs_elements = scraper.find_all('li', class_='opening-job job column wide-1of2 medium-1of2')
 final_jobs = []
 
-for job_element in soup.find_all('li', class_='opening-job job column wide-1of2 medium-1of2'):
-    job_title = job_element.find('h4', class_='details-title job-title link--block-target').text.strip()
-    job_url = job_element.find('a')['href']
+for job in jobs_elements:
+    job_title = job.find('h4', class_='details-title job-title link--block-target').text.strip()
+    job_url = job.find('a')['href']
+
+    city , county, remote, country = get_aditional_city(job_url).values()
+    
     final_jobs.append(create_job(
-        job_title = job_title,
-        company = company,
-        country = 'Romania',
-        city = 'Cluj-Napoca',
-        job_link = job_url,
-        )
-    )
+        job_title=job_title,
+        job_link=job_url,
+        company=company,
+        country=country,
+        city=city,
+        county=county,
+        remote=remote,
+    ))
 
 for version in [1,4]:
     publish(version, company, final_jobs, 'Grasum_Key')
 
-publish_logo(company, 'https://scontent.ftsr1-1.fna.fbcdn.net/v/t39.30808-6/271447577_226020786360522_657598264093586690_n.png?_nc_cat=100&ccb=1-7&_nc_sid=09cbfe&_nc_ohc=4fnN6TYDzOAAX8Nblr3&_nc_ht=scontent.ftsr1-1.fna&oh=00_AfAeX3bzkMKDkq8y9yOj0N_D6-ZD_7rqgz5IDEx0W4qnkA&oe=64D1AA45')
+publish_logo(company, 'https://c.smartrecruiters.com/sr-careersite-image-prod-aws-dc5/61dc56cb32959e6e268adf29/247fbdf2-3893-443e-ac5b-114e4516d6de?r=s3-eu-central-1')
 
-print(json.dumps(final_jobs, indent=4))
+show_jobs(final_jobs)
