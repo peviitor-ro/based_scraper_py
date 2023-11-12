@@ -1,8 +1,9 @@
 import requests
 import json
 from utils import *
+from getCounty import *
 
-url = 'https://recrutare.dedeman.ro/sinapsi-jobannounceswithfilter/'
+url = 'https://recrutare.dedeman.ro/api/sinapsi/jobs'
 company = 'DEDEMAN'
 
 data = {
@@ -23,13 +24,19 @@ job_announces = response_data['d']['JobAnnounces']
 final_jobs = []
 
 for job in job_announces:
+    city = job['City']
+    county = get_county(city)
+    input_job_id = job['Id']
+    format_job_title = '+'.join(job["Function"].lower().split())
+    output_job_link = f'https://recrutare.dedeman.ro/detalii-post?job={format_job_title}&id={input_job_id}'
     final_jobs.append(
             create_job(
                 job_title = job['Function'],
                 company = company,
-                city = job['City'],
+                city = city,
+                county = county,
                 country = 'Romania',
-                job_link = 'https://recrutare.dedeman.ro/detalii-post.php?id=' + job['Id']
+                job_link = output_job_link,
             )
         )
 
