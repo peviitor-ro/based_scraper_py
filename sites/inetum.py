@@ -1,7 +1,7 @@
 from scraper_peviitor import Scraper, Rules, loadingData
 import json
 from getCounty import get_county
-from utils import translate_city, acurate_city_and_county
+from utils import translate_city
 
 url = "https://www.inetum.com/en/jobs?f%5B0%5D=region%3A1068"
 
@@ -47,16 +47,16 @@ for page in range(len(paginations)):
 
 print(json.dumps(finalJobs, indent=4))
 
-# loadingData(finalJobs, company.get("company"))
+loadingData(finalJobs, company.get("company"))
 
-# logoUrl = "https://vtlogo.com/wp-content/uploads/2021/05/inetum-vector-logo-small.png"
+logoUrl = "https://vtlogo.com/wp-content/uploads/2021/05/inetum-vector-logo-small.png"
 
-# scraper.session.headers.update({
-#     "Content-Type": "application/json",
-# })
-# scraper.post( "https://api.peviitor.ro/v1/logo/add/" ,json.dumps([
-#     {
-#         "id":company.get("company"),
-#         "logo":logoUrl
-#     }
-# ]))
+scraper.session.headers.update({
+    "Content-Type": "application/json",
+})
+scraper.post( "https://api.peviitor.ro/v1/logo/add/" ,json.dumps([
+    {
+        "id":company.get("company"),
+        "logo":logoUrl
+    }
+]))
