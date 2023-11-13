@@ -1,7 +1,6 @@
 from scraper.Scraper import Scraper
 from utils import (publish, publish_logo, create_job, show_jobs, translate_city, acurate_city_and_county)
 from getCounty import get_county
-import time
 
 company = 'BANCATRANSILVANIA'
 url = 'https://api.ejobs.ro/companies/8092'
