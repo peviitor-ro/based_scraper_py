@@ -45,6 +45,9 @@ def translate_city(city):
         "targul-mures": "Targu Mures",
         "militari": "Bucuresti",
         ############################
+        # This is for Vodafone Scraper
+        "cluj napoca": "Cluj-Napoca",
+        ############################
     }
     
     if cities.get(city.lower()):

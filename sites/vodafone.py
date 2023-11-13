@@ -1,8 +1,10 @@
 from scraper.Scraper import Scraper
 from utils import (publish, publish_logo, create_job, show_jobs)
 from math import ceil
+from getCounty import get_county
+from utils import translate_city
 
-url = " https://jobs.vodafone.com/api/apply/v2/jobs?domain=vodafone.com&start=0&num=10&domain=vodafone.com&sort_by=relevance"
+url = "https://jobs.vodafone.com/api/apply/v2/jobs?domain=vodafone.com&start=0&num=10&exclude_pid=563018677368453&query=Romania&pid=563018677368453&domain=vodafone.com&sort_by=relevance"
 
 countrys = {
     "ALB":"Albania",
@@ -42,23 +44,26 @@ step = 10
 pages = ceil(total_jobs / step)
 
 for page in range(0, pages):
-    url = f"https://jobs.vodafone.com/api/apply/v2/jobs?domain=vodafone.com&start={page * step}&num={step}&domain=vodafone.com&sort_by=relevance"
-    scraper.get_from_url(url, "JSON")
+    
     for job in scraper.markup["positions"]:
         locations = job["location"].split(",")
         country = locations[-1].strip()
-        city = locations[0].strip()
+        city = translate_city(locations[0].strip())
 
-        if countrys.get(country) != None:
-            country = countrys.get(country)
+        if country == "ROU":
+            county = get_county(city)
 
-        jobs.append(create_job(
-            job_title=job["name"],
-            job_link=job["canonicalPositionUrl"],
-            city=city,
-            country=country,
-            company=company,
-        ))
+
+            jobs.append(create_job(
+                job_title=job["name"],
+                job_link=job["canonicalPositionUrl"],
+                city=city,
+                country="Romania",
+                company=company,
+                county=county,
+            ))
+    url = f"https://jobs.vodafone.com/api/apply/v2/jobs?domain=vodafone.com&start={page * step}&num={step}&domain=vodafone.com&sort_by=relevance"
+    scraper.get_from_url(url, "JSON")
 
 for version in [1,4]:
     publish(version, company, jobs, 'Grasum_Key')
