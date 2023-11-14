@@ -38,9 +38,9 @@ for job in job_elements.find_all('div', class_='career-wrapper'):
         )
     )
 
-#for version in [1, 4]:
-    #publish(version, company, final_jobs, 'Grasum_Key')
+for version in [1, 4]:
+    publish(version, company, final_jobs, 'Grasum_Key')
 
-#publish_logo(company, 'https://www.drupal.org/files/styles/grid-4-2x/public/logo%20Tremend%20480%20x480.png')
+publish_logo(company, 'https://www.drupal.org/files/styles/grid-4-2x/public/logo%20Tremend%20480%20x480.png')
 
 print(json.dumps(final_jobs, indent=4))
