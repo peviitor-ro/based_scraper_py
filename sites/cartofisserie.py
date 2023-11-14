@@ -1,8 +1,9 @@
 import requests
 from bs4 import BeautifulSoup
 from utils import *
+from getCounty import *
 
-url = 'https://www.ejobs.ro/company/cartofisserie/286239' 
+url = 'https://www.ejobs.ro/company/cartofisserie/286239'
 company = 'CARTOFISSERIE'
 
 r = requests.get(url)
@@ -17,16 +18,20 @@ for job in job_elements:
     job_url = job.find('h2', class_='JCContentMiddle__Title').find('a')['href']
     job_url = 'https://www.ejobs.ro' + job_url
     job_location = job.find('span', class_='JCContentMiddle__Info').text.replace('\u0219', 's').split('si alte')[0].split(',')
+    cities = [city.strip() for city in job_location]
+
+    counties = [get_county(city) for city in cities if city]  # List of counties for each city
+
     country = 'Romania'
-    company = company
     final_jobs.append(
-            {
-                'job_title' : job_title,
-                'job_url' : job_url,
-                'city' : job_location,
-                'country' : country,
-                'company' : company
-            }
+        {
+            'job_title': job_title,
+            'job_url': job_url,
+            'city': cities,
+            'county': counties,
+            'country': country,
+            'company': company
+        }
     )
 
 for version in [1,4]:
