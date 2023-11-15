@@ -19,10 +19,10 @@ pages = ceil(int(total_jobs) / step)
 for page in range(pages ):
     for job in scraper.markup['positions']:
         cities = [
-            city.split(',')[0].replace('?', 's').replace(' ', '-') for city in job['locations']
+            translate_city(city.split(',')[0].replace('?', 's').replace(' ', '-')) for city in job['locations']
             ]
         counties = [
-            get_county(translate_city(city)) for city in cities
+            get_county(city) for city in cities
         ]
         jobs.append(create_job(
             job_title=job['name'],
