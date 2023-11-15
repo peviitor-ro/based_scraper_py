@@ -27,8 +27,8 @@ for job in job_elements:
         {
             'job_title': job_title,
             'job_url': job_url,
-            'city': cities,
-            'county': counties,
+            'city': ", ".join(cities),
+            'county': ", ".join(counties),
             'country': country,
             'company': company
         }
