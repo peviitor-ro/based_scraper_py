@@ -1,34 +1,42 @@
-from scraper_peviitor import Scraper, Rules, loadingData
-import uuid
-import json
+from scraper.Scraper import Scraper
+from utils import (publish, publish_logo, create_job, show_jobs, translate_city)
+from getCounty import get_county
+from math import ceil
 
 #Cream o instanta a clasei Scraper
-scraper = Scraper("https://cariere.generali.ro/jobs/search?cuvant_cheie=&id_location=0&search_for_jobs=Cauta&jobsno=")
-rules = Rules(scraper)
+url = "https://join.generalicee.com/search/?createNewAlert=false&q=&locationsearch=&optionsFacetsDD_country=RO&optionsFacetsDD_city=&optionsFacetsDD_customfield3=&optionsFacetsDD_customfield4=&optionsFacetsDD_customfield2"
+scraper = Scraper()
+scraper.get_from_url(url)
 
-#Cautam toate tagurile h3 cu clasa h3-list-job-title
-jobs = rules.getTags("h3", {"class": "h3-list-job-title"})
+company = "Generali"
+jobs = list()
 
-company = {"company": "Generali"}
-finaljobs = list()
+totalJobs = scraper.find("span", {"class": "paginationLabel"}).text.strip().split(" ")[-1]
 
-#Pentru fiecare job, extragem titlul, linkul, compania, tara si orasul
-for job in jobs:
-    id = uuid.uuid4()
-    job_title = job.text.strip()
-    job_link = job.find("a").get("href")
+pages = ceil(int(totalJobs) / 10)
 
-    finaljobs.append({
-        "id": str(id),
-        "job_title": job_title,
-        "job_link": job_link,
-        "company": company.get("company"),
-        "country": "Romania",
-        "city": "Romania"
-    })
+for page in range(pages):
+    jobsElements = scraper.find("table", {"id": "searchresults"}).find("tbody").find_all("tr")
+    for job in jobsElements:
+        job_title = job.find("a").text.strip()
+        job_link = "https://join.generalicee.com" + job.find("a")["href"]
+        job_location = job.find("span", {"class": "jobLocation"}).text.strip().split(",")
+        job_city = translate_city(job_location[0].strip())
+        job_county = get_county(job_city)
+        jobs.append(create_job(
+            job_title=job_title,
+            job_link=job_link,
+            company=company,
+            country="Romania",
+            city=job_city,
+            county=job_county
+        ))
 
-#Afisam numarul total de joburi
-print(json.dumps(finaljobs, indent=4))
+    scraper.get_from_url(f"{url}&start={page * 10}")
 
-#Incarcam datele in baza de date
-loadingData(finaljobs, company.get("company"))
+
+for version in [1,4]:
+    publish(version, company, jobs, 'APIKEY')
+
+publish_logo(company, "https://www.generali.ro/wp-content/uploads/2022/06/logo.svg")
+show_jobs(jobs)
