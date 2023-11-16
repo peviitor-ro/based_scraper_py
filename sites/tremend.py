@@ -17,11 +17,14 @@ for job in job_elements:
     job_link = 'https://tremend.com/careers/' + job.find('a')['href'].strip('/')
     location_text = job.find('p', id='location-word').text.strip().replace('Location', '').strip()
 
-    remote = 'Remote' in location_text
+    is_remote = 'Remote' in location_text
     city = None
     county = None
 
-    if not remote:
+    if is_remote:
+        remote = "Remote"
+    else:
+        remote = ""
         city = location_text
         if 'Bucharest' in city:
             city = city.replace('Bucharest', 'Bucuresti')
