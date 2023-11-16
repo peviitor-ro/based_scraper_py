@@ -1,6 +1,7 @@
 from scraper_peviitor import Scraper, loadingData
 import uuid
 import json
+from getCounty import counties
 
 #Folosim ScraperSelenium deoaarece joburile sunt incarcate prin AJAX
 url = 'https://careers.fedex.com/api/jobs?lang=ro-RO&location=Rom%25C3%25A2nia&woe=12&stretch=10&stretchUnit=MILES&page=1&limit=100&sortBy=relevance&descending=false&internal=false&brand=FedEx%20Express%20EU'
@@ -18,6 +19,8 @@ for job in jobs:
     job_title = obj.get('title')
     job_link = obj.get('meta_data').get('canonical_url')
     city = obj.get("city")
+    if city =='Judetul Cluj':
+        city = "Cluj-Napoca"
 
     finaljobs.append({
         "id": str(id),
