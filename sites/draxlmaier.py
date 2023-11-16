@@ -37,7 +37,9 @@ for jobs in jobsPerPage:
         job_title = element.find("a", {"class":"jobTitle-link"}).text
         job_link = "https://d-career.org" + element.find("a", {"class":"jobTitle-link"})['href']
         city = element.find("span", {"class":"jobLocation"}).text.split(',')[0].replace('  ', '').replace('\n', '')
-        
+        if city == 'Codlea Brasov':
+            city='Codlea'
+
         finaljobs.append({
             'id': id,
             'job_title': job_title,
