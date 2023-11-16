@@ -20,7 +20,7 @@ for job in job_elements:
     job_location = job.find('span', class_='JCContentMiddle__Info').text.replace('\u0219', 's').split('si alte')[0].split(',')
     cities = [city.strip() for city in job_location]
 
-    counties = [get_county(city) for city in cities if city]  # List of counties for each city
+    counties = [get_county(city) for city in cities if city] 
 
     country = 'Romania'
     final_jobs.append(
