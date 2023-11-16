@@ -3,6 +3,7 @@ from bs4 import BeautifulSoup
 import json
 import uuid
 import os
+from getCounty import *
 
 company = 'AvangardeSoftware'
 url = 'https://avangarde-software.com/careers/'
@@ -31,11 +32,13 @@ for a_tag in a_tags:
     # Extract location
     location_div = a_tag.find('div', class_='stm_vacancies__location')
     location = location_div.get_text(strip=True).split(',')[0]
-    
+    county = get_county(location)
+
     final_jobs.append({'id': str(uuid.uuid4()),
                        'job_link': url,
                        'job_title': job_title,
                        'city': location,
+                       'county' : county,
                        'country': 'Romania',
                        'company': company})
 

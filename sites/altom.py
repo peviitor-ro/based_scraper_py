@@ -3,6 +3,7 @@ import requests
 import json
 import uuid
 import os
+from getCounty import *
 
 session = requests.session()
 def get_data():
@@ -24,10 +25,12 @@ def get_data():
         job_title = job.find('h2', class_='job-title').text.strip()
         job_link = job.find('h2', class_='job-title').find('a').get('href')
         job_city = job.find('p', class_='job-feed-meta').text.strip()
+        county = get_county(job_city)
         final_jobs.append({'id': str(id),
                             'job_title': job_title, 
                             'job_link': job_link,
                             'city': job_city,
+                            'county': county,
                             'country': 'Romania',
                             'company': 'altom'})
     return final_jobs
@@ -42,4 +45,3 @@ update_data = requests.post('https://api.peviitor.ro/v4/update/', headers={'Cont
 requests.post('https://api.peviitor.ro/v1/logo/add/', headers={'Content_Type': 'application/json'}, data=json.dumps({'id': 'altom', 'logo': 'https://altom.com/app/themes/altom-sage-theme/dist/images/logo-altom_60516779.png'}))
 
 print(json.dumps(data, indent=4))
-

@@ -1,51 +1,48 @@
 import requests
-import json
 from bs4 import BeautifulSoup
 from utils import *
+from getCounty import *
 
 url = 'https://tremend.com/careers/'
 company = 'tremend'
 
-final_jobs = []
-
 r = requests.get(url)
 soup = BeautifulSoup(r.content, 'html.parser')
 
-job_elements = soup.find('div', id='jobs')
+final_jobs = []
+job_elements = soup.find('div', id='jobs').find_all('div', class_='career-wrapper')
 
-for job in job_elements.find_all('div', class_='career-wrapper'):
-    job_title = job.find('h3').text
-    job_link = url + job.find('a')['href']
-    city = job.find('p', id='location-word').text.strip().replace('Location', '').strip()
-    remote = False
-    if city == 'Remote':
-        remote = True
-    else :
-        try:
-            city = city.split(',')[1]
-            remote = True
-        except:
-            city = city
-    if remote :
-        final_jobs.append(
-            create_job(
-                job_title = job_title,
-                job_link = job_link,
-                country = 'Romania',
-                remote = 'Remote',
-                company = company
-            )
-        )
+for job in job_elements:
+    job_title = job.find('h3').text.strip()
+    job_link = 'https://tremend.com/careers/' + job.find('a')['href'].strip('/')
+    location_text = job.find('p', id='location-word').text.strip().replace('Location', '').strip()
+
+    is_remote = 'Remote' in location_text
+    city = None
+    county = None
+
+    if is_remote:
+        remote = "Remote"
     else:
-        final_jobs.append(
-            create_job(
-                job_title = job_title,
-                job_link = job_link,
-                city = city,
-                country = 'Romania',
-                company = company
-            )
-        )
+        remote = ""
+        city = location_text
+        if 'Bucharest' in city:
+            city = city.replace('Bucharest', 'Bucuresti')
+        county = get_county(city) if city else None
+
+    final_jobs.append(
+        {
+            'job_title': job_title,
+            'job_link': job_link,
+            'country': 'Romania',
+            'company': company,
+            'remote': remote
+        }
+    )
+    if city:
+        final_jobs[-1]['city'] = city
+        final_jobs[-1]['county'] = county
+
 for version in [1, 4]:
     publish(version, company, final_jobs, 'Grasum_Key')
 
