@@ -17,10 +17,25 @@ for job in job_elements:
     job_title = job.find('h2', class_='JCContentMiddle__Title').text.strip()
     job_url = job.find('h2', class_='JCContentMiddle__Title').find('a')['href']
     job_url = 'https://www.ejobs.ro' + job_url
-    job_location = job.find('span', class_='JCContentMiddle__Info').text.replace('\u0219', 's').split('si alte')[0].split(',')
-    cities = [city.strip() for city in job_location]
 
-    counties = [get_county(city) for city in cities if city] 
+    location_info = job.find('span', class_='JCContentMiddle__Info')
+    city_parts = location_info.get_text(separator=',').split(',')
+
+    cities = []
+    for part in city_parts:
+        part = part.strip().replace('\u0218', 'S').replace('\u0219', 's')
+        if part and not any(word in part for word in ['orase', 'si alte']) and not part.isdigit():
+            cities.append(part)
+
+    additional_cities_span = location_info.find('span', class_='PartialList__Rest')
+    if additional_cities_span and additional_cities_span.has_attr('title'):
+        additional_cities = additional_cities_span['title'].split(',')
+        for city in additional_cities:
+            city = city.strip().replace('\u0218', 'S').replace('\u0219', 's')
+            if city and not any(word in city for word in ['orase', 'si alte']) and not city.isdigit():
+                cities.append(city)
+
+    counties = [get_county(city) for city in cities if city]
 
     country = 'Romania'
     final_jobs.append(
@@ -28,7 +43,7 @@ for job in job_elements:
             'job_title': job_title,
             'job_url': job_url,
             'city': ", ".join(cities),
-            'county': ", ".join(counties),
+            'county': ", ".join([county for county in counties if county is not None]),
             'country': country,
             'company': company
         }

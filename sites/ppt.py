@@ -12,31 +12,38 @@ soup = BeautifulSoup(r.text, 'html.parser')
 job_elements = soup.find('main', class_='CDInner__Main').find_all('div', class_='JobCard')
 
 final_jobs = []
-counties = []
 
 for job in job_elements:
     job_title = job.find('h2', class_='JCContentMiddle__Title').text.strip()
     job_url = job.find('h2', class_='JCContentMiddle__Title').find('a')['href']
     job_url = 'https://www.ejobs.ro' + job_url
-    job_location = job.find('span', class_='JCContentMiddle__Info').text.replace('\u0219', 's').split('si alte')[0].split(',')
-    clean_job_location = [city.strip() for city in job_location]
 
-    counties = []
-    for city in clean_job_location:
-        if city:
-            county = get_county(city)
-            counties.append(county)
-        else:
-            counties.append(None)
+    location_info = job.find('span', class_='JCContentMiddle__Info')
+    city_parts = location_info.get_text(separator=',').split(',')
+
+    filtered_cities = []
+    for part in city_parts:
+        part = part.strip().replace('\u0218', 'S').replace('\u0219', 's')
+        if part and not any(word in part for word in ['orase', 'si alte']) and not part.isdigit():
+            filtered_cities.append(part)
+
+    additional_cities_span = job.find('span', class_='PartialList__Rest')
+    if additional_cities_span and additional_cities_span.has_attr('title'):
+        additional_cities = additional_cities_span['title'].split(',')
+        for city in additional_cities:
+            city = city.strip().replace('\u0218', 'S').replace('\u0219', 's')
+            if city:
+                filtered_cities.append(city)
+
+    counties = [get_county(city) for city in filtered_cities if city]
 
     country = 'Romania'
-    company = company
     final_jobs.append(
         {
             'job_title': job_title,
             'job_link': job_url,
-            'city': ", ".join(clean_job_location),
-            'county': ", ".join(counties),
+            'city': ", ".join(filtered_cities),
+            'county': ", ".join([county for county in counties if county is not None]),
             'country': country,
             'company': company
         }
