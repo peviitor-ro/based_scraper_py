@@ -1,9 +1,10 @@
 from scraper_peviitor import Scraper, loadingData
-import uuid
 import json
 import re
+from utils import (translate_city)
+from getCounty import get_county
 
-url = " https://jobs.msd.com/gb/en/search-results?qcountry=Romania" #&from=10
+url = " https://jobs.msd.com/gb/en/search-results?qcountry=Romania"  # &from=10
 
 company = {"company": "MSD"}
 finalJobs = list()
@@ -14,32 +15,45 @@ response = scraper.session.get(url)
 pattern = re.compile(r"phApp.ddo = {(.*?)};", re.DOTALL)
 
 data = re.search(pattern, response.text).group(1)
-totalJobs = json.loads("{" + data + "}").get("eagerLoadRefineSearch").get("totalHits")
+totalJobs = json.loads(
+    "{" + data + "}").get("eagerLoadRefineSearch").get("totalHits")
 
 querys = [*range(0, totalJobs, 10)]
 
 for query in querys:
-    url = "https://jobs.msd.com/gb/en/search-results?qcountry=Romania&from=" + str(query)
+    url = "https://jobs.msd.com/gb/en/search-results?qcountry=Romania&from=" + \
+        str(query)
     response = scraper.session.get(url)
     data = re.search(pattern, response.text).group(1)
-    jobs = json.loads("{" + data + "}").get("eagerLoadRefineSearch").get("data").get("jobs")
+    jobs = json.loads(
+        "{" + data + "}").get("eagerLoadRefineSearch").get("data").get("jobs")
 
     for job in jobs:
-        id = uuid.uuid4()
         job_title = job.get("title")
         job_link = "https://jobs.msd.com/gb/en/job/" + job.get("jobId")
-        city = job.get("city")
-        
-        finalJobs.append({
-            "id": str(id),
-            "job_title": job_title,
-            "job_link": job_link,
-            "company": company.get("company"),
-            "country": "Romania",
-            "city": city
-        })
+        city = translate_city(job.get("city"))
+        county = get_county(city)
+        remote = []
 
-print(json.dumps(finalJobs, indent=4)) 
+        if not county:
+            finalJobs.append({
+                "job_title": job_title,
+                "job_link": job_link,
+                "company": company.get("company"),
+                "country": "Romania",
+                "remote": "Remote",
+            })
+        else:
+            finalJobs.append({
+                "job_title": job_title,
+                "job_link": job_link,
+                "company": company.get("company"),
+                "country": "Romania",
+                "city": city,
+                "county": county,
+            })
+
+print(json.dumps(finalJobs, indent=4))
 
 loadingData(finalJobs, company.get("company"))
 
