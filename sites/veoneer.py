@@ -17,7 +17,6 @@ jobs = rules.getTag("div", {
 for job in jobs:
     job_title = job.find("span", {"class": "company-link-style"}).text.strip()
     job_link = job.find("a").get("href")
-    city = ""
     acurate_city = acurate_city_and_county(
         Iasi={"city": "Iasi", "county": "Iasi"})
     cities = [remove_diacritics(city.strip()) for city in job.find(
@@ -29,7 +28,7 @@ for job in jobs:
         "job_title": job_title,
         "job_link": job_link,
         "country": "Romania",
-        "city": city,
+        "city": cities,
         "county": counties,
         "company": company.get("company")
     })
