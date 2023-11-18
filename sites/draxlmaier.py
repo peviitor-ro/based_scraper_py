@@ -1,6 +1,7 @@
 from scraper_peviitor import Scraper, Rules, loadingData
-import uuid
 import json
+from utils import translate_city, acurate_city_and_county
+from getCounty import get_county
 
 #Cream o instanta a clasei Scraper
 scraper = Scraper("https://d-career.org/Draexlmaier/go/DRÄXLMAIER-Job-Opportunities-in-Romania-%28Romanian%29/4196801/0/?q=&sortColumn=referencedate&sortDirection=desc")
@@ -16,6 +17,16 @@ jobsPerPage = [i for i in range(0 , int(jobsnumbers), 25) ]
 company = {"company": "Draxlmaier"}
 finaljobs = list()
 
+acurate_city = acurate_city_and_county(
+    Codlea_Brasov = {
+        'city':'Codlea',
+        'county':'Brasov'
+    },
+    Satu_Mare = {
+        'city':'Satu Mare',
+        'county':'Satu Mare'
+    }
+)
 #Pentru fiecare numar din lista, extragem joburile
 for jobs in jobsPerPage:
     #Daca numarul de joburi este intre 0 si 25, atunci luam decat pagina 1
@@ -31,22 +42,29 @@ for jobs in jobsPerPage:
     #Cautam elementele care contin joburile si locatiile
     elements = rules.getTags("tr", {"class":"data-row"})
 
-    #Pentru fiecare job, extragem titlul, link-ul, compania, tara si orasul
+    # Pentru fiecare job, extragem titlul, link-ul, compania, tara si orasul
     for element in elements:
-        id = str(uuid.uuid4())
-        job_title = element.find("a", {"class":"jobTitle-link"}).text
-        job_link = "https://d-career.org" + element.find("a", {"class":"jobTitle-link"})['href']
-        city = element.find("span", {"class":"jobLocation"}).text.split(',')[0].replace('  ', '').replace('\n', '')
-        if city == 'Codlea Brasov':
-            city='Codlea'
+        job_title = element.find("a", {"class": "jobTitle-link"}).text
+        job_link = "https://d-career.org" + element.find("a", {"class": "jobTitle-link"})['href']
+        city = translate_city(
+            element.find("span", {"class": "jobLocation"}).text.split(',')[0].strip()
+        )
+        county = None
+
+        if acurate_city.get(city.replace(' ', '_')):
+            county = acurate_city.get(city.replace(' ', '_')).get('county')
+            city = acurate_city.get(city.replace(' ', '_')).get('city')
+
+        else:
+            county = get_county(city)
 
         finaljobs.append({
-            'id': id,
             'job_title': job_title,
             'job_link': job_link,
             'company': company.get('company'),
             'country': 'Romania',
             'city': city,
+            'county': county
         })
 
 #Afisam numarul de joburi
