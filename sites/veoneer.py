@@ -1,6 +1,7 @@
 from scraper_peviitor import Scraper, loadingData, Rules
-import uuid
 import json
+from utils import (translate_city, acurate_city_and_county)
+from getCounty import (get_county, remove_diacritics)
 
 url = "https://veoneerro.teamtailor.com/jobs"
 
@@ -10,24 +11,25 @@ finalJobs = list()
 scraper = Scraper(url)
 rules = Rules(scraper)
 
-jobs = rules.getTag("div", {"class":"mx-auto text-lg block-max-w--lg"}).find_all("li", {"class": "w-full"})
+jobs = rules.getTag("div", {
+                    "class": "mx-auto text-lg block-max-w--lg"}).find_all("li", {"class": "w-full"})
 
 for job in jobs:
-    id = uuid.uuid4()
     job_title = job.find("span", {"class": "company-link-style"}).text.strip()
     job_link = job.find("a").get("href")
-    city = ""
-    try:
-        city = job.find("div", {"class": "mt-1 text-md"}).find_all("span")[2].split(",")[0].strip()
-    except:
-        city = job.find("div", {"class": "mt-1 text-md"}).find_all("span")[2].text.strip()
+    acurate_city = acurate_city_and_county(
+        Iasi={"city": "Iasi", "county": "Iasi"})
+    cities = [remove_diacritics(city.strip()) for city in job.find(
+        "div", {"class": "mt-1 text-md"}).find_all("span")[2].text.split(",")]
+    counties = [acurate_city.get(city.strip()).get("county") if acurate_city.get(city.strip())else
+                get_county(translate_city(city.strip())) for city in cities]
 
     finalJobs.append({
-        "id": str(id),
         "job_title": job_title,
         "job_link": job_link,
         "country": "Romania",
-        "city": city,
+        "city": cities,
+        "county": counties,
         "company": company.get("company")
     })
 
