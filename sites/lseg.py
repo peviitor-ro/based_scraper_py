@@ -35,9 +35,13 @@ def get_aditional_city(url):
                 location = translate_city(location_city.split(",")[0])
             else:
                 location = translate_city(location_city.split(" ")[0])
+                
+        county = get_county(location)
 
-        cities.append(location)
-        counties.append(get_county(location))
+
+        if county:
+            cities.append(location)
+            counties.append(county)
 
     return cities, counties
 
@@ -85,6 +89,10 @@ for page in range(pages):
                 job.get("externalPath")
             cities, counties = get_aditional_city(aditional_url)
 
+            if not counties:
+                cities = "Bucuresti"
+                counties = "Bucuresti"
+
         finalJobs.append(create_job(
             job_title=job_title,
             job_link=job_link,
@@ -94,8 +102,14 @@ for page in range(pages):
             company=company
         ))
 
-for version in [1, 4]:
-    publish(version, company, jobs, 'APIKEY')
-publish_logo(
-    company, "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT-Tp_lBl4hy9WFitdNzAtRw2tgxLYnxf1lyNrnXx8h&s")
+    data["offset"] = data.get("offset") + 20
+    response = scraper.post(apiUrl, json.
+                            dumps(data)).json()
+    jobs = response.get("jobPostings")
+
+# for version in [1, 4]:
+#     publish(version, company, jobs, 'APIKEY')
+# publish_logo(
+#     company, "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT-Tp_lBl4hy9WFitdNzAtRw2tgxLYnxf1lyNrnXx8h&s")
 show_jobs(finalJobs)
+print(len(finalJobs))
