@@ -108,7 +108,7 @@ for page in range(pages):
     jobs = response.get("jobPostings")
 
 for version in [1, 4]:
-    publish(version, company, jobs, 'APIKEY')
+    publish(version, company, finalJobs, 'APIKEY')
 publish_logo(
     company, "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT-Tp_lBl4hy9WFitdNzAtRw2tgxLYnxf1lyNrnXx8h&s")
 show_jobs(finalJobs)
