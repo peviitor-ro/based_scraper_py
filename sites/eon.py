@@ -44,6 +44,8 @@ for page in totalJobs:
         job = {
             "job_title": job_title,
             "job_link": job_link,
+            "country": "Romania",
+            "company": company.get("company"),
         }
 
         if acurate_city.get(city.replace(" ", "_")):
@@ -55,6 +57,8 @@ for page in totalJobs:
 
         elif "Remote" in city:
             job["remote"] = ["Remote"]
+            job["city"] = ""
+            job["county"] = ""
 
         else:
             county = get_county(city)
