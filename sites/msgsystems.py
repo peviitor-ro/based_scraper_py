@@ -2,6 +2,8 @@ import requests
 import json
 from bs4 import BeautifulSoup
 from utils import *
+from utils import (translate_city)
+from getCounty import (get_county)
 
 url = 'https://www.msg-systems.ro/roluri-disponibile'
 company = 'MSGSYSTEMS'
@@ -14,14 +16,21 @@ final_jobs = []
 for job_item in soup.find_all('div', class_='job-item'):
 
     job_title = job_item.find('h3', class_='job-title').text.strip()
-    job_city = job_item.find('div', class_='job-city').text.strip().replace('(sediu central)', '').replace('\u0219', 's').strip()
+    cities = [
+        translate_city(city.replace('Tg. ', 'Targu-').strip()) for city in
+        job_item.find('div', class_='job-city').text.strip().replace(
+            '(sediu central)', '').replace('\u0219', 's').strip().split(',')
+    ]
+    counties = [get_county(city) for city in cities]
+
     relative_link = job_item.find('a')['href']
     job_link = f'https://www.msg-systems.ro{relative_link}'
-    
+
     final_jobs.append({
         'job_title': job_title,
         'job_link': job_link,
-        'city': job_city,
+        'city': cities,
+        'county': counties,
         'country': 'Romania',
         'company': company
     })
