@@ -63,6 +63,7 @@ for page in totalJobs:
         else:
             county = get_county(city)
             if not county:
+                city = city.replace(" ", "-")
                 county = get_county(city.replace(" ", "-"))
             job["city"] = city
             job["county"] = county
