@@ -1,26 +1,32 @@
 from scraper.Scraper import Scraper
 from utils import (publish, publish_logo, create_job, show_jobs)
 
-url = "https://careers.smartrecruiters.com/PublicisGroupe?search=Romania"
+url = " https://careers.smartrecruiters.com/PublicisGroupe/api/more?search=Romania&type=location%2C%20RO&"
 
 company = "PublicisGroupe"
 finalJobs = list()
-
+page = 0
 scraper = Scraper()
-scraper.get_from_url(url)
+scraper.get_from_url(url + f"page={page}")
 
-jobs_containers = scraper.find_all("section", class_="openings-section")
+jobs = scraper.find_all("li")
 
-for job_container in jobs_containers:
-    jobs = job_container.find("ul", class_="opening-jobs grid--gutter padding--none js-group-list").find_all("li")
+
+while jobs:   
     for job in jobs:
         finalJobs.append(create_job(
             job_title=job.find("h4").text,
             job_link=job.find("a")['href'],
             country="Romania",
-            city="Romania",
+            city="Bucuresti",
+            county="Bucuresti",
             company=company,
-        ))
+    ))
+    
+    page += 1
+    scraper.get_from_url(url + f"page={page}")
+    jobs = scraper.find_all("li")
+
 
 for version in [1,4]:
     publish(version, company, finalJobs, 'APIKEY')

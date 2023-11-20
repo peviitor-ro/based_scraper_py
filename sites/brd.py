@@ -1,29 +1,28 @@
-from scraper_peviitor import Scraper, Rules, loadingData
-import uuid
-import json
+from scraper.Scraper import Scraper
+from utils import (publish, publish_logo, show_jobs)
 
 url = "https://www.brd.ro/cariere"
 
 #Cream o instanta a clasei Scraper
-scraper = Scraper(url)
-rules = Rules(scraper)
+scraper = Scraper()
+scraper.get_from_url(url, verify=False)
 
 #Un set pentru a nu avea duplicate
 company = {"company": "BRD"}
 j = set()
 
 #Cautam elementele care contin joburile 
-elements = rules.getTags("div", {"class": "category-card"})
+elements = scraper.find_all("a", {"class": "category-card-link"})
 
 #Pentru fiecare categorie, extragem titlul si link-ul 
 #Le adaugam intr-un set pentru a nu avea duplicate
 for element in elements:
     #setam link-ul paginii
-    jobCategory = "https://www.brd.ro" + element.find("a")["href"]
-    scraper.url = jobCategory
+    jobCategory = "https://www.brd.ro" + element["href"]
+    scraper.get_from_url(jobCategory, verify=False)
 
     #Cautam elementele care contin joburile
-    jobs = rules.getTags("div", {"class": "card"})
+    jobs = scraper.find_all("div", {"class": "card"})
 
     for job in jobs:
         #Pentru fiecare job, extragem titlul si link-ul
@@ -36,13 +35,11 @@ finalJobs = list()
 #Pentru fiecare job din set, extragem titlul si link-ul 
 #Celelalte date le setam manual deoarce nu sunt afisate pe site
 for job in j:
-    id = uuid.uuid4()
     job_title = job[0]
     job_link = job[1]
 
     finalJobs.append(
         {
-            "id": str(id),
             "job_title": job_title,
             "job_link": job_link,
             "company": company.get("company"),
@@ -50,8 +47,9 @@ for job in j:
             "city": "Romania",
         }
     )
-#Afisam numarul total de joburi gasite
-print(json.dumps(finalJobs, indent=4))
 
-#Salvam datele in baza de date
-loadingData(finalJobs, company.get("company"))
+for version in [1,4]:
+    publish(version, company, finalJobs, 'APIKEY')
+
+# publish_logo(company, "https://www.brd.ro/assets/images/logo-brd.svg")
+show_jobs(finalJobs)
