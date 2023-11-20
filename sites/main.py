@@ -13,15 +13,21 @@ for site in os.listdir(path):
             errors = action.stderr.decode('utf-8')
             print("Error in " + site)
             print("Sending trigger to API ...")
-            r = requests.post(resolveApi, data = {"file": site})
-            response = r.json()
-            if response.get("succes"):
-                print("Success Scraping " + site + " after trigger")
-            else:
-                print("Both scraping and trigger failed")
+            try:
+                r = requests.post(resolveApi, data = {"file": site})
+                response = r.json()
+                if response.get("succes"):
+                    print("Success Scraping " + site + " after trigger")
+                else:
+                    print("Both scraping and trigger failed")
+                    print("Error:")
+                    for error in response.get("error"):
+                        print(error)
+            except Exception as e:
+                print("Error sending trigger to API")
                 print("Error:")
-                for error in response.get("error"):
-                    print(error)
+                print(e)
+                print("Error in " + site)
         else:
             print("Success scraping " + site)
 
