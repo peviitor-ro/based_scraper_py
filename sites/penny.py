@@ -1,6 +1,6 @@
 from scraper_peviitor import Scraper, Rules, loadingData
-import uuid
 import json
+from getCounty import (get_county)
 
 url = "https://cariere.penny.ro/joburi/"
 scraper = Scraper(url)
@@ -18,22 +18,27 @@ finalJobs = list()
 #Pentru fiecare job, extragem titlul, link-ul, compania, tara si orasul
 while jobs:
     for job in jobs:
-        id = uuid.uuid4()
         job_title = job.find("span", {"itemprop": "title"}).text.strip()
         job_link = job.find("a", {"itemprop": "url"}).get("href")
 
-        try: 
-            city = job.find("span", {"itemprop": "addressLocality"}).text.strip()
-        except:
-            city = "Romania"
+        
+        city = job.find("span", {"itemprop": "addressLocality"}).text.strip().replace("-", " ").title().replace("De", "de")
+        if "Sector" in city:
+            city = city.split("Sector")[0].strip()
+
+        county = get_county(city)
+
+        if not county:
+            city = city.title().replace(" ", "-")
+            county = get_county(city)
 
         finalJobs.append({
-            "id": str(id),
             "job_title": job_title,
             "job_link": job_link,
             "company": company.get("company"),
             "country": "Romania",
-            "city": city
+            "city": city,
+            "county": county
         })
     #Setam pagina urmatoare
     pageNum += 1
@@ -45,5 +50,5 @@ while jobs:
 #Afisam numarul total de joburi gasite
 print(json.dumps(finalJobs, indent=4))
 
-#Incarcam datele in baza de date
-loadingData(finalJobs, company.get("company"))
+# #Incarcam datele in baza de date
+# loadingData(finalJobs, company.get("company"))
