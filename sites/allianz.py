@@ -32,6 +32,11 @@ for number in queryStrings:
         id = uuid.uuid4()
         job_title = element.find("a").text.strip()
         job_link = "https://careers.allianz.com" + element.find("a").get("href")
+        location = element.find("div", {"class": "location"}).find("div").text.strip()
+        remote = []
+
+        if "RO" in location:
+            remote.append("Hybrid")
 
         finaljobs.append({
             "id": str(id),
@@ -39,7 +44,9 @@ for number in queryStrings:
             "job_link": job_link,
             "company": company.get("company"),
             "country": "Romania",
-            "city": "Romania",
+            "city": "Bucuresti",
+            "county": "Bucuresti",
+            "remote": remote
         })
 
 #Afisam numarul de total de joburi
