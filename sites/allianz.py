@@ -35,7 +35,7 @@ for number in queryStrings:
         location = element.find("div", {"class": "location"}).find("div").text.strip()
         remote = []
 
-        if "RO" in location:
+        if "RO" == location.split(",")[0]:
             remote.append("Hybrid")
 
         finaljobs.append({
