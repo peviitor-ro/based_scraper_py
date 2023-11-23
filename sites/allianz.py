@@ -33,10 +33,7 @@ for number in queryStrings:
         job_title = element.find("a").text.strip()
         job_link = "https://careers.allianz.com" + element.find("a").get("href")
         location = element.find("div", {"class": "location"}).find("div").text.strip()
-        remote = []
-
-        if "RO" == location.split(",")[0]:
-            remote.append("Hybrid")
+        remote = ["Hybrid"]
 
         finaljobs.append({
             "id": str(id),
