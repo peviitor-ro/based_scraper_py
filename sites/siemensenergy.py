@@ -31,8 +31,8 @@ for page in pages:
             "p").text.split(",")
 
         country = locations[0].split(":")[-1].strip()
-        city = translate_city(locations[-1].strip())
-        county = translate_city(locations[-2].strip())
+        city = translate_city(locations[2].strip())
+        county = translate_city(locations[1].strip())
 
         job = {
             "job_title": job_title,
@@ -40,7 +40,8 @@ for page in pages:
             "company": company.get("company"),
         }
 
-        if len(country.split("|")) == 1:
+        
+        if len(country.split("|")) == 1 and country.split("|")[0].strip() == "Romania":
             job["country"] = "Romania"
             job["city"] = city
             job["county"] = county
@@ -49,7 +50,7 @@ for page in pages:
 
         elif country.split("|")[-1].strip() != "Romania":
             job["country"] = country.split("|")[-1].strip()
-            job["city"] = city
+            job["city"] = city.split("|")[0].strip()
             job["county"] = county
 
             finalJobs.append(job)
