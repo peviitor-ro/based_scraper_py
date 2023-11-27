@@ -41,7 +41,7 @@ for job in job_elements:
     final_jobs.append(
         {
             'job_title': job_title,
-            'job_url': job_url,
+            'job_link': job_url,
             'city': cities,
             'county': counties,
             'country': country,
