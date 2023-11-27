@@ -42,14 +42,14 @@ for job in job_elements:
         {
             'job_title': job_title,
             'job_url': job_url,
-            'city': ", ".join(cities),
-            'county': ", ".join([county for county in counties if county is not None]),
+            'cities': cities,
+            'counties': counties,
             'country': country,
             'company': company
         }
     )
 
-for version in [1,4]:
+for version in [4]:
     publish(version, company, final_jobs, 'Grasum_Key')
 
 publish_logo(company, 'https://content.ejobs.ro/img/logos/2/286239.png')
