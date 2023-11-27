@@ -1,7 +1,44 @@
 from scraper.Scraper import Scraper
-from utils import (publish, publish_logo, create_job, show_jobs)
+from utils import (publish, publish_logo, create_job, show_jobs, translate_city)
 from math import ceil
 import json
+from getCounty import get_county
+
+def get_aditional_city(url):
+    scraper = Scraper()
+    scraper.get_from_url(url, "JSON")
+
+    job = scraper.markup.get("jobPostingInfo").get("additionalLocations")
+
+    cities = []
+    counties = []
+
+    for city in job:
+        location = None
+        if "," in city:
+            location = translate_city(city.split(",")[0])
+        else:
+            location = translate_city(city.split(" ")[0])
+
+        county = get_county(location)
+        if not county:
+
+            location_city = scraper.markup.get(
+                "jobPostingInfo").get("location")
+
+            if "," in location_city:
+                location = translate_city(location_city.split(",")[0])
+            else:
+                location = translate_city(location_city.split(" ")[0])
+                
+        county = get_county(location)
+
+
+        if county:
+            cities.append(location)
+            counties.append(county)
+
+    return cities, counties
 
 company = '3M'
 url = 'https://3m.wd1.myworkdayjobs.com/wday/cxs/3m/Search/jobs'
@@ -34,13 +71,35 @@ for pages in range(0, pages):
         obj = scraper.post(url, json.dumps(post_data))
 
     for job in obj.json()['jobPostings']:
+        job_title=job['title']
+        job_link='https://3m.wd1.myworkdayjobs.com/en-US/Search'+job['externalPath']
+        country='Romania'
+        remote = [job.get("remoteType") if job.get("remoteType") else []]
+        
+        cities, counties = None, None
+
+        if "," in job.get("locationsText"):
+            cities = translate_city(job.get("locationsText").split(",")[0])
+        else:
+            cities = translate_city(job.get("locationsText").split(" ")[0])
+
+        counties = get_county(cities)
+
+        if not counties:
+            aditional_url = "https://3m.wd1.myworkdayjobs.com/wday/cxs/3m/Search" + \
+                job.get("externalPath")
+            cities, counties = get_aditional_city(aditional_url)
+
         jobs.append(create_job(
-            job_title=job['title'],
-            job_link='https://3m.wd1.myworkdayjobs.com/en-US/Search'+job['externalPath'],
-            city='Romania',
-            country='Romania',
+            job_title=job_title,
+            job_link=job_link,
+            country="Romania",
+            city=cities,
+            county=counties,
             company=company,
+            remote=remote
         ))
+
 
 for version in [1,4]:
     publish(version, company, jobs, 'APIKEY')
