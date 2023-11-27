@@ -43,7 +43,9 @@ for page in pages:
         
         if len(country.split("|")) == 1 and country.split("|")[0].strip() == "Romania":
             job["country"] = "Romania"
-            job["city"] = city
+            job["city"] = translate_city(
+                city.split("|")[0].strip()
+            )
             job["county"] = county
 
             finalJobs.append(job)
