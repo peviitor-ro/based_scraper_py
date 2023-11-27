@@ -1,5 +1,6 @@
 from scraper.Scraper import Scraper
-from utils import (publish, publish_logo, create_job, show_jobs)
+from utils import (publish, publish_logo, create_job, show_jobs, translate_city)
+from getCounty import get_county, remove_diacritics
 
 company = 'SGS'
 url = ' https://api.smartrecruiters.com/v1/companies/sgs/postings?offset='
@@ -21,13 +22,26 @@ while True:
                 country = location['valueLabel']
                 break
 
-        jobs.append(create_job(
+        job_element = create_job(
             job_title=job['name'],
             job_link='https://jobs.smartrecruiters.com/SGS/'+job['id'],
             city=job['location']['city'],
             country=country,
             company=company,
-        ))
+        )
+
+        if country == 'Romania':
+            city = translate_city(
+                remove_diacritics(
+                   job['location']['city'].replace('Comuna ', '')
+                )
+            )
+            county = get_county(city)
+
+            job_element['city'] = city
+            job_element['county'] = county
+
+        jobs.append(job_element)
 
     offset += 100
 
