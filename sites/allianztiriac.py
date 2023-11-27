@@ -20,7 +20,8 @@ for job in jobs_elements:
             job_title=job[0].text.strip(),
             job_link="https://www.allianztiriac.ro" + job[1]["href"],
             country="Romania",
-            city="Romania",
+            city="Bucuresti",
+            county="Bucuresti",
             company=company
         )
     )
