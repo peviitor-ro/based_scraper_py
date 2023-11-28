@@ -1,6 +1,7 @@
 from scraper_peviitor import Scraper, loadingData
-import uuid
 import json
+from utils import translate_city, acurate_city_and_county, create_job
+from getCounty import get_county
 
 url = "https://cariere.mega-image.ro/joburi"
 
@@ -24,6 +25,26 @@ scraper.session.headers.update(headers)
 company = {"company": "MegaImage"}
 finalJobs = list()
 
+acurate_city = acurate_city_and_county(
+    iasi={
+        "city": "Iasi",
+        "county": "Iasi"
+    },
+    municipiul_bucuresti={
+        "city": "Bucuresti",
+        "county": "Bucuresti"
+    },
+    stefanestii_de_jos={
+        "city": "Stefanestii de Jos",
+        "county": "Ilfov"
+    },
+    cluj_napoca={
+        "city": "Cluj-Napoca",
+        "county": "Cluj"
+    },
+
+)
+
 while True:
     url = f"https://cariere.mega-image.ro/api/vacancy/?location[name]=&location[range]=10&location[latitude]=&location[longitude]=&options[sort_order]=desc&sort=date&sortDir=desc&pageNumber={pageNumber}"
     scraper.url = url
@@ -34,21 +55,29 @@ while True:
         break
 
     for job in jobs:
-        id = uuid.uuid4()
         job_title = job.get("title")
         job_link = "https://cariere.mega-image.ro/post-vacant/" + str(job.get("id")) + "/" + job.get("slug")
-        city = job.get("city")
 
-        finalJobs.append({
-                "id": str(id),
-                "job_title": job_title,
-                "job_link": job_link,
-                "company": company.get("company"),
-                "country": "Romania",
-                "city": city,
-            })
+        job_element = create_job(
+            job_title=job_title,
+            job_link=job_link,
+            company=company.get("company"),
+            country="Romania",
+        )
+        
+        city = translate_city(job.get("city").title())
+        
+        if acurate_city.get(city.replace(" ", "_").replace("-", "_").lower()):
+            job_element["city"] = acurate_city.get(city.replace(" ", "_").replace("-", "_").lower()).get("city")
+            job_element["county"] = acurate_city.get(city.replace(" ", "_").replace("-", "_").lower()).get("county")
+        else:
+            job_element["city"] = city
+            job_element["county"] = get_county(city)
+
+        finalJobs.append(job_element)
     
     pageNumber += 1
+    
 
 print(json.dumps(finalJobs, indent=4))
 
