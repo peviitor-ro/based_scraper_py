@@ -42,8 +42,8 @@ for job in job_elements:
         {
             'job_title': job_title,
             'job_link': job_url,
-            'city': ", ".join(filtered_cities),
-            'county': ", ".join([county for county in counties if county is not None]),
+            'city': filtered_cities,
+            'county': [county for county in counties if county is not None],
             'country': country,
             'company': company
         }
