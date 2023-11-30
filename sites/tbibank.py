@@ -1,34 +1,41 @@
-from scraper_peviitor import Scraper, Rules, loadingData
-import uuid
+from scraper.Scraper import Scraper
 import json
+from utils import show_jobs, translate_city, publish
+from getCounty import get_county
 
 url = "https://tbibank.ro/cariere/"
 
-scraper = Scraper(url)
-rules = Rules(scraper)
+scraper = Scraper()
+scraper.get_from_url(url)
 
-jobs = rules.getTags("div", {"class": "card-career"})
+container = scraper.find("div")
+data = json.loads(container["data-props"])
+jobs = data["appConfig"]["offers"]
 
-company = {"company": "TBIBank"}
+company = "TBIBank"
 finalJobs = list()
 
 for job in jobs:
-    id = uuid.uuid4()
-    job_title = job.find("div", {"class": "card-career__header"}).text.strip()
-    job_link = job.find("a", {"class": "card-career__link"}).get("href")
-    city = job.find("div", {"class": "card-career__countries"}).text.strip()
+    job_title = job["translations"]["en"]["title"]
+    job_link = "https://tbibankro.recruitee.com/o/" + job["slug"]
+    cities = job["city"].split("/")
+
+    translated_cities = [translate_city(city.strip()) for city in cities]
+    counties = [get_county(city) for city in translated_cities]
+
+    remote = job["tags"]
 
     finalJobs.append({
-        "id": str(id),
         "job_title": job_title,
         "job_link": job_link,
         "company": company.get("company"),
         "country": "Romania",
-        "city": city
+        "city": translated_cities,
+        "county": counties,
+        "remote": remote
     })
 
-print(json.dumps(finalJobs, indent=4))
+show_jobs(finalJobs)
 
-loadingData(finalJobs, company.get("company"))
-
-
+for version in [1, 4]:
+    publish(version, company, finalJobs, 'APIKEY')
