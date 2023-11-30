@@ -3,7 +3,7 @@ from utils import (publish, publish_logo, create_job, show_jobs)
 
 url = "https://www.fgaromania.ro/category/cariere/"
 
-company = "FGARomania"
+company = "fga"
 jobs = []
 
 scraper = Scraper()
@@ -13,11 +13,12 @@ jobs_elements = scraper.find_all("article", class_="single-hentry")
 
 for job in jobs_elements:
     jobs.append(create_job(
-        job_title=job.find("h2", class_="entry-title").text,
+        job_title=job.find("h2", class_="entry-title").text.strip(),
         job_link=job.find("h2", class_="entry-title").a["href"],
-        city="Bucharest",
-        country="Romania",
         company=company,
+        country="Romania",
+        city="Bucharest",
+        county="Bucuresti",
     ))
 
 for version in [1,4]:
