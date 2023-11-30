@@ -17,7 +17,7 @@ for job in jobs_elements:
         job_link=job.find("h2", class_="entry-title").a["href"],
         company=company,
         country="Romania",
-        city="Bucharest",
+        city="Bucuresti",
         county="Bucuresti",
     ))
 
