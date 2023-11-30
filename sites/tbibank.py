@@ -28,7 +28,7 @@ for job in jobs:
     finalJobs.append({
         "job_title": job_title,
         "job_link": job_link,
-        "company": company.get("company"),
+        "company": company,
         "country": "Romania",
         "city": translated_cities,
         "county": counties,
