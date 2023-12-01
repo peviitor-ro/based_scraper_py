@@ -1,6 +1,8 @@
 from scraper_peviitor import Scraper, loadingData
-import uuid
 import json
+from utils import translate_city, publish, publish_logo, show_jobs
+from getCounty import get_county
+import re
 
 url = "https://www.1and1.ro/jobs.json"
 
@@ -12,18 +14,30 @@ scraper.url = url
 
 jobs = scraper.getJson().get("jobs")
 
+remote_pattern = re.compile(r"\(.+\)")
+
+
 for job in jobs:
-    id = uuid.uuid4()
     job_title = job.get("JobTitle")
     job_link = "https://www.1and1.ro/careers/" + job.get("RefURL")
-    city = job.get("Location")
-    
+    city = translate_city(job.get("Location"))
+    county = get_county(city)
+    remote_element = remote_pattern.search(job_title).group(0) if remote_pattern.search(job_title) else None
+
+    remote = []
+
+    if "remote" in job_title.lower():
+        remote.append("Remote")
+    if "hybrid" in job_title.lower():
+        remote.append("Hybrid")
+
     finalJobs.append({
-        "id": str(id),
         "job_title": job_title,
         "job_link": job_link,
         "country": "Romania",
         "city": city,
+        "county": county,
+        "remote": remote,
         "company": company.get("company")
     })
 

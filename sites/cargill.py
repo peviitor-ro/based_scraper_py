@@ -1,6 +1,6 @@
 from scraper.Scraper import Scraper
 import json
-from utils import translate_city
+from utils import translate_city, publish, publish_logo, show_jobs
 from getCounty import get_county, remove_diacritics
 
 
@@ -67,16 +67,10 @@ for job in jobs:
 
 print(json.dumps(finalJobs, indent=4))
 
-loadingData(finalJobs, company.get("company"))
+for version in [1, 4]:
+    publish(version, company.get("company"), finalJobs, 'APIKEY')
 
 logoUrl = "https://tbcdn.talentbrew.com/company/23251/18994/content/logo-full.png"
 
-scraper.session.headers.update({
-    "Content-Type": "application/json",
-})
-scraper.post( "https://api.peviitor.ro/v1/logo/add/" ,json.dumps([
-    {
-        "id":company.get("company"),
-        "logo":logoUrl
-    }
-]))
+publish_logo(company.get("company"), logoUrl)
+show_jobs(finalJobs)
