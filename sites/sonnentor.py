@@ -16,7 +16,8 @@ for job in jobs_elements:
         company=company,
         job_title=job.find('a').text.strip(),
         job_link=job.find('a')['href'],
-        city='Romania',
+        city='Reghin',
+        county='Mures',
         country='Romania'
     ))
 

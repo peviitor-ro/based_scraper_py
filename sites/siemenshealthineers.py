@@ -31,6 +31,7 @@ for page in range(pages ):
             county=counties,
             country="Romania",
             company=company,
+            remote=job['work_location_option'].title()
         ))
     url = f'{url}&start={page * step}&num={page * step + step}'
     scraper.get_from_url(url, type='JSON')
