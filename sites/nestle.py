@@ -1,6 +1,7 @@
 from scraper_peviitor import Scraper, Rules, loadingData
-import uuid
 import json
+from utils import translate_city
+from getCounty import get_county
 
 #Se creeaza o instanta a clasei Scraper
 scraper = Scraper("https://www.nestle.ro/jobs/search-jobs?keyword=Romania&country=&location=&career_area=All")
@@ -16,18 +17,20 @@ while True:
 
     #Pentru fiecare job, se extrage titlul, link-ul, compania, tara si orasul
     for element in elements:
-        id = uuid.uuid4()
         job_title = element.find("a").text.replace("\t", "").replace("\r", "").replace("\n", "").replace("  ", "")
         job_link = element.find("a")["href"]
-        city = element.find("div", {"class":"jobs-location"}).text.split(",")[0]
+        remote = element.find("div", {"class": "jobs-type"}).text
+        city = translate_city(element.find("div", {"class":"jobs-location"}).text.split(",")[0])
+        county = get_county(city)
 
         finalJobs.append({
-            "id": str(id),
             "job_title": job_title,
             "job_link": job_link,
             "company": company.get("company"),
             "country": "Romania",
-            "city": city
+            "city": city,
+            "county": county,
+            "remote": remote
         })
 
     #Se cauta butonul de next
