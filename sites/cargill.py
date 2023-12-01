@@ -45,15 +45,15 @@ jobs = scraper.find("section", {"id": "search-results-list"}).find_all("li")
 for job in jobs:
     job_title = job.find("h3").text.strip()
     job_link = "https://careers.cargill.com" + job.find("a").get("href")
-    city = translate_city(
+    city = [translate_city(
         remove_diacritics(
             job.find("span", {"class": "job-location"}
                      ).text.split(",")[0].strip()
         )
-    )
-    county = get_county(city)
+    )]
+    county = [get_county(city) for city in city]
 
-    if not county:
+    if not county[0]:
         city, county = get_aditional_city(job_link)
 
     finalJobs.append({

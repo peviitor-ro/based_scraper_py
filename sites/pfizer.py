@@ -1,6 +1,7 @@
 from scraper_peviitor import Scraper, loadingData
-import uuid
 import json
+from utils import translate_city
+from getCounty import get_county
 
 apiUrl = "https://pfizer.wd1.myworkdayjobs.com/wday/cxs/pfizer/PfizerCareers/jobs"
 scraper = Scraper()
@@ -30,17 +31,19 @@ for num in iteration:
     data["offset"] = num
     jobs = scraper.post(apiUrl, json=data).json().get("jobPostings")
     for job in jobs:
-        id = uuid.uuid4()
+       
         job_title = job.get("title")
         job_link = "https://pfizer.wd1.myworkdayjobs.com/en-US/PfizerCareers" + job.get("externalPath")
+        city = translate_city(job.get("locationsText").split("-")[-1].strip())
+        county = get_county(city)
 
         finaljobs.append({
-            "id": str(id),
             "job_title": job_title,
             "job_link": job_link,
             "company": company.get("company"),
             "country": "Romania",
-            "city": "Romania"
+            "city": city,
+            "county": county
         })
 
 #afisam numarul total de joburi gasite
