@@ -1,6 +1,21 @@
 from scraper_peviitor import Scraper, Rules, loadingData
-import uuid
 import json
+from utils import translate_city, acurate_city_and_county
+from getCounty import get_county
+
+
+def remove_words(text, words):
+    for word in words:
+        text = text.replace(word, "")
+    return text
+
+
+acurate_city = acurate_city_and_county(
+    Iasi={
+        "city": "Iasi",
+        "county": "Iasi"
+    }
+)
 
 url = "https://www.librabank.ro/Cariere"
 
@@ -14,17 +29,31 @@ company = {"company": "LibraBank"}
 finalJobs = list()
 
 for job in jobs:
-    id = uuid.uuid4()
     job_title = job.find("a").text.strip()
     job_link = "https://www.librabank.ro" + job.find("a").get("href")
 
+    location = remove_words(
+        job_title.split(" - ")[-1].strip(), ["Sucursala", "Sucursale"]
+    ).strip()
+
+    if acurate_city.get(location):
+        city = acurate_city.get(location).get("city")
+        county = acurate_city.get(location).get("county")
+    else:
+        city = translate_city(location)
+        county = get_county(city)
+
+        if not county:
+            city = "Bucuresti"
+            county = "Bucuresti"
+
     finalJobs.append({
-        "id": str(id),
         "job_title": job_title,
         "job_link": job_link,
         "company": company.get("company"),
         "country": "Romania",
-        "city": "Romania"
+        "city": city,
+        "county": county,
     })
 
 print(json.dumps(finalJobs, indent=4))
