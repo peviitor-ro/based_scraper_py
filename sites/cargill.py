@@ -65,8 +65,6 @@ for job in jobs:
         "county": county,
     })
 
-print(json.dumps(finalJobs, indent=4))
-
 for version in [1, 4]:
     publish(version, company.get("company"), finalJobs, 'APIKEY')
 
