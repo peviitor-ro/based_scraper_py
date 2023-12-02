@@ -1,6 +1,6 @@
 from scraper.Scraper import Scraper
 import json
-from utils import translate_city
+from utils import translate_city, publish, publish_logo, show_jobs
 from getCounty import get_county
 
 url = "https://jobs.parexel.com/en/search-jobs/results?ActiveFacetID=0&CurrentPage=1&RecordsPerPage=100&Distance=50&RadiusUnitType=0&Location=Romania&Latitude=46.00000&Longitude=25.00000&ShowRadius=False&IsPagination=False&FacetType=0&SearchResultsModuleName=Search+Results&SearchFiltersModuleName=Search+Filters&SortCriteria=0&SortDirection=0&SearchType=1&LocationType=2&LocationPath=798549&OrganizationIds=877&ResultsType=0"
@@ -57,18 +57,10 @@ for job in jobs:
         "company": company.get("company")
     })
 
-print(json.dumps(finalJobs, indent=4))
-
-loadingData(finalJobs, company.get("company"))
-
+for version in [1, 4]:
+    publish(version, company.get("company"), finalJobs, 'APIKEY')
+    
 logoUrl = "https://www.parexel.com/packages/parexel/themes/parexel/img/logo.svg"
+publish_logo(company.get("company"), logoUrl)
 
-scraper.session.headers.update({
-    "Content-Type": "application/json",
-})
-scraper.post( "https://api.peviitor.ro/v1/logo/add/" ,json.dumps([
-    {
-        "id":company.get("company"),
-        "logo":logoUrl
-    }
-]))
+show_jobs(finalJobs)
