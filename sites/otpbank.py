@@ -1,6 +1,7 @@
 from scraper_peviitor import Scraper, Rules, loadingData
-import uuid
 import json
+from utils import translate_city
+from getCounty import get_county, remove_diacritics
 
 #Cream o instanta a clasei Scraper
 scraper = Scraper("https://cariere.otpbank.ro/Posturi")
@@ -26,17 +27,21 @@ for page in range(len(pages)):
 
     #Pentru fiecare job, extragem titlul, link-ul, compania, tara si orasul
     for element in elements:
-        id = uuid.uuid4()
         job_title = element.find("h2").find("a").text
         job_link = "https://cariere.otpbank.ro" + element.find("h2").find("a")["href"]
 
         try:
-            city = element.find("span", {"class": "more"}).text.split("-")[0].strip()
+            city = translate_city(remove_diacritics(element.find("span", {"class": "more"}).text.split("-")[0].strip()))
         except:
-            city = city = element.find("span", {"class": "more"}).text
+            city = translate_city(remove_diacritics(element.find("span", {"class": "more"}).text))
+
+        county = get_county(city)
+
+        if not county:
+            city = city.replace(" ", "-")
+            county = get_county(city)
 
         finalJobs.append({
-            "id": str(id),
             "job_title": job_title,
             "job_link": job_link,
             "company": company.get("company"),
