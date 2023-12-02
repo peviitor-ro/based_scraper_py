@@ -1,49 +1,43 @@
-from scraper_peviitor import Scraper, Rules, loadingData
-import uuid
-import json
+from scraper.Scraper import Scraper
+from utils import show_jobs, translate_city, publish, publish_logo
+from getCounty import get_county
 
-url = "https://careers.astrazeneca.com/location/romania-jobs/7684/798549/2"
+url = "https://careers.astrazeneca.com/search-jobs/results?ActiveFacetID=798549&CurrentPage=1&RecordsPerPage=100&Distance=100&RadiusUnitType=0&Location=Romania&Latitude=46.00000&Longitude=25.00000&ShowRadius=False&IsPagination=False&FacetType=0&SearchResultsModuleName=Search+Results&SearchFiltersModuleName=Search+Filters&SortCriteria=0&SortDirection=0&SearchType=1&LocationType=2&LocationPath=798549&OrganizationIds=7684&ResultsType=0"
 
 company = {"company": "AstraZeneca"}
 finalJobs = list()
 
 scraper = Scraper()
-scraper.session.headers.update({
+scraper.set_headers({
     "Accept-Language": "en-GB,en;q=0.9",
 })
 
-scraper.url = url
-rules = Rules(scraper)
+scraper.get_from_url(url, "JSON")
+scraper.__init__(scraper.markup.get("results"), "html.parser")
 
-jobs = rules.getTag("section", {"id": "search-results-list"}).findAll("li")
+
+jobs = scraper.find_all("li")
 
 for job in jobs:
-    id = uuid.uuid4()
     job_title = job.find("h2").text.strip()
     job_link = "https://careers.astrazeneca.com" + job.find("a").get("href")
-    city = job.find("span", {"class": "job-location"}).text.split(",")[-1].strip()
+    city = translate_city(
+        job.find("span", {"class": "job-location"}).text.split(",")[0].strip())
+    county = get_county(city)
 
     finalJobs.append({
-        "id": str(id),
         "job_title": job_title,
         "job_link": job_link,
         "company": company.get("company"),
         "country": "Romania",
-        "city": city
+        "city": city,
+        "county": county
     })
 
-print(json.dumps(finalJobs, indent=4))
-
-loadingData(finalJobs, company.get("company"))
+for version in [1, 4]:
+    publish(version, company.get("company"), finalJobs, 'APIKEY')
 
 logoUrl = "https://tbcdn.talentbrew.com/company/7684/img/logo/logo-14641-17887.png"
+publish_logo(company.get("company"), logoUrl)
 
-scraper.session.headers.update({
-    "Content-Type": "application/json",
-})
-scraper.post( "https://api.peviitor.ro/v1/logo/add/" ,json.dumps([
-    {
-        "id":company.get("company"),
-        "logo":logoUrl
-    }
-]))
+show_jobs(finalJobs)
