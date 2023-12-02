@@ -1,6 +1,7 @@
 from scraper_peviitor import Scraper, loadingData
-import uuid
 import json
+from utils import translate_city
+from getCounty import get_county
 
 apiUrl = "https://zentiva.wd3.myworkdayjobs.com/wday/cxs/zentiva/Zentiva/jobs"
 scraper = Scraper()
@@ -30,18 +31,18 @@ for num in iteration:
     data["offset"] = num
     jobs = scraper.post(apiUrl, json=data).json().get("jobPostings")
     for job in jobs:
-        id = uuid.uuid4()
         job_title = job.get("title")
         job_link = "https://zentiva.wd3.myworkdayjobs.com/en-US/Zentiva" + job.get("externalPath")
-        city = job.get("bulletFields")[1]
+        city = translate_city(job.get("bulletFields")[1].split(";")[0].split("/")[-1].strip())
+        county = get_county(city)
 
         finaljobs.append({
-            "id": str(id),
             "job_title": job_title,
             "job_link": job_link,
             "company": company.get("company"),
             "country": "Romania",
-            "city": city
+            "city": city,
+            "county": county,
         })
 
 #afisam numarul total de joburi gasite
