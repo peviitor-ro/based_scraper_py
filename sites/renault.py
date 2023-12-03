@@ -1,6 +1,8 @@
 from scraper_peviitor import Scraper, loadingData
 import uuid
 import json
+from utils import translate_city
+from getCounty import get_county, remove_diacritics
 
 apiUrl = "https://alliancewd.wd3.myworkdayjobs.com/wday/cxs/alliancewd/renault-group-careers/jobs"
 scraper = Scraper()
@@ -26,8 +28,6 @@ iteration = [i for i in range(0, numberOfJobs, 20)]
 company = {"company": "Renault"}
 finaljobs = list()
 
-
-
 # Pentru fiecare numar din lista, extragem joburile
 for num in iteration:
     data["offset"] = num
@@ -37,7 +37,12 @@ for num in iteration:
         job_title = job.get("title").replace("[", "").replace("]", "")
         job_link = "https://alliancewd.wd3.myworkdayjobs.com/ro-RO/renault-group-careers" + \
             job.get("externalPath")
-        city = job.get("bulletFields")[0]
+        city = translate_city(remove_diacritics(job.get("bulletFields")[0]))
+        couty = get_county(city)
+
+        if not couty:
+            city = "Bucuresti"
+            couty = "Bucuresti"
 
         finaljobs.append({
             "id": str(id),
@@ -45,7 +50,8 @@ for num in iteration:
             "job_link": job_link,
             "company": company.get("company"),
             "country": "Romania",
-            "city": city
+            "city": city,
+            "county": couty
         })
 
 # afisam numarul total de joburi gasite
