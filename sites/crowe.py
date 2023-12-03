@@ -1,51 +1,50 @@
-from scraper_peviitor import Scraper, Rules, loadingData
-import uuid
-import json
+from scraper.Scraper import Scraper
+from utils import show_jobs, translate_city, publish, publish_logo
+from getCounty import get_county, remove_diacritics
 
-page = 0
+url = "https://mingle.ro/api/boards/mingle/jobs?q=companyUid~eq~%22crowe%22&page=0&pageSize=100&sort=modifiedDate~DESC"
 scraper = Scraper()
-rules = Rules(scraper)
+scraper.get_from_url(url, "JSON")
 
-company = {"company": "Crowe"}
-finalJobs = list()
+company = "Crowe"
+jobs = list()
 
-while True:
-    url = f"https://www.crowe.com/api/sitecore/ListWithFilter/GetTable?sc_mode=normal&id=%7B7D8ADF0E-32CD-4955-8B4C-C4F8561881AE%7D&languageName=ro-RO&page={page}&isDateDesc=true&enforceNormal=True"
-    scraper.url = url
+jobs_elements = scraper.markup.get("data").get("results")
 
-    jobs = rules.getTags("div", {"class": "news-list-table__table__item__link"})
+for job in jobs_elements:
+    job_title = job.get("jobTitle")
+    job_link = "https://crowe.mingle.ro/en/apply/" + job.get("publicUid")
+    cities = []
+    counties = []
 
-    if len(jobs) != 0:
-        for job in jobs:
-            id = uuid.uuid4()
-            job_title = job.find("a").text.strip()
-            job_link = job.find("a").get("href")
-            
-            finalJobs.append({
-                "id": str(id),
-                "job_title": job_title,
-                "job_link": job_link,
-                "country": "Romania",
-                "city": "Romania",
-                "company": company.get("company")
-            })
+    if job.get("locations"):
+        for location in job.get("locations"):
+            city = translate_city(remove_diacritics(location.get("name")))
+            county = get_county(city)
+
+            if not county:
+                city = city.replace(' ', '-')
+                county = get_county(city)
+
+            if county:
+                cities.append(city)
+                counties.append(county)
     else:
-        break
+        cities = ["Bucuresti", "Timisoara", "Cluj-Napoca"]
+        counties = ["Bucuresti", "Timis", "Cluj"]
 
-    page += 1
+    jobs.append({
+        'job_title': job_title,
+        'job_link': job_link,
+        'company': company,
+        'country': 'Romania',
+        'cities': cities,
+        'counties': counties
+    })
 
-print(json.dumps(finalJobs, indent=4))
-
-loadingData(finalJobs, company.get("company"))
+for version in [1, 4]:
+    publish(version, company, jobs, 'APIKEY')
 
 logoUrl = "https://i.ytimg.com/vi/dTmm3WNIpnc/maxresdefault.jpg"
-
-scraper.session.headers.update({
-    "Content-Type": "application/json",
-})
-scraper.post( "https://api.peviitor.ro/v1/logo/add/" ,json.dumps([
-    {
-        "id":company.get("company"),
-        "logo":logoUrl
-    }
-]))
+publish_logo(company, logoUrl)
+show_jobs(jobs)
