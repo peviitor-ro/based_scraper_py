@@ -31,5 +31,6 @@ for page in range(pages):
 for version in [1,4]:
     publish(version, company, jobs, 'APIKEY')
 
-publish_logo(company, 'https://www.oracle.com/a/ocom/img/oracle-rgb-c74634.png')
+publish_logo(
+    company, 'https://upload.wikimedia.org/wikipedia/commons/thumb/5/50/Oracle_logo.svg/512px-Oracle_logo.svg.png')
 show_jobs(jobs)
