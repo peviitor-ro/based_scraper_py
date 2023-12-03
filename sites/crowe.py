@@ -38,8 +38,8 @@ for job in jobs_elements:
         'job_link': job_link,
         'company': company,
         'country': 'Romania',
-        'cities': cities,
-        'counties': counties
+        'city': cities,
+        'county': counties
     })
 
 for version in [1, 4]:
