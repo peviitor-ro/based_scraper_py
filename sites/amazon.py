@@ -25,7 +25,7 @@ while True:
                     job_title=job.get('title'),
                     job_link='https://www.amazon.jobs' + job.get('job_path'),
                     country='Romania',
-                    remote=True,
+                    remote="Remote",
                     company=company,
                     )
                 )
