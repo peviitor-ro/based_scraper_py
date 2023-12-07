@@ -2,6 +2,26 @@ from scraper.Scraper import Scraper
 from utils import (publish, publish_logo, create_job, show_jobs, translate_city, acurate_city_and_county)
 from getCounty import get_county
 
+
+def remove_umlaut(string):
+    """
+    Removes umlauts from strings and replaces them with the letter+e convention
+    :param string: string to remove umlauts from
+    :return: unumlauted string
+    """
+
+    ta = 'È'.encode()
+    a = 'Ä'.encode()
+    aa = 'Ã¢'.encode()
+
+    string = string.encode()
+    string = string.replace(ta, b'ta')
+    string = string.replace(a, b'a')
+    string = string.replace(aa, b'a')
+    
+    string = string.decode('utf-8')
+    return string
+
 company = 'SVN'
 url = 'https://jobs.svn.ro/posturi-vacante.html'
 
@@ -13,7 +33,7 @@ jobs = []
 jobs_elements = scraper.find('div', class_='jobs').find_all('div', class_='job')
 
 for job in jobs_elements:
-    job_title=job.find('h3').text
+    job_title=remove_umlaut(job.find('h3').text)
     job_link='https://jobs.svn.ro' + job.find('a')['href']
     city=translate_city(job.find('ul').find_all('li')[-1].text).replace("È", "s")
     county = get_county(city)
