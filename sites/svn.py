@@ -10,9 +10,9 @@ def remove_umlaut(string):
     :return: unumlauted string
     """
 
-    ta = 'È'.encode()
-    a = 'Ä'.encode()
-    aa = 'Ã¢'.encode()
+    ta = 'Èa'.encode()
+    a = 'Äa'.encode()
+    aa = 'Ã¢a'.encode()
 
     string = string.encode()
     string = string.replace(ta, b'ta')
