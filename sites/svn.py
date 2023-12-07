@@ -1,6 +1,6 @@
 from scraper.Scraper import Scraper
 from utils import (publish, publish_logo, create_job, show_jobs, translate_city, acurate_city_and_county)
-from getCounty import get_county
+from getCounty import get_county, remove_diacritics
 
 
 def remove_umlaut(string):
@@ -10,16 +10,14 @@ def remove_umlaut(string):
     :return: unumlauted string
     """
 
-    ta = 'Èa'.encode()
-    a = 'Äa'.encode()
-    aa = 'Ã¢a'.encode()
+    t = '\u0083'
+    a = '\u00c4\u0083'
+    aa = '\u00c3\u00a2'
 
-    string = string.encode()
-    string = string.replace(ta, b'ta')
-    string = string.replace(a, b'a')
-    string = string.replace(aa, b'a')
+    string = string.replace(t, 't')
+    string = string.replace(a, 'a')
+    string = string.replace(aa, 'a')
     
-    string = string.decode('utf-8')
     return string
 
 company = 'SVN'
@@ -33,11 +31,12 @@ jobs = []
 jobs_elements = scraper.find('div', class_='jobs').find_all('div', class_='job')
 
 for job in jobs_elements:
-    job_title=remove_umlaut(job.find('h3').text)
+    job_title = remove_diacritics(job.find('h3').text.encode(
+        'raw_unicode_escape').decode('utf-8'))
     job_link='https://jobs.svn.ro' + job.find('a')['href']
     city=translate_city(job.find('ul').find_all('li')[-1].text).replace("È", "s")
     county = get_county(city)
-    
+
     jobs.append(create_job(
         job_title=job_title,
         job_link=job_link,
