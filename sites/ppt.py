@@ -1,15 +1,45 @@
-import requests
-from bs4 import BeautifulSoup
 from utils import *
-from getCounty import *
+from getCounty import get_county, remove_diacritics
+from scraper.Scraper import Scraper
+
+
+def get_aditional_city(url):
+    scraper = Scraper()
+    scraper.get_from_url(url)
+
+    locations = scraper.find(
+        'meta', {'data-hid': 'cXenseParse:b19-ejobs_city'})['content'].split(',')
+
+    cities = []
+    counties = set()
+
+    for location in locations:
+        city = translate_city(
+            remove_diacritics(
+                location.strip()
+            ))
+        county = get_county(city)
+
+        if not county:
+            city = location.replace(' ', '-')
+            county = get_county(city)
+
+        cities.append(city)
+        counties.add(county)
+
+    return cities, counties
+
+# print(get_aditional_city('https://www.ejobs.ro/user/locuri-de-munca/casier/1722100'))
+
 
 url = 'https://www.ejobs.ro/company/preturi-pentru-tine/194591'
 company = 'PPT'
 
-r = requests.get(url)
-soup = BeautifulSoup(r.text, 'html.parser')
+scraper = Scraper()
+scraper.get_from_url(url)
 
-job_elements = soup.find('main', class_='CDInner__Main').find_all('div', class_='JobCard')
+job_elements = scraper.find(
+    'main', class_='CDInner__Main').find_all('div', class_='JobCard')
 
 final_jobs = []
 
@@ -18,38 +48,41 @@ for job in job_elements:
     job_url = job.find('h2', class_='JCContentMiddle__Title').find('a')['href']
     job_url = 'https://www.ejobs.ro' + job_url
 
-    location_info = job.find('span', class_='JCContentMiddle__Info')
-    city_parts = location_info.get_text(separator=',').split(',')
+    locations = job.find(
+        'span', class_='JCContentMiddle__Info').text.strip().split(',')
 
-    filtered_cities = []
-    for part in city_parts:
-        part = part.strip().replace('\u0218', 'S').replace('\u0219', 's')
-        if part and not any(word in part for word in ['orase', 'si alte']) and not part.isdigit():
-            filtered_cities.append(part)
+    if 'și alte' in locations[-1]:
+        cities, counties = get_aditional_city(job_url)
+    else:
+        cities = []
+        counties = set()
 
-    additional_cities_span = job.find('span', class_='PartialList__Rest')
-    if additional_cities_span and additional_cities_span.has_attr('title'):
-        additional_cities = additional_cities_span['title'].split(',')
-        for city in additional_cities:
-            city = city.strip().replace('\u0218', 'S').replace('\u0219', 's')
-            if city:
-                filtered_cities.append(city)
+        for location in locations:
+            city = translate_city(
+                remove_diacritics(
+                    location.strip()
+                ))
+            county = get_county(city)
 
-    counties = [get_county(city) for city in filtered_cities if city]
+            if not county:
+                city = city.replace(' ', '-')
+                county = get_county(city)
 
-    country = 'Romania'
+            cities.append(city)
+            counties.add(county)
+
     final_jobs.append(
         {
             'job_title': job_title,
             'job_link': job_url,
-            'city': filtered_cities,
-            'county': [county for county in counties if county is not None],
-            'country': country,
+            'city': cities,
+            'county': list(counties),
+            'country': 'Romania',
             'company': company
         }
     )
 
-for version in [1,4]:
+for version in [1, 4]:
     publish(version, company, final_jobs, 'Grasum_Key')
 
 publish_logo(company, 'https://content.ejobs.ro/img/logos/1/194591.png')
