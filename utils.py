@@ -37,6 +37,8 @@ def show_jobs(data):
     print(json.dumps(data, indent=4))
 
 def translate_city(city):
+
+    city = city.replace(' ', '_')
     cities = {
         # This is general for all scrapers
         "bucharest": "Bucuresti",
@@ -46,14 +48,16 @@ def translate_city(city):
         "militari": "Bucuresti",
         ############################
         # This is for Vodafone Scraper
-        "cluj napoca": "Cluj-Napoca",
+        "cluj_napoca": "Cluj-Napoca",
         ############################
+        # This is for ppt
+        "campulung_muscel": "Campulung",
     }
     
     if cities.get(city.lower()):
         return cities.get(city.lower())
     else:
-        return city
+        return city.replace('_', ' ')
     
 def acurate_city_and_county(**kwargs):
     city_and_county = {}
