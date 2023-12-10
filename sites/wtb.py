@@ -14,7 +14,7 @@ jobs = scraper.find("div", {"class": "isotope-wrapper half-gutter"}).find_all("h
 
 while jobs:
     for job in jobs:
-        job_title = job.text.strip()
+        job_title = job.text.replace("JOB:","").strip()
         job_link = job.find("a").get("href")
 
         finalJobs.append(create_job(
