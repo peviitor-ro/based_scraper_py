@@ -53,7 +53,6 @@ for page in range(0, pages):
         if country == "ROU":
             county = get_county(city)
 
-
             jobs.append(create_job(
                 job_title=job["name"],
                 job_link=job["canonicalPositionUrl"],
@@ -62,6 +61,7 @@ for page in range(0, pages):
                 company=company,
                 county=county,
             ))
+            
     url = f"https://jobs.vodafone.com/api/apply/v2/jobs?domain=vodafone.com&start={page * step}&num={step}&domain=vodafone.com&sort_by=relevance"
     scraper.get_from_url(url, "JSON")
 
