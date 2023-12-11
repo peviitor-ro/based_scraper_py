@@ -1,7 +1,8 @@
 from scraper_peviitor import Scraper, Rules, loadingData
-import uuid
 import re
 import json
+from utils import translate_city
+from getCounty import get_county
 
 scraper = Scraper()
 rules = Rules(scraper)
@@ -26,20 +27,28 @@ while foundedJobs:
     foundedJobs = len(jobs) > 0
 
     for job in jobs:
-        id = str(uuid.uuid4())
         job_title = job.find_all("td")[1].text.strip()
         job_link = job.find("a").get("href")
+        city = translate_city(job.find_all("td")[3].text.strip().split(",")[0])
+        remote = ""
+
+        county = get_county(city)
+
+        if not county:
+            city = ""
+            county = ""
+            remote = "Remote"
 
         finalJobs.append(
             {
-                "id": id,
                 "job_title": job_title,
                 "job_link": job_link,
                 "company": company.get("company"),
                 "country": "Romania",
-                "city": "Romania",
+                "city": city,
+                "county": county,
+                "remote": remote
             })
-
     pageNumber += 1
 
 print(json.dumps(finalJobs, indent=4))
