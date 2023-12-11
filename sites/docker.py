@@ -1,5 +1,4 @@
 from scraper_peviitor import Scraper, loadingData
-import uuid
 import json
 
 url = "https://jobs.ashbyhq.com/api/non-user-graphql?op=ApiJobBoardWithTeams"
@@ -21,7 +20,6 @@ data = {
 jobs = scraper.post(url, data=json.dumps(data)).json().get("data").get("jobBoard").get("jobPostings")
 
 for job in jobs:
-    id = uuid.uuid4()
     job_title = job.get("title")
     job_link = "https://www.docker.com/career-openings/?ashby_jid=" + job.get("id")
     countrys = job.get("secondaryLocations")
@@ -30,12 +28,11 @@ for job in jobs:
         city = country.get("locationName")
         if city == "Romania":
             finalJobs.append({
-                "id": str(id),
                 "job_title": job_title,
                 "job_link": job_link,
                 "company": company.get("company"),
                 "country": "Romania",
-                "city": city
+                "remote": "Remote",
             })
 
 print(json.dumps(finalJobs, indent=4))
