@@ -86,7 +86,8 @@ for job in job_elements:
                 'job_title' : job_title,
                 'job_link' : job_url,
                 'city' : cities,
-                'country' : list(counties),
+                'county' : list(counties),
+                'country' : 'Romania',
                 'company' : company
             }
     )
