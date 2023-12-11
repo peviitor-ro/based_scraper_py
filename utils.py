@@ -44,11 +44,12 @@ def translate_city(city):
         "bucharest": "Bucuresti",
         "cluj": "Cluj-Napoca",
         # This is for Arabesque Scraper
-        "targul-mures": "Targu Mures",
+        "targul-mures": "Targu-Mures",
         "militari": "Bucuresti",
         ############################
         # This is for Vodafone Scraper
         "cluj_napoca": "Cluj-Napoca",
+        "targu_mures": "Targu-Mures",
         ############################
         # This is for ppt
         "campulung_muscel": "Campulung",
