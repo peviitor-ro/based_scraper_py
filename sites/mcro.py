@@ -1,19 +1,15 @@
-import requests
-import json
-import uuid
-import os
-from bs4 import BeautifulSoup
+from scraper.Scraper import Scraper
+from utils import show_jobs, publish, publish_logo, translate_city
+from getCounty import get_county
 
 company = 'Mcro'
 base_url = 'https://mcro.tech'
 careers_url = base_url + '/careers/'
 
-response = requests.get(careers_url)
-html_markup = response.text
+scraper = Scraper()
+soup = scraper.get_from_url(careers_url)
 
-soup = BeautifulSoup(html_markup, 'html.parser')
-
-jobs = soup.find_all('a', class_='job')
+jobs = scraper.find_all('a', class_='job')
 
 final_jobs = []
 
@@ -24,24 +20,26 @@ for job in jobs:
     location_city = location_slpit[0]
     location_country = location_slpit[1].split('|')[0].strip()
 
+    city = translate_city(location_city)
+    county = get_county(city)
+    remote = location_slpit[1].split('|')[1].strip()
+
     # Concatenate base_url with job_link
     full_job_link = base_url + "/" + job_link
 
     final_jobs.append({
-        'id': str(uuid.uuid4()),
         'job_link': full_job_link,
         'job_title': job_title,
         'city': location_city,
+        'county': county,
+        'remote': remote,
         'country': location_country,
         'company': company
     })
 
-api_key = os.environ.get('Grasum_Key')
+for version in [1,4]:
+    publish(version, company, final_jobs, 'APIKEY')
 
-clean_data = requests.post('https://api.peviitor.ro/v4/clean/', headers={'Content_Type': 'application/x-www-form-urlencoded', 'apikey': api_key}, data={'company': company})
+publish_logo(company, 'https://mcro.tech/static/mcro-unicorn-logo-24cdacabaf115019db9895d78b862afb.svg')
+show_jobs(final_jobs)
 
-update_data = requests.post('https://api.peviitor.ro/v4/update/', headers={'Content_Type': 'application/json', 'apikey': api_key}, data=json.dumps(final_jobs))
-
-requests.post('https://api.peviitor.ro/v1/logo/add/', headers={'Content_Type': 'application/json'}, data=json.dumps([{'id': company, 'logo': 'https://mcro.tech/static/mcro-unicorn-logo-24cdacabaf115019db9895d78b862afb.svg'}]))
-
-print(json.dumps(final_jobs, indent=4))
