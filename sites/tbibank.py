@@ -18,22 +18,28 @@ finalJobs = list()
 for job in jobs:
     job_title = job["translations"]["en"]["title"]
     job_link = "https://tbibankro.recruitee.com/o/" + job["slug"]
+    country = job["translations"]["en"]["country"]
     cities = job["city"].split("/")
-
-    translated_cities = [translate_city(city.strip()) for city in cities]
-    counties = [get_county(city) for city in translated_cities]
-
     remote = job["tags"]
 
-    finalJobs.append({
+    job_obj = {
         "job_title": job_title,
         "job_link": job_link,
         "company": company,
-        "country": "Romania",
-        "city": translated_cities,
-        "county": counties,
+        "country": country,
         "remote": remote
-    })
+    }
+
+    if country == "Romania":
+        translated_cities = [translate_city(city.strip()) for city in cities]
+        counties = [get_county(city) for city in translated_cities]
+
+        job_obj["city"] = translated_cities
+        job_obj["county"] = counties
+    else:
+        job_obj["city"] = cities
+
+    finalJobs.append(job_obj)
 
 show_jobs(finalJobs)
 
