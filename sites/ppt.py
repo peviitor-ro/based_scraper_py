@@ -2,7 +2,6 @@ from utils import *
 from getCounty import get_county, remove_diacritics
 from scraper.Scraper import Scraper
 
-
 def get_aditional_city(url):
     scraper = Scraper()
     scraper.get_from_url(url)
@@ -28,9 +27,6 @@ def get_aditional_city(url):
         counties.add(county)
 
     return cities, counties
-
-# print(get_aditional_city('https://www.ejobs.ro/user/locuri-de-munca/casier/1722100'))
-
 
 url = 'https://www.ejobs.ro/company/preturi-pentru-tine/194591'
 company = 'PPT'
