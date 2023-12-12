@@ -44,6 +44,180 @@ counties = [
     {"Vaslui":["Barlad","Vaslui","Husi","Negresti","Zorleni","Murgeni","Vetrisoaia","Perieni","Valeni","Stanilesti","Falciu","Ivesti","Popeni","Berezeni","Codaesti","Ghermanesti","Feresti","Lunca Banului","Dumesti","Costesti","Satu Nou","Bacesti","Rafaila","Laza","Brodoc","Tanacu","Puscasi","Vutcani","Deleni","Rasesti","Zapodeni","Epureni","Lipovat","Duda","Dodesti","Muntenii de Jos","Puiesti","Valeni","Valea Grecului","Corni-Albesti","Muntenii de Sus","Blagesti","Grivita","Osesti","Satu Nou","Padureni","Bunesti","Ivanesti","Pribesti","Suletea","Buda","Rosiesti","Chircesti","Tutova","Viisoara","Moara Domneasca","Vinderei","Ranzesti","Pogonesti","Trestiana","Gugesti","Albesti","Carja","Moara Grecilor","Fastaci","Obarseni","Poganesti","Banca","Chitoc","Bacani","Emil Racovita","Solesti","Gherghesti","Badeana","Rediu","Botesti","Garceni","Epureni","Sauca","Bogdanesti","Halaresti","Barzesti","Radeni","Miclesti","Vulturesti","Tarzii","Iana","Manjesti","Doagele","Fruntiseni","Pungesti","Buhaiesti","Bursuci","Salceni","Valea Mare","Todiresti","Draxeni","Gusitei","Oprisita","Otetoaia","Tacuta","Simila","Balteni","Poienesti","Silistea","Floresti","Balesti","Barlalesti","Obarsenii Lingurari","Stoisesti","Vinetesti","Valea Mare","Alexandru Vlahuta","Malusteni","Serbotesti","Arsura","Untesti","Barbosi","Cretestii de Sus","Tomesti","Ciocani","Tutcani","Grajdeni","Protopopesti","Tatarani","Maraseni","Bogesti","Delesti","Raiu","Ibanesti","Bogdanesti","Avramesti","Valea lui Darie","Gara Banca","Oteleni","Danesti","Rusca","Ranceni","Baltati","Copaceana","Schineni","Hurdugi","Docani","Bradesti","Grumezoaia","Rediu Galian","Portari","Lupesti","Harsova","Toporasti","Fundatura","Bahnari","Pogana","Floreni","Manzati","Bogdana","Fedesti","Focseasca","Giurcani","Hoceni","Viisoara","Bacaoani","Bozia","Odaia Bursucani","Ghermanesti","Mascurei","Deleni","Corbu","Coroiesti","Pahnesti","Fundatura","Peicani","Dragomiresti","Ivanesti","Parpanita","Huc","Musata","Cretesti","Armasoaia","Stioborani","Mireni","Rebricea","Gura Idrici","Manzatesti","Broscosesti","Ratesu Cuzei","Balteni-Deal","Chersacosu","Fundu Vaii","Crivesti","Tifu","Lalesti","Gardesti","Oltenesti","Chetrosu","Ghergheleu","Cetatuia","Benesti","Gura Vaii","Valea Mare","Stefan cel Mare","Vladia","Horga","Dumestii Vechi","Popesti","Slobozia","Drujesti","Secuia","Teisoru","Dumasca","Dranceni","Cepesti","Cazanesti","Siscani","Lunca","Ulea","Cristesti","Armaseni","Suseni","Gagesti","Recea","Bulboaca","Voinesti","Blesca","Idrici","Valea Lunga","Craciunesti","Babusa","Rusi","Sarateni","Tupilati","Brosteni","Crang","Latesti","Docaneasa","Odaia Bogdana","Plotonesti","Sarbi","Bousori","1 Decembrie","Cozmesti","Dragesti","Plopi","Budu Cantemir","Satu Nou","Malaiesti","Tufestii de Jos","Brahasoaia","Frasinu","Rasnita","Cotic","Vovriesti","Poiana lui Alexa","Cosca","Dobroslovesti","Gara Rosiesti","Puntiseni","Popesti","Telejna","Valea Silistei","Crasna","Silistea","Chitcani","Vadurile","Mircesti","Iezer","Averesti","Corodesti","Iaz","Poiana Pietrei","Glodeni","Leosti","Calimanesti","Igesti","Jigalia","Stuhulet","Chilieni","Buda","Borodesti","Tatarani","Hreasca","Mitoc","Urlati","Rascani","Capusneni","Padureni","Voinesti","Cursesti-Vale","Ursoaia","Silistea","Dumbraveni","Urdesti","Zizinca","Cosesti","Miclesti","Curteni","Suceveni","Viltotesti","Marasesti","Bartalus-Mocani","Satu Nou","Polocin","Dealu Mare","Lacu Babei","Poiana","Sasova","Valea Oanei","Obarseni","Podu Oprii","Davidesti","Uncesti","Stroiesti","Tibanestii Buhlii","Bereasa","Cursesti-Deal","Cioatele","Coroiesti","Ghireasca","Tabalaesti","Delea","Baltateni","Bolati","Bumbata","Trohan","Albesti","Armaseni","Budesti","Halta Dodesti","Pahna","Pochidia","Tunsesti","Verdes","Rosiori","Tatomiresti","Morareni","Paltinis","Satu Nou","Carjoani","Coroiestii de Sus","Plopoasa","Butucaria","Movileni","Tulesti","Cantalaresti","Stejaru","Raduiesti","Sipeni","Calugareni","Orgoiesti","Belzeni","Racova","Valea Targului","Radesti","Leosti","Crasnaseni","Bogdana-Voloseni","Schinetea","Vizureni","Bancesti","Crangu Nou","Vulpaseni","Manastirea","Valea Popii","Valeni","Rediu","Buda","Hupca","Ghicani","Chetresti","Racovita","Bobesti","Ciofeni","Tomsa","Valea lui Bosie","Coroiu","Stancaseni","Focsa","Macresti","Sofronesti","Bogdanita","Buscata","Manastirea","Posta Elan","Galtesti","Draxeni","Cartibasi","Giurgesti","Harsoveni","Ciortolom","Capotesti","Gura Albesti","Dinga","Fundatura Mare","Viisoara","Gara Talasman","Codreni","Fantanele","Visinari","Muntenesti","Fundu Vaii","Bartalus-Razesi","Fulgu","Putu Olarului","Mihail Kogalniceanu","Zgura","Gara Docaneasa","Belcesti","Stramtura-Mitoc","Poienesti-Deal","Babuta","Cujba","Iezerel","Soci","Parvesti","Radaesti","Rotari","Uricari","Vladesti","Lazu","Gavanu","Salcioara","Lunca Veche","Fantana Blanarului","Horoiata","Macresti","Rascani","Albita","Condrea","Rugaria","Sofieni","Fundatura Mica","Schitu","Ganesti","Botoaia","Valcele","Mantu","Popeni","Saratu","Talpigeni","Similisoara","Baile Dranceni","Valea Seaca","Ciuperca","Pacuraresti","Arsita","Corobanesti","Bejenesti","Moreni","Soparleni","Rediu","Rapsa","Semenea","Podu Petris","Dragomanesti","Raducani","Dealu Secarii","Podeni","Valea Lupului","Albina","Botoi","Hordila","Hordilesti","Plopeni","Satu Nou","Todireni"]},
     {"Vrancea":["Focsani","Adjud","Marasesti","Odobesti","Panciu","Paunesti","Suraia","Gugesti","Homocea","Vulturu","Gologanu","Jaristea","Milcovul","Urechesti","Straoane","Popesti","Ploscuteni","Rastoaca","Movilita","Tulnici","Campuri","Biliesti","Sihlea","Negrilesti","Campineanca","Balesti","Bordeasca Veche","Vidra","Fitionesti","Budesti","Cornetu","Ramniceni","Golesti","Cotesti","Dragosloveni","Ruginesti","Dumbraveni","Vizantea Manastireasca","Nereju Mic","Pufesti","Adjudu Vechi","Unirea","Gagesti","Tataranu","Burca","Mera","Slobozia Ciorasti","Obrejita","Paulesti","Sindrilari","Candesti","Paltin","Jorasti","Hangulesti","Voetin","Nereju","Rucareni","Racoasa","Bordesti","Ceardac","Vadu Rosca","Anghelesti","Vartescoiu","Ciorasti","Maicanesti","Lespezi","Botarlau","Ciuslea","Carligele","Domnesti-Targ","Igesti","Bogza","Vulcaneasa","Iresti","Tamboesti","Gura Calitei","Mircestii Noi","Slobozia Bradului","Nanesti","Ciorani","Tifesti","Barsesti","Naruja","Mihalceni","Viisoara","Vanatori","Olesesti","Satu Nou","Muncelu","Coza","Petresti","Coroteni","Faraoanele","Dragosloveni","Crucea de Sus","Tataru","Vizantea Razaseasca","Calienii Vechi","Lamotesti","Haulisca","Viisoara","Livezile","Sarbi","Copacesti","Colacu","Verdea","Podu Lacului","Poiana","Mandresti-Moldova","Maluri","Siscani","Diochetirediu","Dumitresti","Bolotesti","Martinesti","Slimnic","Calimanesti","Calienii Noi","Valeni","Andreiasu de Jos","Pitulusa","Vitanesti","Luncile","Rachitasu","Bizighesti","Vitanestii de Sub Magura","Vrancioaia","Brosteni","Marasti","Garoafa","Jiliste","Dalhauti","Padureni","Bicestii de Sus","Slobozia Botesti","Spinesti","Neicu","Bordestii de Jos","Faurei","Pietroasa","Bicestii de Jos","Buda","Radulesti","Serbesti","Caiata","Vintileasca","Bahnele","Putna","Blidari","Salcia Noua","Arva","Haret","Fetesti","Varnita","Valea Cotesti","Varsatura","Padureni","Topesti","Oreavu","Mandresti-Munteni","Terchesti","Valea Sarii","Muncei","Prahuda","Padureni","Tichiris","Dumbrava","Burcioaia","Neculele","Galoiesti","Piscu Radului","Poenile","Spulber","Beciu","Lastuni","Crucea de Jos","Jitia","Ghimicesti","Poiana Cristei","Lacu lui Baban","Manastioara","Rosioara","Bordeasca Noua","Chiricani","Trotusanu","Nistoresti","Bontesti","Stupina","Feldioara","Podu Narujei","Jitia de Jos","Livada","Mahriu","Plopu","Catauti","Belciugele","Mesteacanu","Sahastru","Voloscani","Gura Vaii","Ivancesti","Poduri","Repedea","Pietroasa","Golestii de Sus","Rotilestii Mari","Rachitosu","Podu Stoica","Magura","Argea","Milcovel","Scafari","Boghesti","Vetresti-Herastrau","Romanesti","Rotilestii Mici","Radacinesti","Costisa","Taratu","Salcia Veche","Codresti","Carsochesti-Corabita","Podurile","Satu Nou","Reghiu","Dumbrava","Podu Schiopului","Vajaitoarea","Dumitrestii-Fata","Tipau","Spatareasa","Tanasoaia","Dumitrestii de Sus","Valea Milcovului","Calimaneasa","Doaga","Tulburea","Strajescu","Rasca","Batcari","Vladnicu de Sus","Dealu Cucului","Frecatei","Prisecani","Scanteia","Blidari","Valcele","Bradacesti","Tinoasa","Cerbu","Iugani","Valeni","Galbeni","Serbanesti","Olteni","Ruget","Ramniceanca","Lepsa","Matacina","Gogoiu","Dealu Sarii","Petreanu","Poienita","Ungureni","Ursoaia","Precistanu","Motnau","Arsita","Balta Ratei","Holbanesti","Pietroasa","Batinesti","Prisaca","Liesti","Farcas","Bradetu","Costisa de Sus","Trestia","Bichesti","Trestieni","Plostina","Raiuti","Ochesesti","Ciolanesti","Siminoc","Tanasari","Titila","Armeni","Placinteni","Bodesti","Mircestii Vechi","Covrag","Costisa","Fagetu","Chiojdeni","Pietroasa","Tepa","Chitcani","Roscari","Corbita","Rebegari","Valcani","Valea Beciului","Clipicesti","Largaseni","Poiana Stoichii","Dealul Lung","Boghestii de Sus","Cocosari","Lojnita","Izvoarele","Nanesti","Patrascani","Seciu","Tutu","Odobasca","Maracini","Andreiasu de Sus","Domnesti-Sat","Pavalari","Ghebari","Dupa Magura","Valea Mica","Jgheaburi","Plesesti","Olareni","Tabucesti","Fetig","Lupoaia","Gresu","Hotaru","Groapa Tufei","Valcelele","Valeni","Modruzeni","Moraresti","Piscu Reghiului","Alexandru Vlahuta","Tojanii de Sus","Vladnicu de Jos","Valea Neagra","Sotarcari","Tojanii de Jos","Balanesti","Siretu","Tisita"]}
     ]
+abreviate_counties = {
+    'ab':{
+        'city': 'Alba Iulia',
+        'county': 'Alba'
+    },
+    'ar':{
+        'city': 'Arad',
+        'county': 'Arad'
+    },
+    'ag':{
+        'city': 'Pitesti',
+        'county': 'Arges'
+    },
+    'bc':{
+        'city': 'Bacau',
+        'county': 'Bacau'
+    },
+    'bh':{
+        'city': 'Oradea',
+        'county': 'Bihor'
+    },
+    'bn':{
+        'city': 'Bistrita',
+        'county': 'Bistrita-Nasaud'
+    },
+    'bt':{
+        'city': 'Botosani',
+        'county': 'Botosani'
+    },
+    'br':{
+        'city': 'Braila',
+        'county': 'Braila'
+    },
+    'bv':{
+        'city': 'Brasov',
+        'county': 'Brasov'
+    },
+    'b':{
+        'city': 'Bucuresti',
+        'county': 'Bucuresti'
+    },
+    'bz':{
+        'city': 'Buzau',
+        'county': 'Buzau'
+    },
+    'cl':{
+        'city': 'Calarasi',
+        'county': 'Calarasi'
+    },
+    'cs':{
+        'city': 'Resita',
+        'county': 'Caras-Severin'
+    },
+    'cj':{
+        'city': 'Cluj-Napoca',
+        'county': 'Cluj'
+    },
+    'ct':{
+        'city': 'Constanta',
+        'county': 'Constanta'
+    },
+    'cv':{
+        'city': 'Sfantu Gheorghe',
+        'county': 'Covasna'
+    },
+    'db':{
+        'city': 'Targoviste',
+        'county': 'Dambovita'
+    },
+    'dj':{
+        'city': 'Craiova',
+        'county': 'Dolj'
+    },
+    'gl':{
+        'city': 'Galati',
+        'county': 'Galati'
+    },
+    'gr':{
+        'city': 'Giurgiu',
+        'county': 'Giurgiu'
+    },
+    'gj':{
+        'city': 'Targu Jiu',
+        'county': 'Gorj'
+    },
+    'hg':{
+        'city': 'Miercurea Ciuc',
+        'county': 'Harghita'
+    },
+    'hr':{
+        'city': 'Hunedoara',
+        'county': 'Hunedoara'
+    },
+    'hd':{
+        'city': 'Deva',
+        'county': 'Hunedoara'
+    },
+    'il':{
+        'city': 'Slobozia',
+        'county': 'Ialomita'
+    },
+    'is':{
+        'city': 'Iasi',
+        'county': 'Iasi'
+    },
+    'if':{
+        'city': 'Buftea',
+        'county': 'Ilfov'
+    },
+    'mm':{
+        'city': 'Baia Mare',
+        'county': 'Maramures'
+    },
+    'mh':{
+        'city': 'Drobeta-Turnu Severin',
+        'county': 'Mehedinti'
+    },
+    'ms':{
+        'city': 'Targu-Mures',
+        'county': 'Mures'
+    },
+    'nt':{
+        'city': 'Piatra Neamt',
+        'county': 'Neamt'
+    },
+    'ot':{
+        'city': 'Slatina',
+        'county': 'Olt'
+    },
+    'ph':{
+        'city': 'Ploiesti',
+        'county': 'Prahova'
+    },
+    'sj':{
+        'city': 'Zalau',
+        'county': 'Salaj'
+    },
+    'sm':{
+        'city': 'Satu Mare',
+        'county': 'Satu Mare'
+    },
+    'sb':{
+        'city': 'Sibiu',
+        'county': 'Sibiu'
+    },
+    'sv':{
+        'city': 'Suceava',
+        'county': 'Suceava'
+    },
+    'tr':{
+        'city': 'Alexandria',
+        'county': 'Teleorman'
+    },
+    'tm':{
+        'city': 'Timisoara',
+        'county': 'Timis'
+    },
+    'tl':{
+        'city': 'Tulcea',
+        'county': 'Tulcea'
+    },
+    'vl':{
+        'city': 'Ramnicu Valcea',
+        'county': 'Valcea'
+    },
+    'vs':{
+        'city': 'Vaslui',
+        'county': 'Vaslui'
+    },
+    'vn':{
+        'city': 'Focsani',
+        'county': 'Vrancea'
+    }
+}
 
 def has_diacritics(char):
     return any(unicodedata.combining(c) for c in char)
