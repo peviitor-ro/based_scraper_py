@@ -51,4 +51,4 @@ while jobs:
 print(json.dumps(finalJobs, indent=4))
 
 # #Incarcam datele in baza de date
-# loadingData(finalJobs, company.get("company"))
+loadingData(finalJobs, company.get("company"))

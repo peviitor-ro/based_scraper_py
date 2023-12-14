@@ -166,7 +166,7 @@ abreviate_counties = {
         'county': 'Mures'
     },
     'nt':{
-        'city': 'Piatra Neamt',
+        'city': 'Piatra-Neamt',
         'county': 'Neamt'
     },
     'ot':{
