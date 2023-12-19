@@ -35,9 +35,8 @@ def get_aditional_city(url):
                 location = translate_city(location_city.split(",")[0])
             else:
                 location = translate_city(location_city.split(" ")[0])
-                
-        county = get_county(location)
 
+        county = get_county(location)
 
         if county:
             cities.append(location)
@@ -87,7 +86,12 @@ for page in range(pages):
         if not counties:
             aditional_url = "https://refinitiv.wd3.myworkdayjobs.com/wday/cxs/refinitiv/Careers" + \
                 job.get("externalPath")
-            cities, counties = get_aditional_city(aditional_url)
+
+            try:
+                cities, counties = get_aditional_city(aditional_url)
+            except:
+                cities = "Bucuresti"
+                counties = "Bucuresti"
 
             if not counties:
                 cities = "Bucuresti"
