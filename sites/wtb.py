@@ -28,10 +28,13 @@ while jobs:
 
     page += 1
     scraper.get_from_url(url + f"category/careers/category/careers/?%&upage={page}")
-    jobs = scraper.find("div", {"class": "isotope-wrapper half-gutter"}).find_all("h3", {"class": "t-entry-title h5"})
+    try:
+        jobs = scraper.find("div", {"class": "isotope-wrapper half-gutter"}).find_all("h3", {"class": "t-entry-title h5"})
+    except:
+        jobs = None
 
 for version in [1, 4]:
-    publish(version, company, jobs, 'APIKEY')   
+    publish(version, company, finalJobs, 'APIKEY')   
 
 publish_logo(company, "https://www.wtb.ro/wp-content/uploads/2018/04/logoblack.svg")
 show_jobs(finalJobs)
