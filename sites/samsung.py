@@ -31,27 +31,32 @@ for num in iteration:
     data["offset"] = num
     jobs = scraper.post(apiUrl, json=data).json().get("jobPostings")
     for job in jobs:
-        job_title = job.get("title")
-        job_link = "https://sec.wd3.myworkdayjobs.com/en-US/Samsung_Careers" + \
-            job.get("externalPath")
-        city = translate_city(
-            job.get("locationsText").split(",")[1].strip().split(" ")[0]
-        )
-        county = get_county(city)
-        remote = job.get("remoteType")
+        try:
+            job_title = job.get("title")
+            job_link = "https://sec.wd3.myworkdayjobs.com/en-US/Samsung_Careers" + \
+                job.get("externalPath")
+            city = translate_city(
+                job.get("locationsText").split(",")[1].split(" ")[1]
+            )
 
-        finaljobs.append({
-            "job_title": job_title,
-            "job_link": job_link,
-            "company": company.get("company"),
-            "country": "Romania",
-            "city": city,
-            "county": county,
-            "remote": remote
-        })
+            county = get_county(city)
+            remote = job.get("remoteType")
 
-#afisam numarul total de joburi gasite
+            if county:
+                finaljobs.append({
+                    "job_title": job_title,
+                    "job_link": job_link,
+                    "company": company.get("company"),
+                    "country": "Romania",
+                    "city": city,
+                    "county": county,
+                    "remote": remote
+                })
+        except:
+            pass
+
+# #afisam numarul total de joburi gasite
 print(json.dumps(finaljobs, indent=4))
 
 # #se incarca datele in baza de date
-# loadingData(finaljobs, company.get("company"))
+loadingData(finaljobs, company.get("company"))
