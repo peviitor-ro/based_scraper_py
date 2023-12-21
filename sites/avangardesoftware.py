@@ -1,9 +1,7 @@
 import requests
 from bs4 import BeautifulSoup
-import json
-import uuid
-import os
 from getCounty import *
+from utils import *
 
 company = 'AvangardeSoftware'
 url = 'https://avangarde-software.com/careers/'
@@ -34,21 +32,17 @@ for a_tag in a_tags:
     location = location_div.get_text(strip=True).split(',')[0]
     county = get_county(location)
 
-    final_jobs.append({'id': str(uuid.uuid4()),
-                       'job_link': url,
-                       'job_title': job_title,
-                       'city': location,
-                       'county' : county,
-                       'country': 'Romania',
-                       'company': company})
+    final_jobs.append({
+        'job_link': url,
+        'job_title': job_title,
+        'city': location,
+        'county': county,
+        'country': 'Romania',
+        'company': company})
 
-api_key = os.environ.get('Grasum_Key')
+for version in [1, 4]:
+    publish(version, company, final_jobs, 'Grasum_Key')
 
-clean_data = requests.post('https://api.peviitor.ro/v4/clean/', headers={'Content_Type': 'application/x-www-form-urlencoded', 'apikey': api_key}, data={'company': company})
-
-update_data = requests.post('https://api.peviitor.ro/v4/update/', headers={'Content_Type': 'application/json', 'apikey': api_key}, data=json.dumps(final_jobs))
-
-requests.post('https://api.peviitor.ro/v1/logo/add/', headers={'Content_Type': 'application/json'}, data=json.dumps([{'id': company, 'logo': 'https://avangarde-software.com/wp-content/uploads/2020/03/Avangarde-Software-Logo-1.png'}]))
-
-print(json.dumps(final_jobs, indent=4))
-
+publish_logo(
+    company, "https://avangarde-software.com/wp-content/uploads/2020/03/Avangarde-Software-Logo-1.png")
+show_jobs(final_jobs)
