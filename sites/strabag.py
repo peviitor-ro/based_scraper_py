@@ -40,15 +40,15 @@ while True:
         locations = job_container.find("div", class_="row").find_all("div")[
             1].text.replace("Romania", "").split(",")
         cities = [translate_city(remove_words(location, ["jud.", "(Jilava)"]).strip(
-        ).title()) for location in locations
-            if "RO" not in location
-        ]
+        ).title()) for location in locations]
+
         counties = [
             get_county(city) for city in cities
         ]
 
         jobs.append(create_job(
-            job_title=job_container.find("div", class_="row").find_all("div")[0].text.strip(),
+            job_title=job_container.find("div", class_="row").find_all("div")[
+                0].text.strip(),
             job_link=job_container.find("a")['href'],
             country="Romania",
             city=cities,
@@ -58,8 +58,8 @@ while True:
 
     data['morejobs'] += 1
 
-# for version in [1,4]:
-#     publish(version, company, jobs, 'APIKEY')
+for version in [1,4]:
+    publish(version, company, jobs, 'APIKEY')
 
-# publish_logo(company, "https://jobboerse.strabag.at/img/strabag-logo-300px.png")
+publish_logo(company, "https://jobboerse.strabag.at/img/strabag-logo-300px.png")
 show_jobs(jobs)

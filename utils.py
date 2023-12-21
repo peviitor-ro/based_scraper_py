@@ -37,7 +37,6 @@ def show_jobs(data):
     print(json.dumps(data, indent=4))
 
 def translate_city(city):
-
     city = city.replace(' ', '_')
     cities = {
         # This is general for all scrapers
@@ -53,6 +52,8 @@ def translate_city(city):
         ############################
         # This is for ppt
         "campulung_muscel": "Campulung",
+        # This is for Strabag
+        "petrobrazi": "Ploiesti",
     }
     
     if cities.get(city.lower()):
