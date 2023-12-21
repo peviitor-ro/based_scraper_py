@@ -8,7 +8,7 @@ scraper = Scraper()
 scraper.get_from_url(url, verify=False)
 
 #Un set pentru a nu avea duplicate
-company = {"company": "BRD"}
+company = "BRD"
 j = set()
 
 #Cautam elementele care contin joburile 
@@ -42,7 +42,7 @@ for job in j:
         {
             "job_title": job_title,
             "job_link": job_link,
-            "company": company.get("company"),
+            "company": company,
             "country": "Romania",
             "city": "Romania",
         }
@@ -51,5 +51,5 @@ for job in j:
 for version in [1,4]:
     publish(version, company, finalJobs, 'APIKEY')
 
-# publish_logo(company, "https://www.brd.ro/assets/images/logo-brd.svg")
+publish_logo(company, "https://www.brd.ro/assets/images/logo-brd.svg")
 show_jobs(finalJobs)
