@@ -40,7 +40,7 @@ while True:
         locations = job_container.find("div", class_="row").find_all("div")[
             1].text.replace("Romania", "").split(",")
         cities = [translate_city(remove_words(location, ["jud.", "(Jilava)"]).strip(
-        ).replace(" ", "-").title()) for location in locations
+        ).title()) for location in locations
             if "RO" not in location
         ]
         counties = [
@@ -58,8 +58,8 @@ while True:
 
     data['morejobs'] += 1
 
-for version in [1,4]:
-    publish(version, company, jobs, 'APIKEY')
+# for version in [1,4]:
+#     publish(version, company, jobs, 'APIKEY')
 
-publish_logo(company, "https://jobboerse.strabag.at/img/strabag-logo-300px.png")
+# publish_logo(company, "https://jobboerse.strabag.at/img/strabag-logo-300px.png")
 show_jobs(jobs)
