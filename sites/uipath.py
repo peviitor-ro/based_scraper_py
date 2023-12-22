@@ -13,7 +13,6 @@ finalJobs = list()
 
 for job in jobs:
     job = job.get("data")
-    show_jobs(job)
 
     job_title = job.get("title")
     job_link = job.get("meta_data").get("canonical_url")
