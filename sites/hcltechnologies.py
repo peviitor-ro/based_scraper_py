@@ -1,43 +1,95 @@
-from scraper_peviitor import Scraper, Rules, loadingData
-import uuid
-import json
+from scraper.Scraper import Scraper
+from utils import show_jobs, translate_city, publish, publish_logo, acurate_city_and_county
+from getCounty import get_county
 
-url = "https://www.hcltech.com/romania/careers"
-
-scraper = Scraper()
-rules = Rules(scraper)
-
-pgeNumber = 0
-
-company = {"company": "HCLTechnologies"}
+company = "hcltechnologies"
 finalJobs = list()
 
-while True:
-    pagesQuery = url + f"?_wrapper_format=html&field_job_geography_value=All&field_designation_value_ers=&page={pgeNumber}"
-    scraper.url = pagesQuery
+acurate_city = acurate_city_and_county(Iasi={
+    "city": "Iasi",
+    "county": "Iasi"
+})
 
-    try:
-        jobs = rules.getTag("div", {"class": "view-hcl-ers-career-jobs"}).find("tbody").find_all("tr")
-    except:
-        break
+url = 'https://www.hcltech.com/views/ajax?_wrapper_format=drupal_ajax&view_name=hcl_ers_career_jobs&view_display_id=block_1&view_args=romania_job&page='
+pageNumber = 0
+headers = {
+    'X-Requested-With': 'XMLHttpRequest',
+}
+scraper = Scraper()
+scraper.set_headers(headers)
+scraper.get_from_url(url + str(pageNumber), 'JSON')
 
+html = scraper.markup[3].get('data')
+
+scraper.__init__(html, 'html.parser')
+
+jobs = scraper.find(
+    "div", {"class": "view-hcl-ers-career-jobs"}).find("tbody").find_all("tr")
+
+while jobs:
     for job in jobs:
-        id = uuid.uuid4()
         job_title = job.find("td", {"class": "views-field-title"}).text.strip()
-        job_link = "https://www.hcltech.com" + job.find("td", {"class": "views-field-title"}).find("a").get("href")
-        city = job.find("td", {"class": "views-field-field-job-location"}).text.strip()
+        job_link = "https://www.hcltech.com" + \
+            job.find("td", {"class": "views-field-title"}
+                     ).find("a").get("href")
+        location = job.find(
+            "td", {"class": "views-field-field-job-location"}).text.strip()
 
-        finalJobs.append({
-            "id": str(id),
+        city = []
+        county = []
+        remote = []
+
+        job_element = {
             "job_title": job_title,
             "job_link": job_link,
-            "company": company.get("company"),
+            "company": company,
             "country": "Romania",
-            "city": city
+        }
+
+        if 'Remote' in location:
+            remote.append("Remote")
+        elif 'Hybrid' in location:
+            remote.append("Hybrid")
+
+        if '(Bucharest/Iasi)' in location:
+            city = ['Bucuresti', 'Iasi']
+            county = ['Bucuresti', 'Iasi']
+
+        else:
+            city = translate_city(location.split(' ')[0])
+            if acurate_city.get(city):
+                city = acurate_city.get(city).get("city")
+                county = acurate_city.get(city).get("county")
+            else:
+                county = get_county(city)
+
+                if not county:
+                    city = []
+                    county = []
+
+        job_element.update({
+            "city": city,
+            "county": county,
+            "remote": remote
         })
 
-    pgeNumber += 1
+        finalJobs.append(job_element)
 
-print(json.dumps(finalJobs, indent=4))
+    pageNumber += 1
+    scraper = Scraper()
+    scraper.set_headers(headers)
+    scraper.get_from_url(url + str(pageNumber), 'JSON')
+    html = scraper.markup[3].get('data')
+    scraper.__init__(html, 'html.parser')
+    try:
+        jobs = scraper.find(
+            "div", {"class": "view-hcl-ers-career-jobs"}).find("tbody").find_all("tr")
+    except:
+        jobs = False
 
-loadingData(finalJobs, company.get("company"))
+for version in range(1, 4):
+    publish(version, company, finalJobs, 'APIKEY')
+
+publish_logo(
+    company, 'https://www.hcltech.com/themes/custom/hcltech/images/hcltech-new-logo.svg')
+show_jobs(finalJobs)
