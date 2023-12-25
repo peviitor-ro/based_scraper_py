@@ -12,14 +12,16 @@ scraper.get_from_url(url)
 jobs_elements = scraper.find_all("article", class_="single-hentry")
 
 for job in jobs_elements:
-    jobs.append(create_job(
-        job_title=job.find("h2", class_="entry-title").text.strip(),
-        job_link=job.find("h2", class_="entry-title").a["href"],
-        company=company,
-        country="Romania",
-        city="Bucuresti",
-        county="Bucuresti",
-    ))
+    job_title=job.find("h2", class_="entry-title").text.strip()
+    if job_title != "Nu sunt poziții deschise în acest moment":
+        jobs.append(create_job(
+            job_title=job_title,
+            job_link=job.find("h2", class_="entry-title").a["href"],
+            company=company,
+            country="Romania",
+            city="Bucuresti",
+            county="Bucuresti",
+        ))
 
 for version in [1,4]:
     publish(version, company, jobs, 'APIKEY')
