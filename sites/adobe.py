@@ -1,7 +1,8 @@
 from scraper_peviitor import Scraper, loadingData
-import uuid
 import json
 import re
+from utils import translate_city
+from getCounty import get_county
 
 url = "https://careers.adobe.com/us/en/search-results" #&from=10
 
@@ -25,20 +26,39 @@ for query in querys:
     jobs = json.loads("{" + data + "}").get("eagerLoadRefineSearch").get("data").get("jobs")
 
     for job in jobs:
-        id = uuid.uuid4()
         job_title = job.get("title")
         job_link = "https://careers.adobe.com/us/en/job/" + job.get("jobId")
         city = job.get("city")
         country = job.get("country")
+        remote = []
+
+        if not city:
+            city = job.get("cityStateCountry").split(",")[0]
+
+        if city == "Remote":
+            city = ""
+            remote.append("Remote")
         
-        finalJobs.append({
-            "id": str(id),
+        job_element = {
             "job_title": job_title,
             "job_link": job_link,
             "company": company.get("company"),
             "country": country,
-            "city": city
-        })
+            "city": city,
+            "remote": remote,
+        }
+
+        if country == "Romania":
+            if city:
+                city = translate_city(city)
+                county = get_county(city)
+
+                job_element.update({
+                    "city": city,
+                    "county": county
+                })
+
+        finalJobs.append(job_element)
 
 print(json.dumps(finalJobs, indent=4)) 
 
