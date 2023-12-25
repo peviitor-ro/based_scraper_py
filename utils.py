@@ -49,6 +49,7 @@ def translate_city(city):
         # This is for Vodafone Scraper
         "cluj_napoca": "Cluj-Napoca",
         "targu_mures": "Targu-Mures",
+        "pipera": "Bucuresti",
         ############################
         # This is for ppt
         "campulung_muscel": "Campulung",

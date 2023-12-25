@@ -51,6 +51,8 @@ for page in range(0, pages):
         city = translate_city(locations[0].strip())
 
         if country == "ROU":
+            if "Drobeta Turnu-Severin" in city:
+                city = "Drobeta-Turnu Severin"
             county = get_county(city)
 
             jobs.append(create_job(
