@@ -30,23 +30,17 @@ jobs = scraper.post(apiUrl, json=data).json().get("data").get("requisitions")
 company = {"company": "Linde"}
 finalJobs = list()
 
-
-all_counties = [list(county.keys())[0] for county in counties]
-all_cities = [
-    city for county in counties for city in list(county.values())[0]
-]
-
 #Se extrag joburile din raspunsul API-ului
 for job in jobs:
     job_title = job.get("displayJobTitle")
     job_link = "https://linde.csod.com/ux/ats/careersite/20/home/requisition/" + str(job.get("requisitionId")) + "?c=linde"
 
     if job.get("locations")[-1].get("city"):
-        city = translate_city(job.get("locations")[-1].get("city"))
+        city = translate_city(job.get("locations")[-1].get("city").split(",")[0])
         county = get_county(city)
     else:
-        city = all_cities
-        county = all_counties
+        city = "All"
+        county = "All"
 
     finalJobs.append({
             "job_title": job_title,
