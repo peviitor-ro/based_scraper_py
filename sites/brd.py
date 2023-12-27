@@ -44,7 +44,8 @@ for job in j:
             "job_link": job_link,
             "company": company,
             "country": "Romania",
-            "city": "Romania",
+            "city": "All",
+            "county": "All"
         }
     )
 
