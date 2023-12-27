@@ -1,6 +1,7 @@
 from scraper_peviitor import Scraper, loadingData
 from utils import (translate_city, show_jobs)
 from getCounty import get_county
+import json
 
 apiUrl = "https://kbr.wd5.myworkdayjobs.com/wday/cxs/kbr/KBR_Careers/jobs"
 
