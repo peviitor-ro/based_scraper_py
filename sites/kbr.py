@@ -1,6 +1,6 @@
 from scraper_peviitor import Scraper, loadingData
-import uuid
-import json
+from utils import (translate_city, show_jobs)
+from getCounty import get_county
 
 apiUrl = "https://kbr.wd5.myworkdayjobs.com/wday/cxs/kbr/KBR_Careers/jobs"
 
@@ -26,21 +26,27 @@ for num in iteration:
     data["offset"] = num
     jobs = scraper.post(apiUrl, json=data).json().get("jobPostings")
     for job in jobs:
-        id = uuid.uuid4()
         job_title = job.get("title")
         job_link = "https://kbr.wd5.myworkdayjobs.com/en-US/KBR_Careers" + job.get("externalPath")
-        city = job.get("locationsText").split(",")[0]
+        city = translate_city(job.get("locationsText").split(",")[0])
+        county = None
+
+        if "Romania" in city:
+            city = "All"
+            county = "All"
+        else:
+            county = get_county(city)
 
         finalJobs.append({
-            "id": str(id),
             "job_title": job_title,
             "job_link": job_link,
             "company": company.get("company"),
             "country": "Romania",
-            "city": city
+            "city": city,
+            "county": county,
         })
 
-print(json.dumps(finalJobs, indent=4))
+show_jobs(finalJobs)
 
 loadingData(finalJobs, company.get("company"))
 
