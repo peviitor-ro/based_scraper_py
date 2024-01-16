@@ -31,7 +31,7 @@ def get_data():
 
 data = get_data()
 
-for version in range(1, 4):
+for version in [1, 4]:
     publish(version, 'altom', data, 'Grasum_Key')
 
 publish_logo('altom', 'https://altom.com/app/themes/altom-sage-theme/dist/images/logo-altom_60516779.png')

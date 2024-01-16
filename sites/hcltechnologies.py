@@ -87,7 +87,7 @@ while jobs:
     except:
         jobs = False
 
-for version in range(1, 4):
+for version in [1, 4]:
     publish(version, company, finalJobs, 'APIKEY')
 
 publish_logo(
