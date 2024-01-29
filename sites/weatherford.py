@@ -16,7 +16,7 @@ jobs_elements = scraper.find(
 for job in jobs_elements:
     if job.find("div", {'class': 'title'}):
         job_title = job.find("div", class_="title").find(
-            "h2").text.strip()
+            "h3").text.strip()
         job_link = job.find("div", class_="title").find("a")["href"]
         country = "Romania"
         city = job.find('div', {'class': 'header'}).find_all(

@@ -13,15 +13,17 @@ jobs = []
 jobs_elements = scraper.markup.get('data').get('results')
 
 for job in jobs_elements:
-    jobs.append(
-        create_job(
-            job_title=job.get('jobTitle'),
-            job_link='https://acrom.mingle.ro/en/apply/' + job.get('publicUid'),
-            country='Romania',
-            city=job.get('locations')[0].get('name'),
-            company=company,
+    city = job.get('locations')
+    if city:
+        jobs.append(
+            create_job(
+                job_title=job.get('jobTitle'),
+                job_link='https://acrom.mingle.ro/en/apply/' + job.get('publicUid'),
+                country='Romania',
+                city=job.get('locations')[0].get('name'),
+                company=company,
+                )
             )
-        )
 for version in [1,4]:
     publish(version,company,jobs,'Grasum_Key')
 
