@@ -1,11 +1,11 @@
-from scraper_peviitor import Scraper, Rules, loadingData
-import json
-from utils import (translate_city)
-from getCounty import (get_county, counties)
+from scraper_peviitor import Scraper, Rules
+from utils import translate_city, publish, publish_logo, show_jobs
+from getCounty import get_county, counties
 
 # Cream o instanta a clasei Scraper
 scraper = Scraper(
-    "https://erstegroup-careers.com/bcr/search/?createNewAlert=false&q=&locations")
+    "https://erstegroup-careers.com/bcr/search/?createNewAlert=false&q=&locations"
+)
 rules = Rules(scraper)
 
 # Cautam elementele care contin joburile
@@ -17,8 +17,10 @@ finalJobs = list()
 # Iteram prin elementele gasite si extragem informatiile necesare
 for element in elements:
     job_title = element.find("a", {"class": "jobTitle-link"}).text
-    job_link = "https://erstegroup-careers.com" + \
-        element.find("a", {"class": "jobTitle-link"})["href"]
+    job_link = (
+        "https://erstegroup-careers.com"
+        + element.find("a", {"class": "jobTitle-link"})["href"]
+    )
     city = translate_city(element.find("span", {"class": "jobShifttype"}).text)
     county = get_county(city)
 
@@ -27,17 +29,20 @@ for element in elements:
         county = city
         city = find_city
 
-    finalJobs.append({
-        "job_title": job_title,
-        "job_link": job_link,
-        "company": company.get("company"),
-        "country": "Romania",
-        "city": city,
-        "county": county
-    })
+    finalJobs.append(
+        {
+            "job_title": job_title,
+            "job_link": job_link,
+            "company": company.get("company"),
+            "country": "Romania",
+            "city": city,
+            "county": county,
+        }
+    )
 
-# #afișăm numărul total de joburi
-print(json.dumps(finalJobs, indent=4))
+publish(4, company.get("company"), finalJobs, "APIKEY")
 
-# #Salvăm datele in baza de date
-loadingData(finalJobs, company.get("company"))
+logoUrl = "https://rmkcdn.successfactors.com/d1204926/7da4385b-5dfa-431c-9772-9.png"
+publish_logo(company.get("company"), logoUrl)
+
+show_jobs(finalJobs)
