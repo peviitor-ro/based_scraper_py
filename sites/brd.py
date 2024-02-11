@@ -57,5 +57,5 @@ for job in j:
 
 publish(4, company, finalJobs, "APIKEY")
 
-publish_logo(company, "https://www.brd.ro/assets/images/logo-brd.svg")
+publish_logo(company, "https://www.brd.ro/sites/all/themes/brd/img/logo-mic.png")
 show_jobs(finalJobs)
