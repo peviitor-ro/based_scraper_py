@@ -1,8 +1,9 @@
 from scraper.Scraper import Scraper
-from utils import (publish, publish_logo, create_job, show_jobs, translate_city)
+from utils import publish, publish_logo, create_job, show_jobs, translate_city
 from math import ceil
 import json
 from getCounty import get_county
+
 
 def get_aditional_city(url):
     scraper = Scraper()
@@ -22,17 +23,14 @@ def get_aditional_city(url):
 
         county = get_county(location)
         if not county:
-
-            location_city = scraper.markup.get(
-                "jobPostingInfo").get("location")
+            location_city = scraper.markup.get("jobPostingInfo").get("location")
 
             if "," in location_city:
                 location = translate_city(location_city.split(",")[0])
             else:
                 location = translate_city(location_city.split(" ")[0])
-                
-        county = get_county(location)
 
+        county = get_county(location)
 
         if county:
             cities.append(location)
@@ -40,21 +38,18 @@ def get_aditional_city(url):
 
     return cities, counties
 
-company = '3M'
-url = 'https://3m.wd1.myworkdayjobs.com/wday/cxs/3m/Search/jobs'
+
+company = "3M"
+url = "https://3m.wd1.myworkdayjobs.com/wday/cxs/3m/Search/jobs"
 
 post_data = {
-    "appliedFacets":{
-        "Location_Country":["f2e609fe92974a55a05fc1cdc2852122"]
-        },
-        "limit":20,
-        "offset":0,
-        "searchText":""
-    }
-
-headers = {
-    'Content-Type': 'application/json'
+    "appliedFacets": {"Location_Country": ["f2e609fe92974a55a05fc1cdc2852122"]},
+    "limit": 20,
+    "offset": 0,
+    "searchText": "",
 }
+
+headers = {"Content-Type": "application/json"}
 
 jobs = []
 
@@ -62,20 +57,20 @@ scraper = Scraper()
 scraper.set_headers(headers)
 obj = scraper.post(url, json.dumps(post_data))
 step = 20
-total_jobs = obj.json()['total']
+total_jobs = obj.json()["total"]
 pages = ceil(total_jobs / step)
 
 for pages in range(0, pages):
     if pages > 1:
-        post_data['offset'] = pages * step
+        post_data["offset"] = pages * step
         obj = scraper.post(url, json.dumps(post_data))
 
-    for job in obj.json()['jobPostings']:
-        job_title=job['title']
-        job_link='https://3m.wd1.myworkdayjobs.com/en-US/Search'+job['externalPath']
-        country='Romania'
+    for job in obj.json()["jobPostings"]:
+        job_title = job["title"]
+        job_link = "https://3m.wd1.myworkdayjobs.com/en-US/Search" + job["externalPath"]
+        country = "Romania"
         remote = [job.get("remoteType") if job.get("remoteType") else []]
-        
+
         cities, counties = None, None
 
         if "," in job.get("locationsText"):
@@ -86,23 +81,28 @@ for pages in range(0, pages):
         counties = get_county(cities)
 
         if not counties:
-            aditional_url = "https://3m.wd1.myworkdayjobs.com/wday/cxs/3m/Search" + \
-                job.get("externalPath")
+            aditional_url = (
+                "https://3m.wd1.myworkdayjobs.com/wday/cxs/3m/Search"
+                + job.get("externalPath")
+            )
             cities, counties = get_aditional_city(aditional_url)
 
-        jobs.append(create_job(
-            job_title=job_title,
-            job_link=job_link,
-            country="Romania",
-            city=cities,
-            county=counties,
-            company=company,
-            remote=remote
-        ))
+        jobs.append(
+            create_job(
+                job_title=job_title,
+                job_link=job_link,
+                country="Romania",
+                city=cities,
+                county=counties,
+                company=company,
+                remote=remote,
+            )
+        )
 
+publish(4, company, jobs, "APIKEY")
 
-for version in [1,4]:
-    publish(version, company, jobs, 'APIKEY')
-
-publish_logo(company, 'https://www.3m.com.ro/3m_theme_assets/themes/3MTheme/assets/images/unicorn/Logo.svg')
+publish_logo(
+    company,
+    "https://www.3m.com.ro/3m_theme_assets/themes/3MTheme/assets/images/unicorn/Logo.svg",
+)
 show_jobs(jobs)

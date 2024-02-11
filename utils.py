@@ -63,6 +63,15 @@ def translate_city(city):
         return city.replace('_', ' ')
     
 def acurate_city_and_county(**kwargs):
+    """
+    Returns a dictionary containing accurate city and county information.
+
+    Keyword Arguments:
+    **kwargs -- key-value pairs representing city and county information
+
+    Returns:
+    A dictionary containing accurate city and county information.
+    """
     city_and_county = {}
     city_and_county.update(kwargs)
 

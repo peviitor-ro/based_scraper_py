@@ -7,19 +7,19 @@ logo = "https://i.imgur.com/SM5d3eE.png"
 scraper = Scraper(url)
 rules = Rules(scraper)
 raw_jobs = rules.getTags("li", {"data-city": "Romania"})
-jobs = []
 
-for job in raw_jobs:
-    jobs.append({
+jobs = [
+    {
         "job_title": job.find("h3", {"class": "careers__jobs-title"}).text,
-        "job_link": job.find("a", {"class": "careers__jobs-button"})['href'],
+        "job_link": job.find("a", {"class": "careers__jobs-button"})["href"],
         "company": company,
         "country": "Romania",
         "remote": "Remote",
-    })
+    }
+    for job in raw_jobs
+]
 
-for v in [1, 4]:
-    publish(v, company, jobs, "MSCDAVID")
+publish(4, company, jobs, "MSCDAVID")
 
 publish_logo(company, logo)
 show_jobs(jobs)
