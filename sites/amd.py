@@ -1,26 +1,45 @@
 from scraper.Scraper import Scraper
-from utils import (create_job, publish, publish_logo, show_jobs)
+from utils import (
+    create_job,
+    publish,
+    publish_logo,
+    show_jobs,
+    translate_city,
+    acurate_city_and_county,
+)
+from getCounty import get_county
 
 url = "https://careers.amd.com/api/jobs?stretchUnits=MILES&stretch=10&location=Romania&limit=100&page=1&sortBy=relevance&descending=false&internal=false"
 
 company = "AMD"
-jobs = []
 
 scraper = Scraper()
 scraper.get_from_url(url, type="JSON")
 
-for job in scraper.markup.get("jobs"):
-    job = job.get("data")
-    jobs.append(create_job(
-        company = company,
-        job_title = job.get("title"),
-        job_link = "https://careers.amd.com/careers-home/jobs/" + str(job.get("slug")),
-        country = "Romania",
-        city =  job.get("city"),
-    ))
+jobs_elements = scraper.markup.get("jobs")
 
-for version in [1, 4]:
-    publish(version, company, jobs, "APIKEY")
+acurate_location = acurate_city_and_county(Iasi={"city": "Iasi", "county": "Iasi"})
+
+jobs = [
+    create_job(
+        company=company,
+        job_title=job.get("data").get("title"),
+        job_link="https://careers.amd.com/careers-home/jobs/"
+        + str(job.get("data").get("slug")),
+        country="Romania",
+        city=translate_city(job.get("data").get("city").title()),
+        county=(
+            acurate_location.get(
+                translate_city(job.get("data").get("city").title())
+            ).get("county")
+            if acurate_location.get(translate_city(job.get("data").get("city").title()))
+            else get_county(translate_city(job.get("data").get("city").title()))
+        ),
+    )
+    for job in jobs_elements
+]
+
+publish(4, company, jobs, "APIKEY")
 
 publish_logo(company, "https://1000logos.net/wp-content/uploads/2020/05/AMD-Logo.png")
 show_jobs(jobs)
