@@ -97,12 +97,14 @@ def acurate_city_and_county(**kwargs):
     Returns:
     A dictionary containing accurate city and county information.
     """
-    city_and_county = {
-        "Satu_Mare": {"city": "Satu Mare", "county": "Satu Mare"},
-        "Iasi": {"city": "Iasi", "county": "Iasi"},
-        "Piatra_Neamt": {"city": "Piatra-Neamt", "county": "Neamt"},
-    }
-
-    city_and_county.update(kwargs)
+    city_and_county = {}
+    if kwargs:
+        city_and_county.update(kwargs)
+    else:
+        city_and_county = {
+            "Satu_Mare": {"city": "Satu Mare", "county": "Satu Mare"},
+            "Iasi": {"city": "Iasi", "county": "Iasi"},
+            "Piatra_Neamt": {"city": "Piatra-Neamt", "county": "Neamt"},
+        }
 
     return city_and_county
