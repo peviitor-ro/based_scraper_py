@@ -23,7 +23,7 @@ for job in jobs_elements:
             county = get_county(city)
 
             if not county:
-                city = city.replace(' ', '-')
+                city = city.replace(" ", "-")
                 county = get_county(city)
 
             if county:
@@ -33,17 +33,19 @@ for job in jobs_elements:
         cities = ["Bucuresti", "Timisoara", "Cluj-Napoca"]
         counties = ["Bucuresti", "Timis", "Cluj"]
 
-    jobs.append({
-        'job_title': job_title,
-        'job_link': job_link,
-        'company': company,
-        'country': 'Romania',
-        'city': cities,
-        'county': counties
-    })
+    jobs.append(
+        {
+            "job_title": job_title,
+            "job_link": job_link,
+            "company": company,
+            "country": "Romania",
+            "city": cities,
+            "county": counties,
+        }
+    )
 
-for version in [1, 4]:
-    publish(version, company, jobs, 'APIKEY')
+
+publish(4, company, jobs, "APIKEY")
 
 logoUrl = "https://i.ytimg.com/vi/dTmm3WNIpnc/maxresdefault.jpg"
 publish_logo(company, logoUrl)
