@@ -1,51 +1,47 @@
-from scraper_peviitor import Scraper, loadingData
-import json
+from scraper_peviitor import Scraper
 from getCounty import get_county, remove_diacritics
-from utils import translate_city, acurate_city_and_county
+from utils import translate_city, acurate_city_and_county, publish, publish_logo, show_jobs
 
-#Folosesc selenium deoarece joburile sunt incarcate prin ajax
-scraper = Scraper('https://apply.workable.com//api/v1/widget/accounts/404273')
-jobs = scraper.getJson().get('jobs')
+scraper = Scraper("https://apply.workable.com//api/v1/widget/accounts/404273")
+jobs = scraper.getJson().get("jobs")
+show_jobs(jobs)
 
 company = {"company": "Decathlon"}
 finalJobs = list()
 
 acurate_city = acurate_city_and_county(
-    Iasi={
-        'city': 'Iasi',
-        'county': 'Iasi'
-    },
-    Satu_Mare={
-        'city': 'Satu Mare',
-        'county': 'Satu Mare'
-    },
+    Iasi={"city": "Iasi", "county": "Iasi"},
+    Satu_Mare={"city": "Satu Mare", "county": "Satu Mare"},
 )
 for job in jobs:
-    job_title = job.get('title')
-    job_link = job.get('url')
-    city = translate_city(remove_diacritics(job.get('city')))  
+    job_title = job.get("title")
+    job_link = job.get("url")
+    city = translate_city(remove_diacritics(job.get("city")))
 
-    if acurate_city.get(city.replace(' ', '_')):
-        city = acurate_city.get(city.replace(' ', '_')).get('city')
-        county = acurate_city.get(city.replace(' ', '_')).get('county')
+    if acurate_city.get(city.replace(" ", "_")):
+        city = acurate_city.get(city.replace(" ", "_")).get("city")
+        county = acurate_city.get(city.replace(" ", "_")).get("county")
     else:
         county = get_county(city)
-    
+
     if not county:
-        city = city.replace(' ', '-')
+        city = city.replace(" ", "-")
         county = get_county(city)
 
-    finalJobs.append({
-        'job_title': job_title,
-        'job_link': job_link,
-        'company': company.get('company'),
-        'country': 'Romania',
-        'city': city
-    })
+    finalJobs.append(
+        {
+            "job_title": job_title,
+            "job_link": job_link,
+            "company": company.get("company"),
+            "country": "Romania",
+            "city": city,
+            "county": county,
+        }
+    )
 
+publish(4, company.get("company"), finalJobs, "APIKEY")
 
-#Afisa numarul de joburi
-print(json.dumps(finalJobs, indent=4))
+logoUrl = "https://workablehr.s3.amazonaws.com/uploads/account/logo/404273/logo"
+publish_logo(company.get("company"), logoUrl)
 
-#Incarc joburile in baza de date
-loadingData(finalJobs, company.get("company"))
+# show_jobs(finalJobs)
