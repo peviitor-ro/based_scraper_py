@@ -1,44 +1,32 @@
-from scraper_peviitor import Scraper, loadingData
-import uuid
-import json
+from scraper_peviitor import Scraper
+from utils import publish, publish_logo, show_jobs, translate_city
+from getCounty import get_county
 
 url = "https://careers.danone.com/bin/jobs.json?countries=Romania&locale=en&limit=100"
 
 company = {"company": "Danone"}
-finalJobs = list()
+
 
 scraper = Scraper(url)
 
 jobs = scraper.getJson().get("results")
 
-for job in jobs:
-    id = uuid.uuid4()
-    job_title = job.get("title")
-    job_link = "https://careers.danone.com/en-global/jobs/" + job.get("url")
-    city = job.get("city")
-
-    finalJobs.append({
-        "id": str(id),
-        "job_title": job_title,
-        "job_link": job_link,
+finalJobs = [
+    {
+        "job_title": job.get("title"),
+        "job_link": "https://careers.danone.com/en-global/jobs/" + job.get("url"),
         "company": company.get("company"),
         "country": "Romania",
-        "city": city
-    })
+        "city": translate_city(job.get("city").title()),
+        "county": get_county(translate_city(job.get("city").title())),
+        "remote": job.get("workFromHome"),
+    }
+    for job in jobs
+]
 
-print(json.dumps(finalJobs, indent=4))
-
-loadingData(finalJobs, company.get("company"))
+publish(4, company.get("company"), finalJobs, "APIKEY")
 
 logoUrl = "https://upload.wikimedia.org/wikipedia/commons/1/13/DANONE_LOGO_VERTICAL.png"
+publish_logo(company.get("company"), logoUrl)
 
-scraper.session.headers.update({
-    "Content-Type": "application/json",
-})
-scraper.post( "https://api.peviitor.ro/v1/logo/add/" ,json.dumps([
-    {
-        "id":company.get("company"),
-        "logo":logoUrl
-    }
-]))
-
+show_jobs(finalJobs)
