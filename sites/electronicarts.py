@@ -1,12 +1,11 @@
-from scraper_peviitor import Scraper, Rules, loadingData
+from scraper_peviitor import Scraper, Rules
 import re
-import json
-from utils import translate_city
+from utils import translate_city, publish, publish_logo, show_jobs
 from getCounty import get_county
 
 scraper = Scraper()
 rules = Rules(scraper)
-regex  = re.compile(r"search-results-(.*?)-bodyEl")
+regex = re.compile(r"search-results-(.*?)-bodyEl")
 
 pageNumber = 1
 foundedJobs = True
@@ -19,7 +18,7 @@ while foundedJobs:
 
     doom = scraper.post(url).text
     scraper.soup = doom
-    
+
     elementId = re.findall(regex, doom)[0]
     jobsContainer = rules.getTag("tbody", {"id": f"search-results-{elementId}-bodyEl"})
     jobs = jobsContainer.find_all("tr")
@@ -47,10 +46,14 @@ while foundedJobs:
                 "country": "Romania",
                 "city": city,
                 "county": county,
-                "remote": remote
-            })
+                "remote": remote,
+            }
+        )
     pageNumber += 1
 
-print(json.dumps(finalJobs, indent=4))
+publish(4, company.get("company"), finalJobs, "APIKEY")
 
-loadingData(finalJobs, company.get("company"))
+logoUrl = "https://upload.wikimedia.org/wikipedia/commons/0/0d/Electronic-Arts-Logo.svg"
+publish_logo(company.get("company"), logoUrl)
+
+show_jobs(finalJobs)
