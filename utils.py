@@ -105,6 +105,7 @@ def acurate_city_and_county(**kwargs):
             "Satu_Mare": {"city": "Satu Mare", "county": "Satu Mare"},
             "Iasi": {"city": "Iasi", "county": "Iasi"},
             "Piatra_Neamt": {"city": "Piatra-Neamt", "county": "Neamt"},
+            "Ramnicu_Valcea":{"city": "Ramnicu Valcea", "county": "Valcea"}
         }
 
     return city_and_county
