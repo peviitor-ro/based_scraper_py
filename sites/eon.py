@@ -1,11 +1,17 @@
-from scraper_peviitor import Scraper, Rules, loadingData
-import json
-from utils import (translate_city, acurate_city_and_county,)
-from getCounty import (get_county, remove_diacritics)
+from scraper_peviitor import Scraper, Rules
+from utils import (
+    translate_city,
+    acurate_city_and_county,
+    publish,
+    publish_logo,
+    show_jobs,
+)
+from getCounty import get_county, remove_diacritics
 
 # Folosim ScraperSelenium deoarece numarul de joburi este incarcat prin AJAX
 scraper = Scraper(
-    "https://careers.eon.com/romania/go/Toate-joburile-din-Romania/3727401?utm_source=pagina-cariere-ro")
+    "https://careers.eon.com/romania/go/Toate-joburile-din-Romania/3727401?utm_source=pagina-cariere-ro"
+)
 rules = Rules(scraper)
 
 # Luam numarul total de joburi
@@ -20,7 +26,7 @@ finalJobs = list()
 
 acurate_city = acurate_city_and_county(
     Iasi={"city": "Iasi", "county": "Iasi"},
-    Targu_Mures={"city": "Targu-Mures", "county": "Mures"}
+    Targu_Mures={"city": "Targu-Mures", "county": "Mures"},
 )
 
 # Pentru fiecare pagina, luam joburile si le adaugam in lista finalJobs
@@ -36,8 +42,7 @@ for page in totalJobs:
         job_link = "https://careers.eon.com" + job.find("a")["href"]
         city = translate_city(
             remove_diacritics(
-                job.find("span", {"class": "jobLocation"}
-                         ).text.split(",")[0].strip()
+                job.find("span", {"class": "jobLocation"}).text.split(",")[0].strip()
             )
         )
 
@@ -70,8 +75,9 @@ for page in totalJobs:
 
         finalJobs.append(job)
 
-# Afisam numarul de joburi extrase
-print(json.dumps(finalJobs, indent=4))
+publish(4, company.get("company"), finalJobs, "APIKEY")
 
-# Incarcam joburile in baza de date
-loadingData(finalJobs, company.get("company"))
+logoUrl = "https://www.eon-romania.ro/content/dam/eon/eon-romania-ro/logo/header_M.png"
+publish_logo(company.get("company"), logoUrl)
+
+show_jobs(finalJobs)
