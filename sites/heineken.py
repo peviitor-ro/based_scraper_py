@@ -1,6 +1,11 @@
-from scraper_peviitor import Scraper, Rules, loadingData
-import json
-from utils import translate_city, acurate_city_and_county
+from scraper_peviitor import Scraper, Rules
+from utils import (
+    translate_city,
+    acurate_city_and_county,
+    publish,
+    publish_logo,
+    show_jobs,
+)
 from getCounty import get_county, remove_diacritics
 
 scraper = Scraper()
@@ -13,31 +18,28 @@ company = {"company": "Heineken"}
 finalJobs = list()
 
 acurate_city = acurate_city_and_county(
-    Mures={
-        "city": "Satu Mare",
-        "county": "Satu Mare"
-    },
-    Ciuc={
-        "city": "Miercurea Ciuc",
-        "county": "Harghita"
-    },
+    Mures={"city": "Satu Mare", "county": "Satu Mare"},
+    Ciuc={"city": "Miercurea Ciuc", "county": "Harghita"},
 )
 
 while jobsFound:
     scraper.url = f"https://careers.theheinekencompany.com/search/?createNewAlert=false&q=&locationsearch=Romania&startrow={startRow}"
     jobs = rules.getTags("tr", {"class": "data-row"})
     for job in jobs:
-        if job.find("span", {"class": "jobLocation"}).text.split(",")[1].strip() != "RO":
+        if (
+            job.find("span", {"class": "jobLocation"}).text.split(",")[1].strip()
+            != "RO"
+        ):
             jobsFound = False
             break
 
         job_title = job.find("span", {"class": "jobTitle"}).text.strip()
-        job_link = "https://careers.theheinekencompany.com" + \
-            job.find("a", {"class": "jobTitle-link"}).get("href")
+        job_link = "https://careers.theheinekencompany.com" + job.find(
+            "a", {"class": "jobTitle-link"}
+        ).get("href")
         city = translate_city(
             remove_diacritics(
-                job.find("span", {"class": "jobLocation"}
-                         ).text.split(",")[0].strip()
+                job.find("span", {"class": "jobLocation"}).text.split(",")[0].strip()
             )
         )
 
@@ -58,8 +60,10 @@ while jobsFound:
         finalJobs.append(job)
 
     startRow += 25
-    break
 
-print(json.dumps(finalJobs, indent=4))
+publish(4, company.get("company"), finalJobs, "APIKEY")
 
-loadingData(finalJobs, company.get("company"))
+logoUrl = "https://agegate.theheinekencompany.com/assets/img/logo-corporate.svg"
+publish_logo(company.get("company"), logoUrl)
+
+show_jobs(finalJobs)
