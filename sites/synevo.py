@@ -1,7 +1,6 @@
-from scraper_peviitor import Scraper, Rules, loadingData
-import json
+from scraper_peviitor import Scraper, Rules
 from getCounty import get_county, remove_diacritics
-from utils import translate_city
+from utils import translate_city, publish, publish_logo, show_jobs
 
 # Cream o instanta a clasei Scraper
 scraper = Scraper("https://www.synevo.ro/cariere/")
@@ -30,8 +29,9 @@ for jobCategory in jobsCategory:
         job_title = rules.getTag("h1", {"class": "entry-title"}).text
         # Daca sunt mai multe orase le impartim in lista
         # try :
-        locations = rules.getTag(
-            "div", {"class": "jobs-info-city"}).find("b").text.split(",")
+        locations = (
+            rules.getTag("div", {"class": "jobs-info-city"}).find("b").text.split(",")
+        )
 
         cities = list()
         counties = set()
@@ -39,27 +39,31 @@ for jobCategory in jobsCategory:
         for city in locations:
             if "Chiajna" in city:
                 city = "Chiajna"
+            elif "Laborator Monza" in city:
+                city = "Bucuresti"
             else:
-                city = translate_city(
-                    remove_diacritics(city.strip())
-                )
+                city = translate_city(remove_diacritics(city.strip()))
 
             cities.append(city)
             counties.add(get_county(city))
 
         # Cream un dictionar cu jobul si il adaugam in lista finala
 
-        finaljobs.append({
-            "job_title": job_title,
-            "job_link": scraper.url,
-            "company": company.get("company"),
-            "country": "Romania",
-            "city": cities,
-            "county": list(counties),
-        })
+        finaljobs.append(
+            {
+                "job_title": job_title,
+                "job_link": scraper.url,
+                "company": company.get("company"),
+                "country": "Romania",
+                "city": cities,
+                "county": list(counties),
+            }
+        )
 
-# #Afisam numarul total de joburi
-print(json.dumps(finaljobs, indent=4))
 
-# #Incarcam datele in baza de date
-loadingData(finaljobs, company.get("company"))
+publish(4, company.get("company"), finaljobs, "APIKEY")
+
+logourl = "https://www.synevo.ro/wp-content/themes/synevo-sage/dist/images/synevo-logo_6edc429f.svg"
+publish_logo(company.get("company"), logourl)
+
+show_jobs(finaljobs)
