@@ -1,43 +1,29 @@
-from scraper_peviitor import Scraper, loadingData
-import uuid
-import json
+from scraper_peviitor import Scraper
+from utils import publish, publish_logo, show_jobs, translate_city
+from getCounty import get_county
 
 apiUrl = "https://www.teleperformance.com/Umbraco/Api/Careers/GetCareersBase?node=13761&country=Romania&pageSize=100"
 
 company = {"company": "Teleperformance"}
-finalJobs = list()
 
 scraper = Scraper(apiUrl)
-
 jobs = scraper.getJson().get("resultado")
 
-for job in jobs:
-    id = uuid.uuid4()
-    job_title = job.get("title")
-    job_link = job.get("url")
-    city = job.get("location")
-
-    finalJobs.append({
-        "id": str(id),
-        "job_title": job_title,
-        "job_link": job_link,
+finalJobs = [
+    {
+        "job_title": job.get("title"),
+        "job_link": job.get("url"),
         "company": company.get("company"),
         "country": "Romania",
-        "city": city
-    })
+        "city": translate_city(job.get("location")),
+        "county": get_county(translate_city(job.get("location"))),
+    }
+    for job in jobs
+]
 
-print(json.dumps(finalJobs, indent=4))
-
-loadingData(finalJobs, company.get("company"))
+publish(4, company.get("company"), finalJobs, "APIKEY")
 
 logoUrl = "https://www.teleperformance.com/media/yn5lcxbl/tp-main-logo-svg.svg"
+publish_logo(company.get("company"), logoUrl)
 
-scraper.session.headers.update({
-    "Content-Type": "application/json",
-})
-scraper.post( "https://api.peviitor.ro/v1/logo/add/" ,json.dumps([
-    {
-        "id":company.get("company"),
-        "logo":logoUrl
-    }
-]))
+show_jobs(finalJobs)
