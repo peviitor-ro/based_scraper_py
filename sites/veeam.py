@@ -1,6 +1,7 @@
 from scraper.Scraper import Scraper
-from utils import (publish, publish_logo, create_job, show_jobs, translate_city)
+from utils import publish, publish_logo, create_job, show_jobs, translate_city
 from getCounty import get_county
+from urllib.parse import quote
 
 url = "https://careers.veeam.com/api/vacancy"
 
@@ -13,36 +14,29 @@ scraper.get_from_url(url, "JSON")
 jobs_elements = scraper.markup
 
 for job in jobs_elements:
-    job_title=job["title"]
-    job_link="https://jobs.smartrecruiters.com/Veeam2/" + job["remoteId"]
-    country = ""
-    citys = []
-    countys = []
-    for location in job["location"]:
-        city = location["city"]
-        country = location["country"]
+    job_title = job["title"]
+    job_link = "https://careers.veeam.com/vacancies/sales/" + quote(job["routeAlias"])
+    cities = [
+        translate_city(location["city"])
+        for location in job["location"]
+        if location["country"] == "Romania"
+    ]
+    counties = [get_county(translate_city(city)) for city in cities]
+    if cities and counties:
 
-        citys.append(city)
+        jobObj = create_job(
+            job_title=job_title,
+            job_link=job_link,
+            company=company,
+            country="Romania",
+            city=cities,
+            county=counties,
+        )
 
-        if country == "Romania":
-            citys = []
-            job_link = job["applyUrl"]
-            citys.append(translate_city(city))
-            countys.append(get_county(translate_city(city)))
-    
-    jobObj = create_job(
-        job_title=job_title,
-        job_link=job_link,
-        company=company,
-        country=country,
-        city=citys,
-        county=countys,
-    )
+        jobs.append(jobObj)
 
-    jobs.append(jobObj)
 
-for version in [1,4]:
-    publish(version, company, jobs, 'APIKEY')
+publish(4, company, jobs, "APIKEY")
 
-publish_logo(company, 'https://img.veeam.com/careers/logo/veeam/veeam_logo_bg.svg')
-show_jobs(jobs) 
+publish_logo(company, "https://img.veeam.com/careers/logo/veeam/veeam_logo_bg.svg")
+show_jobs(jobs)
