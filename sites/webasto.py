@@ -1,6 +1,5 @@
-from scraper_peviitor import Scraper, Rules, loadingData
-import json
-from utils import translate_city
+from scraper_peviitor import Scraper, Rules
+from utils import translate_city, publish, publish_logo, show_jobs
 from getCounty import get_county
 
 url = "https://jobs.webasto.com/search/?createNewAlert=false&q=&optionsFacetsDD_country=RO&optionsFacetsDD_location=&optionsFacetsDD_dept=&optionsFacetsDD_shifttype="
@@ -31,18 +30,9 @@ for job in jobs:
         "county": county,
     })
 
-print(json.dumps(finaljobs, indent=4))
-
-loadingData(finaljobs, company.get("company"))
+publish(4, company.get("company"), finaljobs, "APIKEY")
 
 logoUrl = "https://upload.wikimedia.org/wikipedia/commons/8/81/Webasto_20xx_logo.svg"
+publish_logo(company.get("company"), logoUrl)
 
-scraper.session.headers.update({
-    "Content-Type": "application/json",
-})
-scraper.post("https://api.peviitor.ro/v1/logo/add/", json.dumps([
-    {
-        "id": company.get("company"),
-        "logo": logoUrl
-    }
-]))
+show_jobs(finaljobs)
