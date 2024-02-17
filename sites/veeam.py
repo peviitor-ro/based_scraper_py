@@ -21,7 +21,7 @@ for job in jobs_elements:
         for location in job["location"]
         if location["country"] == "Romania"
     ]
-    counties = [get_county(translate_city(city)) for city in cities]
+    counties = [get_county(city) for city in cities]
     if cities and counties:
 
         jobObj = create_job(
