@@ -1,0 +1,31 @@
+from scraper.Scraper import Scraper
+from utils import publish, publish_logo, show_jobs, translate_city
+
+company = "hicx"
+url = "https://jobs.workable.com/api/v1/companies/2MsTPDyDSYkVYg1uphhbi4"
+
+scraper = Scraper()
+scraper.get_from_url(url, "JSON")
+
+jobs = [
+    {
+        "job_title": job["title"],
+        "job_link": job["url"],
+        "remote": job["workplace"].replace("_", "-"),
+        "country": "Romania",
+        "company": company,
+        "city": translate_city(job["location"]["city"]),
+        "county": translate_city(job["location"]["subregion"].replace("County", "").strip()),
+    }
+    for job in scraper.markup.get("jobs")
+    if job["location"]["countryName"] == "Romania"
+]
+
+publish(4, company, jobs, "APIKEY")
+
+publish_logo(
+    company,
+    "https://workablehr.s3.amazonaws.com/uploads/account/logo/506721/logo",
+)
+
+show_jobs(jobs)
