@@ -109,3 +109,24 @@ def acurate_city_and_county(**kwargs):
         }
 
     return city_and_county
+
+def get_jobtype(sentence, **kwargs):
+    """
+    Get the job types mentioned in a sentence.
+
+    Args:
+        sentence (str): The sentence to analyze.
+        **kwargs: Additional keyword arguments.
+            jobs_typse (list): Additional job types to consider.
+
+    Returns:
+        list: A list of job types mentioned in the sentence.
+    """
+    jobs_typse = ["on-site", "remote", "hybrid"]
+    jobs_typse.extend(kwargs.get("jobs_typse", []))
+    types = [
+        jobtype for jobtype in jobs_typse if jobtype in sentence.lower()
+    ]
+
+    return list(set(types))
+
