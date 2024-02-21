@@ -1,6 +1,6 @@
 from scraper.Scraper import Scraper
 from utils import show_jobs, translate_city
-
+from getCounty import remove remove_diacritics
 
 url = "https://jobs.workable.com/api/v1/companies/3N1Vi5vkmhbtLoUoe4xVH9/"
 logo = "https://workablehr.s3.amazonaws.com/uploads/account/logo/586136/logo"
