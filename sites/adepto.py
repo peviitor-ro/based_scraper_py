@@ -17,8 +17,8 @@ for job in jobs:
     if job["location"]["countryName"] == "Romania":
 
         county = job["location"]["subregion"].replace("ș", "s")
-        city = job["location"]["city"].replace("ș", "s")
-        remote = job["workplace"].replace("_", "-")
+        county = remove_diacritics(job["location"]["subregion"])
+        city = remove_diacriticsjob["location"]["city"])
 
         final_jobs.append({
                            "company": job["company"]["title"],
