@@ -108,7 +108,26 @@ class Scraper:
 
         document = self.session.get(self.url,headers=self.user_agent ,timeout=10)
         return document.json()
-        
+    
+
+    def getContent(self, **kwargs):
+        """
+        Descarcă codul HTML de la URL și creează un obiect BeautifulSoup.
+
+        Returnează
+        ----------
+        soup : obiect BeautifulSoup
+            Obiectul BeautifulSoup creat.
+        """
+
+        try:
+            document = self.session.get(self.url,headers=self.user_agent , **kwargs)
+            self.status_code = document.status_code
+            self._soup = BeautifulSoup(document.content, "html.parser")
+        except Exception as e:
+            print(e)  
+            return []
+
 
     @property
     def url(self):
