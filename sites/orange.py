@@ -19,8 +19,8 @@ jobs = response.json()
 
 for job in jobs:
     job_info = {
-        "title": job["title"],
-        "link": job["url"],
+        "job_title": job["title"],
+        "job_link": job["url"],
         "country": "Romania",
         "city": job["location"][0]["name"],
         "county": get_county(job["location"][0]["name"]),

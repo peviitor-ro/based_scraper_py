@@ -3506,12 +3506,6 @@ counties = [
             "Sectorul 4",
             "Sectorul 5",
             "Sectorul 6",
-            "Sector 1",
-            "Sector 2",
-            "Sector 3",
-            "Sector 4",
-            "Sector 5",
-            "Sector 6",
         ]
     },
     {

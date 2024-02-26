@@ -20,8 +20,8 @@ while True:
     jobs = content.select('div.vacant-position')
     for job in jobs:
         job_info = {
-            "title": job.select_one("div.vp-title h2").get_text(),
-            "link": job.select_one("div.description div.buttons a").get("href"),
+            "job_title": job.select_one("div.vp-title h2").get_text(),
+            "job_link": job.select_one("div.description div.buttons a").get("href"),
             "city": job.select_one("div.vp-title div p:nth-child(2)").contents[-1].strip(),
             "country": "Romania",
             "company": company,

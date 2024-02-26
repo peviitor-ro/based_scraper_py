@@ -21,9 +21,9 @@ final_jobs = []
 
 for job in jobs:
     job_info = {
-        "title": unidecode(job.find('h2').text.strip()),
+        "job_title": unidecode(job.find('h2').text.strip()),
         "city": unidecode(job.find('p', class_="oras").text.strip()),
-        "link": f"https://mobexpert.ro{job.find('a').get('href')}",
+        "job_link": f"https://mobexpert.ro{job.find('a').get('href')}",
         "country": "Romania",
         "company": company,
     }
