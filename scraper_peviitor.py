@@ -108,7 +108,7 @@ class Scraper:
 
         document = self.session.get(self.url,headers=self.user_agent ,timeout=10)
         return document.json()
-        
+
 
     @property
     def url(self):
