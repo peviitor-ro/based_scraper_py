@@ -11,6 +11,7 @@ setup(
 
     install_requires=[
         'peviitor_pyscraper',
+        'python-dotenv',
     ],
     python_requires='>=3.6',
 )
