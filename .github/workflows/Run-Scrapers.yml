@@ -31,4 +31,5 @@ jobs:
         DAVIDMONDOC: ${{ secrets.DAVIDMONDOC }}
         Grasum_Key: ${{ secrets.GRASUM_KEY }}
       run: |
+        source access_token.sh
         python3 sites/main.py

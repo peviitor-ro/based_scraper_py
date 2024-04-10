@@ -4,6 +4,12 @@ from lxml import etree
 import json
 import os
 import time
+from utils import get_token
+from dotenv import load_dotenv
+
+load_dotenv()
+
+domain = os.environ.get("DOMAIN")
 
 class Scraper:
     """
@@ -201,7 +207,7 @@ class Rules:
         dom = etree.HTML(str(self.scraper.soup))
         self.xpath = dom.xpath(xpath)
         return BeautifulSoup(etree.tostring(self.xpath[0]), "html.parser")
-    
+
 
 def loadingData(data : dict, company : str):
     """
@@ -213,13 +219,25 @@ def loadingData(data : dict, company : str):
     url_encoded = "application/x-www-form-urlencoded"
     application_json = "application/json"
 
-    for version in [1,4]:
-        clean_url = f"https://api.peviitor.ro/v{version}/clean/"
-        requests.post(clean_url, headers={"apikey": apikey, "Content-Type": url_encoded}, data={"company": company})
+    clean_url = "https://api.peviitor.ro/v4/clean/"
+    requests.post(clean_url, headers={"apikey": apikey, "Content-Type": url_encoded}, data={"company": company})
 
-        time.sleep(0.5)
-        update_url = f"https://api.peviitor.ro/v{version}/update/"
-        requests.post(update_url, headers={"apikey": apikey, "Content-Type": application_json}, data = json.dumps(data))
+    time.sleep(0.5)
+    update_url = "https://api.peviitor.ro/v4/update/"
+    requests.post(update_url, headers={"apikey": apikey, "Content-Type": application_json}, data = json.dumps(data))
 
     data_set_url = f"https://dev.laurentiumarian.ro/dataset/based_scraper_py/{company.lower()}.py/"
     requests.post(data_set_url, headers={"Content-Type": application_json}, data = json.dumps({"data":len(data)}))
+
+    # VALIDATOR
+    route = os.environ.get("ADD_JOBS_ROUTE")
+    url = f"{domain}{route}"
+    token = os.environ.get("TOKEN") if os.environ.get("TOKEN") else get_token()
+
+    headers = {"Content-Type": "application/json", "Authorization": f"Bearer {token}"}
+
+    requests.post(url, headers=headers, json=data)
+
+
+
+
