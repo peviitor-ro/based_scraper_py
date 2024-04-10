@@ -43,3 +43,4 @@ logoUrl = "https://tbcdn.talentbrew.com/company/7684/img/logo/logo-14641-17887.p
 publish_logo(company.get("company"), logoUrl)
 
 show_jobs(finalJobs)
+

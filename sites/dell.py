@@ -22,7 +22,7 @@ for job in jobs:
     job_title = job.find("h2").text.strip()
     job_link = "https://jobs.dell.com" + job.find("a").get("href")
     city = translate_city(
-        job.find("span", {"class": "job-location-search"}).text.split(",")[0].strip()
+        job.find("span", {"class": "job-location"}).text.split(",")[0].strip()
     )
 
     job_element = {

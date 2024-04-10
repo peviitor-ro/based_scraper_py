@@ -1,6 +1,6 @@
 #!/bin/bash
 
-URL="http://localhost:8000/get_token"
+URL="https://api.laurentiumarian.ro/get_token"
 EMAIL="laurentiumarianbaluta@gmail.com"
 
 

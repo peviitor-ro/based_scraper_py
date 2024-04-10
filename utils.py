@@ -7,6 +7,7 @@ load_dotenv()
 
 domain = os.environ.get("DOMAIN")
 
+
 def get_token():
     """
     Returnează token-ul necesar pentru a face request-uri către API.
@@ -14,7 +15,7 @@ def get_token():
     """
     endpoint = os.environ.get("TOKEN_ROUTE")
     email = os.environ.get("EMAIL")
-    url = f'{domain}{endpoint}'
+    url = f"{domain}{endpoint}"
     response = requests.post(url, json={"email": email})
     return response.json()["access"]
 
@@ -26,7 +27,7 @@ def create_job(**kwargs):
 
 
 def clean(version, company, apikey):
-    apikey = os.environ.get(apikey)
+    apikey = "182b157-bb68-e3c5-5146-5f27dcd7a4c8"
     content_type = "application/x-www-form-urlencoded"
     requests.post(
         "https://api.peviitor.ro/v" + str(version) + "/clean/",
@@ -36,14 +37,6 @@ def clean(version, company, apikey):
 
 
 def update(version, apikey, data):
-    apikey = os.environ.get(apikey)
-    content_type = "application/json"
-    requests.post(
-        "https://api.peviitor.ro/v" + str(version) + "/update/",
-        headers={"apikey": apikey, "Content-Type": content_type},
-        json=data,
-    )
-
     # VALIDATOR
     route = os.environ.get("ADD_JOBS_ROUTE")
     url = f"{domain}{route}"
@@ -64,9 +57,7 @@ def dataset(company, data):
 
 
 def publish(version, company, data, apikey):
-    clean(version, company, apikey)
     update(version, apikey, data)
-    dataset(company, data)
 
 
 def publish_logo(company, logo_url):
@@ -130,10 +121,11 @@ def acurate_city_and_county(**kwargs):
             "Satu_Mare": {"city": "Satu Mare", "county": "Satu Mare"},
             "Iasi": {"city": "Iasi", "county": "Iasi"},
             "Piatra_Neamt": {"city": "Piatra-Neamt", "county": "Neamt"},
-            "Ramnicu_Valcea":{"city": "Ramnicu Valcea", "county": "Valcea"}
+            "Ramnicu_Valcea": {"city": "Ramnicu Valcea", "county": "Valcea"},
         }
 
     return city_and_county
+
 
 def get_jobtype(sentence, **kwargs):
     """
@@ -149,8 +141,6 @@ def get_jobtype(sentence, **kwargs):
     """
     jobs_typse = ["on-site", "remote", "hybrid"]
     jobs_typse.extend(kwargs.get("jobs_typse", []))
-    types = [
-        jobtype for jobtype in jobs_typse if jobtype in sentence.lower()
-    ]
+    types = [jobtype for jobtype in jobs_typse if jobtype in sentence.lower()]
 
     return list(set(types))
