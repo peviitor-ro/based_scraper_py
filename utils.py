@@ -26,18 +26,10 @@ def create_job(**kwargs):
     return job
 
 
-def clean(version, company, apikey):
-    apikey = "182b157-bb68-e3c5-5146-5f27dcd7a4c8"
-    content_type = "application/x-www-form-urlencoded"
-    requests.post(
-        "https://api.peviitor.ro/v" + str(version) + "/clean/",
-        headers={"apikey": apikey, "Content-Type": content_type},
-        data={"company": company},
-    )
+def publish(version, company, data, apikey):
+    print("Publishing...")
 
-
-def update(version, apikey, data):
-    # VALIDATOR
+def publish_or_update(data):
     route = os.environ.get("ADD_JOBS_ROUTE")
     url = f"{domain}{route}"
     token = os.environ.get("TOKEN") if os.environ.get("TOKEN") else get_token()
@@ -45,19 +37,6 @@ def update(version, apikey, data):
     headers = {"Content-Type": "application/json", "Authorization": f"Bearer {token}"}
 
     requests.post(url, headers=headers, json=data)
-
-
-def dataset(company, data):
-    content_type = "application/json"
-    requests.post(
-        f"https://dev.laurentiumarian.ro/dataset/based_scraper_py/{company.lower()}.py/",
-        headers={"Content-Type": content_type},
-        json={"data": len(data)},
-    )
-
-
-def publish(version, company, data, apikey):
-    update(version, apikey, data)
 
 
 def publish_logo(company, logo_url):
