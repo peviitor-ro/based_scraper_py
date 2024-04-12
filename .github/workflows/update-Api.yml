@@ -25,6 +25,7 @@ jobs:
     - name: Install dependencies
       run: |
         pip3 install requests
+        pip3 install python-dotenv
     - name: Update API
       run: |
         python3 apiUpdateFiles.py
