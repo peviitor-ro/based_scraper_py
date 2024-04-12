@@ -1,12 +1,13 @@
-from scraper_peviitor import Scraper, Rules
-from utils import show_jobs, publish, publish_logo
+from scraper.Scraper import Scraper
+from utils import show_jobs, publish_or_update, publish_logo
 
 url = "https://www.3pillarglobal.com/career-opportunities/"
 company = "3PillarGlobal"
 logo = "https://i.imgur.com/SM5d3eE.png"
-scraper = Scraper(url)
-rules = Rules(scraper)
-raw_jobs = rules.getTags("li", {"data-city": "Romania"})
+scraper = Scraper()
+scraper.get_from_url(url)
+
+raw_jobs = scraper.find_all("li", {"data-city": "Romania"})
 
 jobs = [
     {
@@ -19,7 +20,6 @@ jobs = [
     for job in raw_jobs
 ]
 
-publish(4, company, jobs, "MSCDAVID")
-
+publish_or_update(jobs)
 publish_logo(company, logo)
 show_jobs(jobs)

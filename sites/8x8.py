@@ -1,8 +1,10 @@
 from scraper.Scraper import Scraper
-from utils import publish, publish_logo, create_job, show_jobs, translate_city
+from utils import publish_or_update, publish_logo, create_job, show_jobs, translate_city
 from math import ceil
 import json
-from getCounty import get_county
+from getCounty import GetCounty
+
+_counties = GetCounty()
 
 
 def get_aditional_city(url):
@@ -20,7 +22,7 @@ def get_aditional_city(url):
                 break
 
     city = translate_city(location.split("-")[-1].replace("Office", "").strip())
-    county = get_county(city)
+    county = _counties.get_county(city)
 
     if not county:
         city = ""
@@ -73,7 +75,7 @@ for pages in range(0, pages):
         city = translate_city(
             job["locationsText"].split("-")[-1].replace("Office", "").strip()
         )
-        county = get_county(city)
+        county = _counties.get_county(city)
 
         if not county:
             aditional_url = (
@@ -94,7 +96,7 @@ for pages in range(0, pages):
             )
         )
 
-publish(4, company, jobs, "APIKEY")
+publish_or_update(jobs)
 
 publish_logo(
     company,

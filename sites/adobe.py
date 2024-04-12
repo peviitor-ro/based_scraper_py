@@ -1,33 +1,35 @@
-from scraper_peviitor import Scraper
-from utils import translate_city, publish, publish_logo, show_jobs
+from scraper.Scraper import Scraper
+from utils import translate_city, publish_or_update, publish_logo, show_jobs
+from getCounty import GetCounty
 import json
 import re
-from utils import translate_city
-from getCounty import get_county
+from math import ceil
 
-url = "https://careers.adobe.com/us/en/search-results"  # &from=10
+_counties = GetCounty()
+
+url = "https://careers.adobe.com/us/en/search-results"
 
 company = {"company": "Adobe"}
 finalJobs = list()
 
 scraper = Scraper()
-response = scraper.session.get(url)
+scraper.get_from_url(url, "HTML")
 
 pattern = re.compile(r"phApp.ddo = {(.*?)};", re.DOTALL)
 
-data = re.search(pattern, response.text).group(1)
+data = re.search(pattern, scraper.prettify()).group(1)
 totalJobs = json.loads("{" + data + "}").get("eagerLoadRefineSearch").get("totalHits")
 
-querys = [*range(0, totalJobs, 10)]
+querys = ceil(totalJobs / 10)
 
-for query in querys:
+for query in range(0, querys):
     url = (
         "https://careers.adobe.com/us/en/search-results?keywords=Romania&from="
-        + str(query)
+        + str(query * 10)
         + "&s=1"
     )
-    response = scraper.session.get(url)
-    data = re.search(pattern, response.text).group(1)
+    scraper.get_from_url(url, "HTML")
+    data = re.search(pattern, scraper.prettify()).group(1)
     jobs = (
         json.loads("{" + data + "}")
         .get("eagerLoadRefineSearch")
@@ -62,13 +64,13 @@ for query in querys:
 
             if city:
                 city = translate_city(city)
-                county = get_county(city)
+                county = _counties.get_county(city)
 
                 job_element.update({"city": city, "county": county})
 
             finalJobs.append(job_element)
 
-publish(4, company.get("company"), finalJobs, "APIKEY")
+publish_or_update(finalJobs)
 
 logoUrl = "https://cdn.phenompeople.com/CareerConnectResources/ADOBUS/images/Header-1649064948136.png"
 publish_logo(company.get("company"), logoUrl)
