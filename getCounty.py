@@ -58,22 +58,7 @@ def remove_diacritics(input_string):
 
 
 def get_county(city):
-    api_endpoint = f"https://api.laurentiumarian.ro/orase/?search={remove_diacritics(city)}&page_size=50"
-    cities = []
-    
-    response = requests.get(api_endpoint).json()
-
-    while response.get("next") is not None:
-        cities.extend(response.get("results"))
-        response = requests.get(response.get("next")).json()
-    else:
-        cities.extend(response.get("results"))
-
-    county = [
-        item.get("county") for item in cities if item.get("name") == remove_diacritics(city.title())
-    ]
-
-    return county if county else None
+    return []
 
 class GetCounty:
     _counties = []
