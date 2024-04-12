@@ -74,3 +74,45 @@ def get_county(city):
     ]
 
     return county if county else None
+
+class GetCounty:
+    _counties = []
+
+    def get_county(self, city):
+
+        for county in self.counties:
+            if county.get("city") == city:
+                return county.get("county")
+            
+        api_endpoint = f"https://api.laurentiumarian.ro/orase/?search={remove_diacritics(city)}&page_size=50"
+        counties_found = []
+
+        response = requests.get(api_endpoint).json()
+
+        while response.get("next") is not None:
+            counties_found.extend(response.get("results"))
+            response = requests.get(response.get("next")).json()
+        else:
+            counties_found.extend(response.get("results"))
+
+        self.counties.append(
+            {
+                "city": city,
+                "county": [
+                    item.get("county")
+                    for item in counties_found
+                    if item.get("name") == remove_diacritics(city.title())
+                ],
+            }
+        )
+
+        return self.counties[-1].get("county") if self.counties[-1].get("county") else None
+    
+    @property
+    def counties(self):
+        return self._counties
+    
+    @counties.setter
+    def counties(self, value):
+        self._counties.extend(value)
+
