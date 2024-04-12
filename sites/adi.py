@@ -1,6 +1,10 @@
-from scraper_peviitor import Scraper, loadingData
-from utils import translate_city, publish, publish_logo, show_jobs
-from getCounty import get_county
+from scraper.Scraper import Scraper
+from utils import translate_city, publish_or_update, publish_logo, show_jobs
+from getCounty import GetCounty
+from math import ceil
+import json
+
+_counties = GetCounty()
 
 apiUrl = (
     "https://analogdevices.wd1.myworkdayjobs.com/wday/cxs/analogdevices/External/jobs"
@@ -18,15 +22,14 @@ headers = {
 
 data = {"appliedFacets": {}, "limit": 20, "offset": 0, "searchText": "Romania"}
 
-scraper.session.headers.update(headers)
+scraper.set_headers(headers)
 
-numberOfJobs = scraper.post(apiUrl, json=data).json().get("total")
+response = scraper.post(apiUrl, json.dumps(data)).json()
 
-iteration = [i for i in range(0, numberOfJobs, 20)]
+pages = ceil(response.get("total") / 20)
+jobs = response.get("jobPostings")
 
-for num in iteration:
-    data["offset"] = num
-    jobs = scraper.post(apiUrl, json=data).json().get("jobPostings")
+for page in range(pages):
     for job in jobs:
         job_title = job.get("title")
         job_link = (
@@ -34,7 +37,7 @@ for num in iteration:
             + job.get("externalPath")
         )
         location = job.get("locationsText").split(",")
-        city = location[1].strip()
+        city = translate_city(location[1].strip())
 
         finalJobs.append(
             {
@@ -43,11 +46,13 @@ for num in iteration:
                 "company": company.get("company"),
                 "country": "Romania",
                 "city": city,
-                "county": get_county(city),
+                "county": _counties.get_county(city),
             }
         )
+    data["offset"] = page * 20
+    jobs = scraper.post(apiUrl, data).json().get("jobPostings")
 
-publish(4, company.get("company"), finalJobs, "APIKEY")
+publish_or_update(finalJobs)
 
 logoUrl = "https://d1yjjnpx0p53s8.cloudfront.net/styles/logo-original-577x577/s3/072011/analog-logo.ai_.png?itok=RM5-oQ34"
 publish_logo(company.get("company"), logoUrl)
