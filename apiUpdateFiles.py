@@ -12,7 +12,7 @@ headers = {
     "Authorization": f"Bearer {token}"
 }
 
-r = requests.post(url, data = {"update": "true"}, headers=headers)
+r = requests.post(url, json = {"update": "true"}, headers=headers)
 
 response = r.json()
 
