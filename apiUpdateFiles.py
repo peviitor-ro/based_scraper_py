@@ -1,8 +1,18 @@
 import requests
+from utils import get_token
+from dotenv import load_dotenv
+
+load_dotenv()
 
 url = "https://api.laurentiumarian.ro/scraper/based_scraper_py/"
+token = get_token()
 
-r = requests.post(url, data = {"update": "true"})
+headers = {
+    "Content-Type": "application/json",
+    "Authorization": f"Bearer {token}"
+}
+
+r = requests.post(url, data = {"update": "true"}, headers=headers)
 
 response = r.json()
 
