@@ -1,6 +1,8 @@
 from scraper.Scraper import Scraper
-from utils import show_jobs, translate_city, publish, publish_logo
-from getCounty import get_county
+from utils import show_jobs, translate_city, publish_or_update, publish_logo
+from getCounty import GetCounty
+
+_counties = GetCounty()
 
 company = "altom"
 
@@ -15,7 +17,7 @@ final_jobs = [
         "job_title": job.find("h2", class_="job-title").text.strip(),
         "job_link": job.find("h2", class_="job-title").find("a").get("href"),
         "city": translate_city(job.find("p", class_="job-feed-meta").text.strip()),
-        "county": get_county(
+        "county": _counties.get_county(
             translate_city(job.find("p", class_="job-feed-meta").text.strip())
         ),
         "country": "Romania",
@@ -24,7 +26,7 @@ final_jobs = [
     for job in jobs
 ]
 
-publish(4, "altom", final_jobs, "APIKEY")
+publish_or_update(final_jobs)
 
 publish_logo(
     "altom",

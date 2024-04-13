@@ -1,16 +1,18 @@
 from scraper.Scraper import Scraper
 from utils import (
-    publish,
+    publish_or_update,
     publish_logo,
     create_job,
     show_jobs,
     translate_city,
     acurate_city_and_county,
 )
-from getCounty import get_county
-import json
+from getCounty import GetCounty
+from math import ceil
 
-url = "https://careers.arcadis.com/widgets"
+_counties = GetCounty()
+
+url = "https://jobs.arcadis.com/api/apply/v2/jobs?domain=arcadis.com&location=Romania&domain=arcadis.com&sort_by=relevance" 
 company = "Arcadis"
 
 scraper = Scraper()
@@ -19,73 +21,37 @@ headers = {
 }
 scraper.set_headers(headers)
 
-data = {
-    "lang": "en_global",
-    "deviceType": "desktop",
-    "country": "global",
-    "pageName": "search-results",
-    "ddoKey": "refineSearch",
-    "sortBy": "",
-    "subsearch": "",
-    "from": 0,
-    "jobs": True,
-    "counts": True,
-    "all_fields": ["category", "country", "city", "state", "workplaceTypeCode"],
-    "size": 1000,
-    "clearAll": False,
-    "jdsource": "facets",
-    "isSliderEnable": False,
-    "pageId": "page1-migration",
-    "siteType": "external",
-    "location": "",
-    "keywords": "",
-    "global": True,
-    "selected_fields": {"country": ["Romania"]},
-    "locationData": {},
-}
-
 exclude_city = acurate_city_and_county(
     Iasi={"city": "Iasi", "county": "Iasi"}, Moldavia={"city": "Iasi", "county": "Iasi"}
 )
-response = scraper.post(url, json.dumps(data))
+scraper.get_from_url(url, type="JSON")
+pages = ceil(scraper.markup.get("count") / 10)
 
 jobs = list()
 
-for job in response.json().get("refineSearch").get("data").get("jobs"):
-    job_title = job.get("title")
-    job_link = job.get("applyUrl")
-    country = "Romania"
-    city = job.get("city")
-    aditional_location = job.get("multi_location")
+for page in range(1, pages + 1):
+    jobs_objects = scraper.markup.get("positions")
+    for job in jobs_objects:
+        job_title = job.get("name")
+        job_link = job.get("canonicalPositionUrl")
+        country = "Romania"
+        remote = job.get("work_location_option")
 
-    cities = []
-    counties = []
+        cities = []
+        cities.extend(
+            [
+                translate_city(location.split(",")[0].strip())
+                for location in job.get("locations")
+                if location.split(",")[-1].strip() == "Romania"
+            ]
+        )
+        counties = []
 
-    if exclude_city.get(city):
-        cities.append(exclude_city.get(city).get("city"))
-        counties.append(exclude_city.get(city).get("county"))
-
-    elif get_county(translate_city(city)):
-        cities.append(translate_city(city))
-        counties.append(get_county(translate_city(city)))
-
-    for location in aditional_location:
-        aditional_location_city = location.split(",")[0]
-
-        if (
-            exclude_city.get(aditional_location_city)
-            and not exclude_city.get(aditional_location_city).get("city") in cities
-        ):
-            cities.append(exclude_city.get(aditional_location_city).get("city"))
-            counties.append(exclude_city.get(aditional_location_city).get("county"))
-        elif (
-            get_county(translate_city(aditional_location_city))
-            and not translate_city(aditional_location_city) in cities
-        ):
-            cities.append(translate_city(aditional_location_city))
-            counties.append(get_county(translate_city(aditional_location_city)))
-
-    if cities and counties:
+        for city in cities:
+            if exclude_city.get(city):
+                counties.append(exclude_city.get(city).get("county"))
+            else:
+                counties.extend(_counties.get_county(city) if _counties.get_county(city) else [])
         jobs.append(
             create_job(
                 job_title=job_title,
@@ -94,12 +60,17 @@ for job in response.json().get("refineSearch").get("data").get("jobs"):
                 country=country,
                 city=cities,
                 county=counties,
+                remote=remote,
             )
         )
+    start = page * 10
+    scrper = Scraper()
+    scraper.get_from_url(url + f"&start={start}&num=10", type="JSON")
 
-publish(4, company, jobs, "APIKEY")
+publish_or_update(jobs)
 publish_logo(
     company,
     "https://cdn.phenompeople.com/CareerConnectResources/ARCAGLOBAL/images/header-1679586076111.svg",
 )
 show_jobs(jobs)
+print(f"Total jobs: {len(jobs)}")
