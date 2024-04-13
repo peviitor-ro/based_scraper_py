@@ -1,5 +1,5 @@
 from scraper.Scraper import Scraper
-from utils import create_job, publish_logo, publish, show_jobs
+from utils import create_job, publish_logo, publish_or_update, show_jobs
 
 company = "AllianzTiriac"
 
@@ -29,7 +29,7 @@ jobs = [
 ]
 
 
-publish(4, company, jobs, "APIKEY")
+publish_or_update(jobs)
 
 publish_logo(
     company,

@@ -1,6 +1,8 @@
 from scraper.Scraper import Scraper
-from utils import create_job, publish_logo, publish, show_jobs, translate_city
-from getCounty import get_county
+from utils import create_job, publish_logo, publish_or_update, show_jobs, translate_city
+from getCounty import GetCounty
+
+_counties = GetCounty()
 
 company = "Amazon"
 jobs = []
@@ -24,7 +26,7 @@ while True:
             job_link="https://www.amazon.jobs" + job.get("job_path"),
             country="Romania",
             city=city,
-            county=get_county(city),
+            county=_counties.get_county(city),
             company=company,
         )
         if city == "Virtual":
@@ -35,7 +37,7 @@ while True:
         jobs.append(job_element)
     offset += 100
 
-publish(4, company, jobs, "APIKEY")
+publish_or_update(jobs)
 
 publish_logo(
     company,
