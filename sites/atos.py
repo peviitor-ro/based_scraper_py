@@ -1,7 +1,8 @@
 from scraper.Scraper import Scraper
-from utils import translate_city, publish, publish_logo, show_jobs
-from getCounty import get_county, remove_diacritics
+from utils import translate_city, publish_or_update, publish_logo, show_jobs
+from getCounty import GetCounty, remove_diacritics
 
+_counties = GetCounty()
 
 def get_aditional_city(url):
     scraper = Scraper()
@@ -14,13 +15,13 @@ def get_aditional_city(url):
 
     for location in locations:
         city = remove_diacritics(translate_city(location.text.split(",")[0].strip()))
-        county = get_county(city)
+        county = _counties.get_county(city)
 
-        if county and county not in counties:
+        if county:
             cities.append(city)
-            counties.append(county)
+            counties.extend(county)
 
-    return cities, counties
+    return list(set(cities)), list(set(counties))
 
 
 url = "https://jobs.atos.net/go/Jobs-in-Romania/3686501/0/?q=&sortColumn=referencedate&sortDirection=desc"
@@ -47,14 +48,14 @@ for page in paginate:
         city = translate_city(
             job.find("span", {"class": "jobLocation"}).text.split(",")[0].strip()
         )
-        county = get_county(city)
+        county = _counties.get_county(city)
 
         job_element = {
             "job_title": job_title,
             "job_link": job_link,
             "country": "Romania",
             "city": [city],
-            "county": [county],
+            "county": county,
             "company": company,
         }
 
@@ -69,9 +70,7 @@ for page in paginate:
     scraper.get_from_url(url)
     jobs = scraper.find("table", {"id": "searchresults"}).find("tbody").find_all("tr")
 
-
-publish(4, company, finalJobs, "APIKEY")
-
+publish_or_update(finalJobs)
 logoUrl = "https://rmkcdn.successfactors.com/a7d5dbb6/c9ab6ccb-b086-47f2-b25b-2.png"
 publish_logo(company, logoUrl)
 

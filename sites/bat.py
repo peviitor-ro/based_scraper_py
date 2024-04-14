@@ -1,21 +1,19 @@
-from scraper_peviitor import Scraper, Rules
-from utils import translate_city, publish, publish_logo, show_jobs
-from getCounty import get_county, remove_diacritics
+from scraper.Scraper import Scraper
+from utils import translate_city, publish_or_update, publish_logo, show_jobs
+from getCounty import GetCounty, remove_diacritics
 
-url = "https://careers.bat.com/search-jobs/results?ActiveFacetID=0&CurrentPage=1&RecordsPerPage=1000&Distance=100&RadiusUnitType=0&Location=Romania&Latitude=46.00000&Longitude=25.00000&ShowRadius=False&IsPagination=False&FacetType=0&SearchResultsModuleName=Search+Results&SearchFiltersModuleName=Search+Filters&SortCriteria=0&SortDirection=0&SearchType=1&LocationType=2&LocationPath=798549&OrganizationIds=1045&ResultsType=0"
+_counties = GetCounty()
+url = "https://careers.bat.com/search-jobs/results?ActiveFacetID=798549&CurrentPage=1&RecordsPerPage=1000&Distance=50&RadiusUnitType=0&ShowRadius=False&IsPagination=False&CustomFacetName=&FacetTerm=&FacetType=0&FacetFilters%5B0%5D.ID=798549&FacetFilters%5B0%5D.FacetType=2&FacetFilters%5B0%5D.Count=56&FacetFilters%5B0%5D.Display=Romania&FacetFilters%5B0%5D.IsApplied=true&SearchResultsModuleName=Search+Results&SearchFiltersModuleName=Search+Filters&SortCriteria=0&SortDirection=0&SearchType=5&ResultsType=0"
 
 scraper = Scraper()
-scraper.session.headers.update({"Accept": "application/json"})
+scraper.set_headers({"Accept": "application/json"})
+scraper.get_from_url(url, "JSON")
 
-scraper.url = url
+html = scraper.markup.get("results")
 
-response = scraper.getJson().get("results")
+scraper.__init__(html, "html.parser")
 
-scraper.soup = response
-
-rules = Rules(scraper)
-
-jobs = rules.getTags("li")
+jobs = scraper.find("ul", {"class": "results-list"}).find_all("li")
 
 company = {"company": "BAT"}
 finalJobs = list()
@@ -28,7 +26,7 @@ for job in jobs:
             job.find("span", {"class": "job-location"}).text.split(",")[0].strip()
         )
     )
-    county = get_county(city)
+    county = _counties.get_county(city)
 
     if county:
         finalJobs.append(
@@ -42,9 +40,11 @@ for job in jobs:
             }
         )
 
-publish(4, company.get("company"), finalJobs, "APIKEY")
+publish_or_update(finalJobs)
 
 logoUrl = "https://cdn.radancy.eu/company/1045/v2_0/img/temporary/shared/bat-logo.svg"
 publish_logo(company.get("company"), logoUrl)
 
 show_jobs(finalJobs)
+
+print(len(finalJobs))   
