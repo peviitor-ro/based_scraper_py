@@ -1,7 +1,8 @@
 from scraper.Scraper import Scraper
-from utils import publish, publish_logo, create_job, show_jobs, translate_city
-from getCounty import get_county, remove_diacritics
+from utils import publish_or_update, publish_logo, create_job, show_jobs, translate_city
+from getCounty import GetCounty, remove_diacritics
 
+_counties = GetCounty()
 company = "BANCATRANSILVANIA"
 url = "https://api.ejobs.ro/companies/8092"
 
@@ -21,19 +22,12 @@ def get_aditional_city(url):
         "content"
     ].split(",")
 
-    cities = []
+    cities = [translate_city(remove_diacritics(location)) for location in locations]
     counties = []
 
-    for location in locations:
-        city = translate_city(remove_diacritics(location))
-        county = get_county(city)
-
-        if not county:
-            city = remove_diacritics(location.replace(" ", "-"))
-            county = get_county(city)
-
-        cities.append(city)
-        counties.append(county)
+    for city in cities:
+        county = _counties.get_county(city)
+        counties.extend(county or [])
 
     return cities, counties
 
@@ -57,17 +51,17 @@ for job in response:
             city = translate_city(
                 remove_diacritics(location.get("address").split(",")[0].strip())
             )
-            county = get_county(city)
+            county = _counties.get_county(city)
 
             if not county:
                 city = remove_diacritics(
                     location.get("address").split(",")[0].strip().replace(" ", "-")
                 )
-                county = get_county(city)
+                county = _counties.get_county(city)
 
             cities.append(city)
-            counties.append(county)
-        except:
+            counties.extend(county)
+        except Exception as e:
             cities = []
             counties = []
 
@@ -86,7 +80,7 @@ for job in response:
     )
 
 
-publish(4, company, jobs, "APIKEY")
+publish_or_update(jobs)
 publish_logo(
     company,
     "https://www.bancatransilvania.ro/themes/bancatransilvania/assets/images/logos/bt-cariere.svg",

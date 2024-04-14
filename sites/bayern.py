@@ -1,9 +1,10 @@
 from scraper.Scraper import Scraper
-from utils import publish, publish_logo, create_job, show_jobs
+from utils import publish_or_update, publish_logo, create_job, show_jobs
 from math import ceil
-from getCounty import get_county
+from getCounty import GetCounty
 from utils import translate_city, acurate_city_and_county
 
+_counties = GetCounty()
 url = "https://bayer.eightfold.ai/api/apply/v2/jobs?domain=bayer.com&start=10&num=1000&exclude_pid=562949957688629&pid=562949957688629&domain=bayer.com&sort_by=relevance"
 
 
@@ -49,7 +50,7 @@ for page in range(0, pages):
                         counties.append(acurate_city.get(city.split(",")[0])["county"])
                         cities.append(acurate_city.get(city.split(",")[0])["city"])
                     else:
-                        counties.append(get_county(city.split(",")[0]))
+                        counties.append(_counties.get_county(city.split(",")[0]))
                         cities.append(translate_city(city.split(",")[0]))
 
                 job_element["county"] = counties
@@ -57,13 +58,12 @@ for page in range(0, pages):
 
             elif country == "Romania" and job.get("location"):
                 city = job["location"].split(",")[0].strip()
-                county = get_county(city)
+                county = _counties.get_county(city)
                 job_element["county"] = county
 
             jobs.append(job_element)
 
 
-publish(4, company, jobs, "APIKEY")
 
 publish_logo(
     company,

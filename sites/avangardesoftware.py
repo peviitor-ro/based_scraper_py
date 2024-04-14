@@ -1,7 +1,8 @@
 from scraper.Scraper import Scraper
-from getCounty import get_county
-from utils import publish, publish_logo, show_jobs, create_job
+from getCounty import GetCounty
+from utils import publish_or_update, publish_logo, show_jobs, create_job
 
+_counties = GetCounty()
 company = "AvangardeSoftware"
 url = "https://avangarde-software.com/careers/"
 
@@ -18,7 +19,7 @@ final_jobs = [
         city=job.find("div", class_="stm_vacancies__location")
         .get_text(strip=True)
         .split(",")[0],
-        county=get_county(
+        county=_counties.get_county(
             job.find("div", class_="stm_vacancies__location")
             .get_text(strip=True)
             .split(",")[0]
@@ -28,8 +29,7 @@ final_jobs = [
     for job in jobs
 ]
 
-
-publish(4, company, final_jobs, "Grasum_Key")
+publish_or_update(final_jobs)
 
 publish_logo(
     company,

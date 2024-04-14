@@ -1,28 +1,33 @@
-from scraper_peviitor import Scraper, Rules
-from getCounty import get_county, remove_diacritics
-from utils import publish, publish_logo, show_jobs
+from scraper.Scraper import Scraper
+from getCounty import GetCounty, remove_diacritics
+from utils import publish_or_update, publish_logo, show_jobs
 
+_counties = GetCounty()
 url = "https://www.autonom.ro/cariere"
 
-scraper = Scraper(url)
-rules = Rules(scraper)
+scraper = Scraper()
+scraper.get_from_url(url)
 
-# Obtinem toate joburile
-jobs = rules.getTags("a", {"class": "box-listing-job"})
+jobs = scraper.find_all("a", {"class": "box-listing-job"})
 
 company = {"company": "Autonom"}
 finalJobs = list()
 
 acurate_city = {"Iasi": {"city": "Iasi", "county": "Iasi"}}
 
-# Pentru fiecare job, extragem datele si le adaugam in lista finalJobs
 for job in jobs:
     job_title = job.find("p", {"class": "nume-listing-job"}).text
     job_link = job["href"].strip()
 
     locations = job.find_all("span", {"class": "locatie-job"})
     cities = [remove_diacritics(city.text) for city in locations]
-    counties = [city for city in cities if acurate_city.get(city) or get_county(city)]
+    counties = []
+
+    for city in cities:
+        if city in acurate_city.keys():
+            counties = acurate_city[city]["county"]
+        else:
+            counties.extend(_counties.get_county(city) or [])
 
     finalJobs.append(
         {
@@ -35,7 +40,7 @@ for job in jobs:
         }
     )
 
-publish(4, company.get("company"), finalJobs, "APIKEY")
+publish_or_update(finalJobs)
 
 logoUrl = "https://www.autonom.ro/assets/uploads/autonom_logo-high-res.png"
 publish_logo(company.get("company"), logoUrl)
