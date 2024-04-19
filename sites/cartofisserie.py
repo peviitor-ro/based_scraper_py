@@ -1,6 +1,8 @@
 from scraper.Scraper import Scraper
-from utils import publish, publish_logo, show_jobs, acurate_city_and_county
-from getCounty import get_county
+from utils import publish_or_update, publish_logo, show_jobs, acurate_city_and_county
+from getCounty import GetCounty
+
+_coubties = GetCounty()
 
 url = "https://www.ejobs.ro/company/cartofisserie/286239"
 company = "CARTOFISSERIE"
@@ -56,14 +58,15 @@ for job in job_elements:
             ):
                 cities.append(city)
 
-    counties = [
-        (
-            acurate_city.get(city.replace(" ", "_").replace("-", "_")).get("county")
-            if acurate_city.get(city.replace(" ", "_").replace("-", "_"))
-            else get_county(city)
-        )
-        for city in cities
-    ]
+    counties = []
+
+    for city in cities:
+        if acurate_city.get(city.replace(" ", "_").replace("-", "_")):
+            counties.append(
+                acurate_city.get(city.replace(" ", "_").replace("-", "_")).get("county")
+            )
+        else:
+            counties.extend(_coubties.get_county(city))
 
     country = "Romania"
     final_jobs.append(
@@ -77,8 +80,7 @@ for job in job_elements:
         }
     )
 
-publish(4, company, final_jobs, "Grasum_Key")
-
+publish_or_update(final_jobs)
 publish_logo(company, "https://content.ejobs.ro/img/logos/2/286239.png")
 
 show_jobs(final_jobs)

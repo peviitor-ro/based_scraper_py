@@ -64,7 +64,7 @@ for page in range(0, pages):
             jobs.append(job_element)
 
 
-
+publish_or_update(jobs)
 publish_logo(
     company,
     "https://static.vscdn.net/images/careers/demo/bayer/1677751915::logo-bayer.svg",
