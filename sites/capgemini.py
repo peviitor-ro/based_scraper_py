@@ -1,15 +1,17 @@
-from scraper_peviitor import Scraper
-from utils import translate_city, acurate_city_and_county, publish, publish_logo, show_jobs
-from getCounty import get_county
+from scraper.Scraper import Scraper
+from utils import translate_city, acurate_city_and_county, publish_or_update, publish_logo, show_jobs
+from getCounty import GetCounty
 
+_counties = GetCounty()
 url = "https://www.capgemini.com/wp-json/macs/v1/jobs?country=ro-en&size=200"
 
 company = {"company": "Capgemini"}
 finalJobs = list()
 
-scraper = Scraper(url)
+scraper = Scraper()
+scraper.get_from_url(url, "JSON")
 
-jobs = scraper.getJson().get("data")
+jobs = scraper.markup.get("data")
 
 allCities = [
     "Bucuresti",
@@ -37,7 +39,7 @@ for job in jobs:
         + job.get("title").replace(" ", "-").lower()
     )
     city = translate_city(job.get("location"))
-    county = get_county(city)
+    county = _counties.get_county(city)
 
     job_element = {
         "job_title": job_title,
@@ -58,7 +60,7 @@ for job in jobs:
 
     finalJobs.append(job_element)
 
-publish(4, company.get("company"), finalJobs, "APIKEY")
+publish_or_update(finalJobs)
 
 logoUrl = "https://prod.ucwe.capgemini.com/ro-en/wp-content/themes/capgemini2020/assets/images/logo.svg"
 publish_logo(company.get("company"), logoUrl)

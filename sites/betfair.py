@@ -1,13 +1,15 @@
-from scraper_peviitor import Scraper, Rules
-from utils import translate_city, publish, publish_logo, show_jobs
-from getCounty import get_county
+from scraper.Scraper import Scraper
+from utils import translate_city, publish_or_update, publish_logo, show_jobs
+from getCounty import GetCounty
+
+_counties = GetCounty()
 
 url = "https://www.betfairromania.ro/find-a-job/?search=&country=Romania&pagesize=1000#results"
 
-scraper = Scraper(url)
-rules = Rules(scraper)
+scraper = Scraper()
+scraper.get_from_url(url)
 
-jobs = rules.getTags("div", {"class": "card-job"})
+jobs = scraper.find_all("div", {"class": "card-job"})
 
 company = {"company": "Betfair"}
 finalJobs = list()
@@ -27,20 +29,23 @@ for job in jobs:
     cities = [
         translate_city(city.split(",")[0].strip())
         for city in cities_elements
-        if get_county(city.split(",")[0].strip())
+        if _counties.get_county(city.split(",")[0].strip())
     ]
 
-    county = [get_county(city) for city in cities if get_county(city)]
+    counties = []
 
-    if not cities or not county:
+    for city in cities:
+        counties.extend(_counties.get_county(city))
+
+    if not cities or not counties:
         job_element["remote"] = "Remote"
     else:
         job_element["city"] = cities
-        job_element["county"] = county
+        job_element["county"] = counties
 
     finalJobs.append(job_element)
 
-publish(4, company.get("company"), finalJobs, "APIKEY")
+publish_or_update(finalJobs)
 
 logoUrl = "https://www.betfairromania.ro/images/logo.svg?v1.1"
 publish_logo(company.get("company"), logoUrl)

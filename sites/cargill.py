@@ -1,8 +1,8 @@
 from scraper.Scraper import Scraper
-from utils import translate_city, publish, publish_logo, show_jobs
-from getCounty import get_county, remove_diacritics
+from utils import translate_city, publish_or_update, publish_logo, show_jobs
+from getCounty import GetCounty, remove_diacritics
 
-
+_counties = GetCounty()
 def get_aditional_city(url):
     scraper = Scraper()
     scraper.get_from_url(url)
@@ -14,11 +14,11 @@ def get_aditional_city(url):
 
     for location in locations:
         city = remove_diacritics(translate_city(location.split(",")[0].strip()))
-        county = get_county(city)
+        county = _counties.get_county(city)
 
         if county:
             cities.append(city)
-            counties.append(county)
+            counties.extend(county)
 
     return cities, counties
 
@@ -48,9 +48,12 @@ for job in jobs:
             )
         )
     ]
-    county = [get_county(city) for city in city]
+    county = []
 
-    if not county[0]:
+    for c in city:
+        county.extend(_counties.get_county(c) or [])
+
+    if not county:
         city, county = get_aditional_city(job_link)
 
     finalJobs.append(
@@ -64,7 +67,7 @@ for job in jobs:
         }
     )
 
-publish(4, company.get("company"), finalJobs, "APIKEY")
+publish_or_update(finalJobs)
 
 logoUrl = "https://tbcdn.talentbrew.com/company/23251/18994/content/logo-full.png"
 

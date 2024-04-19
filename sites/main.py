@@ -1,7 +1,15 @@
 import os 
 import subprocess
 
-exclude = ['__init__.py','main.py' , 'kaufland.py', "tesla.py", "kellanova.py"]
+exclude = [
+    "__init__.py",
+    "main.py",
+    "kaufland.py",
+    "tesla.py",
+    "kellanova.py",
+    "cat.py",
+    "cososys.py",
+]
 path = os.path.dirname(os.path.abspath(__file__))
 
 for site in os.listdir(path):
@@ -12,5 +20,3 @@ for site in os.listdir(path):
             print(action.stderr.decode("utf-8"))
         else:
             print("Success scraping " + site)
-
-

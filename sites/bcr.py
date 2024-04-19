@@ -1,20 +1,17 @@
-from scraper_peviitor import Scraper, Rules
-from utils import translate_city, publish, publish_logo, show_jobs
-from getCounty import get_county, counties
+from scraper.Scraper import Scraper
+from utils import translate_city, publish_or_update, publish_logo, show_jobs
+from getCounty import GetCounty
 
-# Cream o instanta a clasei Scraper
-scraper = Scraper(
-    "https://erstegroup-careers.com/bcr/search/?createNewAlert=false&q=&locations"
-)
-rules = Rules(scraper)
+_counties = GetCounty()
+url = "https://erstegroup-careers.com/bcr/search/?createNewAlert=false&q=&locations"
+scraper = Scraper()
+scraper.get_from_url(url)
 
-# Cautam elementele care contin joburile
-elements = rules.getTags("tr", {"class": "data-row"})
+elements = scraper.find_all("tr", {"class": "data-row"})
 
 company = {"company": "BCR"}
 finalJobs = list()
 
-# Iteram prin elementele gasite si extragem informatiile necesare
 for element in elements:
     job_title = element.find("a", {"class": "jobTitle-link"}).text
     job_link = (
@@ -22,12 +19,7 @@ for element in elements:
         + element.find("a", {"class": "jobTitle-link"})["href"]
     )
     city = translate_city(element.find("span", {"class": "jobShifttype"}).text)
-    county = get_county(city)
-
-    if not county:
-        find_city = [c for c in counties if c.get(city)][0].get(city)[0]
-        county = city
-        city = find_city
+    county = _counties.get_county(city)
 
     finalJobs.append(
         {
@@ -40,7 +32,7 @@ for element in elements:
         }
     )
 
-publish(4, company.get("company"), finalJobs, "APIKEY")
+publish_or_update(finalJobs)
 
 logoUrl = "https://rmkcdn.successfactors.com/d1204926/7da4385b-5dfa-431c-9772-9.png"
 publish_logo(company.get("company"), logoUrl)
