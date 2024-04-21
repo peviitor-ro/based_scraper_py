@@ -1,15 +1,17 @@
-from scraper_peviitor import Scraper
-from utils import publish, publish_logo, show_jobs, translate_city
-from getCounty import get_county
+from scraper.Scraper import Scraper
+from utils import publish_or_update, publish_logo, show_jobs, translate_city
+from getCounty import GetCounty
 
+_counties = GetCounty()
 url = "https://careers.danone.com/bin/jobs.json?countries=Romania&locale=en&limit=100"
 
 company = {"company": "Danone"}
 
 
-scraper = Scraper(url)
+scraper = Scraper()
+scraper.get_from_url(url, "JSON")
 
-jobs = scraper.getJson().get("results")
+jobs = scraper.markup.get("results")
 
 finalJobs = [
     {
@@ -18,13 +20,13 @@ finalJobs = [
         "company": company.get("company"),
         "country": "Romania",
         "city": translate_city(job.get("city").title()),
-        "county": get_county(translate_city(job.get("city").title())),
+        "county": _counties.get_county(translate_city(job.get("city").title())),
         "remote": job.get("workFromHome"),
     }
     for job in jobs
 ]
 
-publish(4, company.get("company"), finalJobs, "APIKEY")
+publish_or_update(finalJobs)
 
 logoUrl = "https://upload.wikimedia.org/wikipedia/commons/1/13/DANONE_LOGO_VERTICAL.png"
 publish_logo(company.get("company"), logoUrl)

@@ -1,8 +1,12 @@
 from scraper.Scraper import Scraper
-from utils import show_jobs, translate_city, publish, publish_logo
-from getCounty import get_county, remove_diacritics
+from utils import show_jobs, translate_city, publish_or_update, publish_logo
+from getCounty import GetCounty, remove_diacritics
 
-url = "https://mingle.ro/api/boards/mingle/jobs?q=companyUid~eq~%22crowe%22&page=0&pageSize=100&sort=modifiedDate~DESC"
+_counties = GetCounty()
+
+url = (
+    "https://mingle.ro/api/boards/careers-page/jobs?company=crowe&page=0&pageSize=1000"
+)
 scraper = Scraper()
 scraper.get_from_url(url, "JSON")
 
@@ -12,23 +16,23 @@ jobs = list()
 jobs_elements = scraper.markup.get("data").get("results")
 
 for job in jobs_elements:
-    job_title = job.get("jobTitle")
-    job_link = "https://crowe.mingle.ro/en/apply/" + job.get("publicUid")
+    job_title = job.get("title")
+    job_link = "https://crowe.mingle.ro/en/apply/" + job.get("uid")
     cities = []
     counties = []
 
     if job.get("locations"):
         for location in job.get("locations"):
-            city = translate_city(remove_diacritics(location.get("name")))
-            county = get_county(city)
+            city = translate_city(remove_diacritics(location.get("label")))
+            county = _counties.get_county(city)
 
             if not county:
                 city = city.replace(" ", "-")
-                county = get_county(city)
+                county = _counties.get_county(city)
 
             if county:
                 cities.append(city)
-                counties.append(county)
+                counties.extend(county)
     else:
         cities = ["Bucuresti", "Timisoara", "Cluj-Napoca"]
         counties = ["Bucuresti", "Timis", "Cluj"]
@@ -39,13 +43,13 @@ for job in jobs_elements:
             "job_link": job_link,
             "company": company,
             "country": "Romania",
-            "city": cities,
-            "county": counties,
+            "city": list(set(cities)),
+            "county": list(set(counties)),
         }
     )
 
 
-publish(4, company, jobs, "APIKEY")
+publish_or_update(jobs)
 
 logoUrl = "https://i.ytimg.com/vi/dTmm3WNIpnc/maxresdefault.jpg"
 publish_logo(company, logoUrl)
