@@ -1,12 +1,14 @@
 from scraper.Scraper import Scraper
-from getCounty import get_county, remove_diacritics
+from getCounty import GetCounty, remove_diacritics
 from utils import (
     translate_city,
     acurate_city_and_county,
-    publish,
+    publish_or_update,
     publish_logo,
     show_jobs,
 )
+
+_counties = GetCounty()
 
 scraper = Scraper()
 post_data = {
@@ -44,16 +46,19 @@ while result.get("nextPage"):
             )
             for city in job.get("locations")
         ]
-        counties = [
-            (
-                acurate_city.get(remove_diacritics(city.replace(" ", "_"))).get(
-                    "county"
+
+        counties = []
+
+        for city in cities:
+            if acurate_city.get(remove_diacritics(city.replace(" ", "_"))):
+                counties.append(
+                    acurate_city.get(remove_diacritics(city.replace(" ", "_"))).get(
+                        "county"
+                    )
                 )
-                if acurate_city.get(remove_diacritics(city.replace(" ", "_")))
-                else get_county(city)
-            )
-            for city in cities
-        ]
+            else:
+                counties.extend(_counties.get_county(city))
+
         remote = job.get("workplace").replace("_", "-")
 
         finalJobs.append(
@@ -72,7 +77,7 @@ while result.get("nextPage"):
     jobs = result.get("results")
 
 
-publish(4, company.get("company"), finalJobs, "APIKEY")
+publish_or_update(finalJobs)
 
 logoUrl = "https://workablehr.s3.amazonaws.com/uploads/account/logo/404273/logo"
 publish_logo(company.get("company"), logoUrl)

@@ -1,13 +1,15 @@
 import requests
 from utils import (
     create_job,
-    publish,
+    publish_or_update,
     publish_logo,
     acurate_city_and_county,
     show_jobs,
     translate_city,
 )
-from getCounty import get_county
+from getCounty import GetCounty
+
+_counties = GetCounty()
 
 url = "https://recrutare.dedeman.ro/api/sinapsi/jobs"
 company = "DEDEMAN"
@@ -37,7 +39,7 @@ for job in jobs:
         county = acurate_city.get(city.replace("-", "_")).get("county")
         city = acurate_city.get(city.replace("-", "_")).get("city")
     else:
-        county = get_county(city)
+        county = _counties.get_county(city)
 
     input_job_id = job["Id"]
     format_job_title = "+".join(job["Function"].lower().split())
@@ -54,7 +56,7 @@ for job in jobs:
     )
 
 
-publish(4, company, final_jobs, "Grasum_Key")
+publish_or_update(final_jobs)
 
 publish_logo(company, "https://i.dedeman.ro/dedereact/design/images/logo.svg")
 
