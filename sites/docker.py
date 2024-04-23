@@ -1,5 +1,5 @@
-from scraper_peviitor import Scraper
-from utils import publish, publish_logo, show_jobs
+from scraper.Scraper import Scraper
+from utils import publish_or_update, publish_logo, show_jobs
 import json
 
 url = "https://jobs.ashbyhq.com/api/non-user-graphql?op=ApiJobBoardWithTeams"
@@ -8,7 +8,7 @@ company = {"company": "docker"}
 finalJobs = list()
 
 scraper = Scraper()
-scraper.session.headers.update(
+scraper.set_headers(
     {
         "Content-Type": "application/json",
         "Accept": "application/json",
@@ -46,7 +46,7 @@ for job in jobs:
                 }
             )
 
-publish(4, company.get("company"), finalJobs, "APIKEY")
+publish_or_update(finalJobs)  
 
 logoUrl = (
     "https://www.docker.com/wp-content/uploads/2022/03/vertical-logo-monochromatic.png"
