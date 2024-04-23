@@ -1,25 +1,24 @@
-from scraper_peviitor import Scraper, Rules
+from scraper.Scraper import Scraper
 from utils import (
     translate_city,
     acurate_city_and_county,
-    publish,
+    publish_or_update,
     publish_logo,
     show_jobs,
 )
-from getCounty import get_county, remove_diacritics
+from getCounty import GetCounty, remove_diacritics
+from math import ceil
 
-# Folosim ScraperSelenium deoarece numarul de joburi este incarcat prin AJAX
-scraper = Scraper(
-    "https://careers.eon.com/romania/go/Toate-joburile-din-Romania/3727401?utm_source=pagina-cariere-ro"
-)
-rules = Rules(scraper)
+_counties = GetCounty()
 
-# Luam numarul total de joburi
-jobs = rules.getTag("span", {"class": "paginationLabel"}).find_all("b")[1]
+url = "https://careers.eon.com/romania/go/Toate-joburile-din-Romania/3727401?utm_source=pagina-cariere-ro"
+scraper = Scraper()
+scraper.get_from_url(url)
+
+jobs = scraper.find("span", {"class": "paginationLabel"}).find_all("b")[1]
 step = 25
 
-# Calculam numarul de pagini
-totalJobs = [*range(0, int(jobs.text), step)]
+totalJobs = ceil(int(jobs.text) / step)
 
 company = {"company": "Eon"}
 finalJobs = list()
@@ -30,12 +29,11 @@ acurate_city = acurate_city_and_county(
 )
 
 # Pentru fiecare pagina, luam joburile si le adaugam in lista finalJobs
-for page in totalJobs:
-    pageurl = f"https://careers.eon.com/romania/go/Toate-joburile-din-Romania/3727401/{page}/?q=&sortColumn=referencedate&sortDirection=desc"
-    pageScaper = Scraper(pageurl)
-    rules = Rules(pageScaper)
+for page in range(totalJobs):
+    pageurl = f"https://careers.eon.com/romania/go/Toate-joburile-din-Romania/3727401/{page * step}/?q=&sortColumn=referencedate&sortDirection=desc"
+    scraper.get_from_url(pageurl)
 
-    jobs = rules.getTags("tr", {"class": "data-row"})
+    jobs = scraper.find_all("tr", {"class": "data-row"})
 
     for job in jobs:
         job_title = job.find("a").text
@@ -66,16 +64,16 @@ for page in totalJobs:
             job["county"] = ""
 
         else:
-            county = get_county(city)
+            county = _counties.get_county(city)
             if not county:
                 city = city.replace(" ", "-")
-                county = get_county(city.replace(" ", "-"))
+                county = _counties.get_county(city.replace(" ", "-"))
             job["city"] = city
             job["county"] = county
 
         finalJobs.append(job)
 
-publish(4, company.get("company"), finalJobs, "APIKEY")
+publish_or_update(finalJobs)
 
 logoUrl = "https://www.eon-romania.ro/content/dam/eon/eon-romania-ro/logo/header_M.png"
 publish_logo(company.get("company"), logoUrl)
