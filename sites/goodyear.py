@@ -1,8 +1,9 @@
 from scraper.Scraper import Scraper
-from utils import publish, publish_logo, create_job, show_jobs, translate_city
+from utils import publish_or_update, publish_logo, create_job, show_jobs, translate_city
 from math import ceil
-from getCounty import get_county
+from getCounty import GetCounty
 
+_counties = GetCounty()
 company = "GoodYear"
 url = "https://jobs.goodyear.com/search/?createNewAlert=false&q=&locationsearch=Romania"
 
@@ -33,7 +34,7 @@ for page in range(1, pages + 1):
                 job_title=job_title,
                 job_link=job_link,
                 city=job_location,
-                county = get_county(job_location),
+                county = _counties.get_county(job_location),
                 country="Romania",
                 company=company,
             )
@@ -42,7 +43,7 @@ for page in range(1, pages + 1):
     scraper.get_from_url(url + f"&startrow={page * 25}")
 
 
-publish(4, company, jobs, "APIKEY")
+publish_or_update(jobs)
 
 publish_logo(
     company, "https://rmkcdn.successfactors.com/38b5d3dd/ef930ba2-97c9-4abc-a14a-e.png"

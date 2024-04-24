@@ -1,8 +1,9 @@
 from scraper.Scraper import Scraper
-from utils import create_job, publish, publish_logo, show_jobs, translate_city
-from getCounty import get_county
+from utils import create_job, publish_or_update, publish_logo, show_jobs, translate_city
+from getCounty import GetCounty
 from math import ceil
 
+_counties = GetCounty()
 url = "https://jobs.ericsson.com/api/apply/v2/jobs?domain=ericsson.com&start=0&num=10&location=Romania&domain=ericsson.com&sort_by=relevance"
 
 company = "Ericsson"
@@ -24,9 +25,12 @@ for page in range(pages):
         cities = [
             translate_city(location.split(",")[0])
             for location in job["locations"]
-            if get_county(translate_city(location.split(",")[0]))
         ]
-        counties = [get_county(city) for city in cities]
+        counties = []
+
+        for city in cities:
+            county = _counties.get_county(city) or []
+            counties.extend(county)
 
         jobs.append(
             create_job(
@@ -40,7 +44,7 @@ for page in range(pages):
         )
 
 
-publish(4, company, jobs, "APIKEY")
+publish_or_update(jobs)
 
 publish_logo(
     company,

@@ -1,9 +1,9 @@
 from scraper.Scraper import Scraper
-from utils import publish, publish_logo, create_job, show_jobs, translate_city
-from getCounty import get_county
+from utils import publish_or_update, publish_logo, create_job, show_jobs, translate_city
+from getCounty import GetCounty
 from math import ceil
 
-# Cream o instanta a clasei Scraper
+_counties = GetCounty()
 url = "https://join.generalicee.com/search/?createNewAlert=false&q=&locationsearch=&optionsFacetsDD_country=RO&optionsFacetsDD_city=&optionsFacetsDD_customfield3=&optionsFacetsDD_customfield4=&optionsFacetsDD_customfield2"
 scraper = Scraper()
 scraper.get_from_url(url)
@@ -28,7 +28,7 @@ for page in range(pages):
             job.find("span", {"class": "jobLocation"}).text.strip().split(",")
         )
         job_city = translate_city(job_location[0].strip())
-        job_county = get_county(job_city)
+        job_county = _counties.get_county(job_city)
         jobs.append(
             create_job(
                 job_title=job_title,
@@ -43,7 +43,7 @@ for page in range(pages):
     scraper.get_from_url(f"{url}&start={page * 10}")
 
 
-publish(4, company, jobs, "APIKEY")
+publish_or_update(jobs)
 
 publish_logo(company, "https://www.generali.ro/wp-content/uploads/2022/06/logo.svg")
 show_jobs(jobs)

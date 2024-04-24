@@ -2,12 +2,13 @@ from scraper.Scraper import Scraper
 from utils import (
     show_jobs,
     translate_city,
-    publish,
+    publish_or_update,
     publish_logo,
     acurate_city_and_county,
 )
-from getCounty import get_county
+from getCounty import GetCounty
 
+_counties = GetCounty()
 company = "hcltechnologies"
 finalJobs = list()
 
@@ -68,7 +69,7 @@ while jobs:
                 city = acurate_city.get(city).get("city")
                 county = acurate_city.get(city).get("county")
             else:
-                county = get_county(city)
+                county = _counties.get_county(city)
 
                 if not county:
                     city = []
@@ -93,7 +94,7 @@ while jobs:
     except AttributeError:
         jobs = False
 
-publish(4, company, finalJobs, "APIKEY")
+publish_or_update(finalJobs)
 
 publish_logo(
     company, "https://www.hcltech.com/themes/custom/hcltech/images/hcltech-new-logo.svg"

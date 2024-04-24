@@ -1,5 +1,5 @@
 from scraper.Scraper import Scraper
-from utils import publish, publish_logo, create_job, show_jobs
+from utils import publish_or_update, publish_logo, create_job, show_jobs
 
 url = "https://www.fgaromania.ro/category/cariere/"
 
@@ -25,7 +25,7 @@ jobs = [
 ]
 
 
-publish(4, company, jobs, "APIKEY")
+publish_or_update(jobs)
 
 publish_logo(
     company, "https://www.fgaromania.ro/wp-content/uploads/2020/06/logo-FGA.png"
