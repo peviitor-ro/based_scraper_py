@@ -1,5 +1,5 @@
 from scraper.Scraper import Scraper
-from utils import publish, publish_logo, show_jobs
+from utils import publish_or_update, publish_logo, show_jobs
 
 company = "evozone"
 url = "https://www.evozon.com/careers/"
@@ -20,7 +20,7 @@ final_jobs = [
     }
     for job in jobs
 ]
-publish(4, company, final_jobs, "Grasum_Key")
+publish_or_update(final_jobs)
 
 publish_logo(company, "https://www.evozon.com/wp-content/uploads/2021/03/Group-813.svg")
 show_jobs(final_jobs)

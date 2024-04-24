@@ -1,15 +1,15 @@
-from scraper_peviitor import Scraper, Rules
+from scraper.Scraper import Scraper
 from utils import (
     translate_city,
     acurate_city_and_county,
-    publish,
+    publish_or_update,
     publish_logo,
     show_jobs,
 )
-from getCounty import get_county, remove_diacritics
+from getCounty import GetCounty, remove_diacritics
 
+_counties = GetCounty()
 scraper = Scraper()
-rules = Rules(scraper)
 
 jobsFound = True
 startRow = 0
@@ -23,8 +23,9 @@ acurate_city = acurate_city_and_county(
 )
 
 while jobsFound:
-    scraper.url = f"https://careers.theheinekencompany.com/search/?createNewAlert=false&q=&locationsearch=Romania&startrow={startRow}"
-    jobs = rules.getTags("tr", {"class": "data-row"})
+    url = f"https://careers.theheinekencompany.com/search/?createNewAlert=false&q=&locationsearch=Romania&startrow={startRow}"
+    scraper.get_from_url(url)
+    jobs = scraper.find_all("tr", {"class": "data-row"})
     for job in jobs:
         if (
             job.find("span", {"class": "jobLocation"}).text.split(",")[1].strip()
@@ -55,13 +56,13 @@ while jobsFound:
             job["county"] = acurate_city.get(city).get("county")
         else:
             job["city"] = city
-            job["county"] = get_county(city)
+            job["county"] = _counties.get_county(city)
 
         finalJobs.append(job)
 
     startRow += 25
 
-publish(4, company.get("company"), finalJobs, "APIKEY")
+publish_or_update(finalJobs)
 
 logoUrl = "https://agegate.theheinekencompany.com/assets/img/logo-corporate.svg"
 publish_logo(company.get("company"), logoUrl)

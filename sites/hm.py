@@ -1,7 +1,8 @@
-from scraper_peviitor import Scraper
-from utils import publish, publish_logo, show_jobs
-from getCounty import get_county, remove_diacritics
+from scraper.Scraper import Scraper
+from utils import publish_or_update, publish_logo, show_jobs
+from getCounty import GetCounty, remove_diacritics
 
+_counties = GetCounty() 
 data = {
     "locations": [],
     "workAreas": [],
@@ -12,20 +13,18 @@ data = {
 }
 url = "https://career.hm.com/wp-json/hm/v1/sr/jobs/search?_locale=user"
 
-# Se creează o instanță a clasei ScraperSelenium pentru a accesa site-ul
 scraper = Scraper()
 jobs = scraper.post(url, data).json()
 
 company = {"company": "HM"}
 finalJobs = list()
 
-# din obiectul json extragem lista de job-uri
 while jobs.get("jobs"):
     for job in jobs.get("jobs"):
         job_title = job.get("title")
         job_link = job.get("permalink")
         city = remove_diacritics(job.get("city"))
-        county = get_county(city)
+        county = _counties.get_county(city)
 
         finalJobs.append(
             {
@@ -38,11 +37,10 @@ while jobs.get("jobs"):
             }
         )
 
-    # Se trece la pagina următoare
     data["page"] += 1
     jobs = scraper.post(url, data).json()
 
-publish(4, company.get("company"), finalJobs, "APIKEY")
+publish_or_update(finalJobs)
 
 logourl = "https://upload.wikimedia.org/wikipedia/commons/thumb/5/53/H%26M-Logo.svg/709px-H%26M-Logo.svg.png?20130107164928"
 publish_logo(company.get("company"), logourl)

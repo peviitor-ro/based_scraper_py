@@ -1,7 +1,8 @@
 from scraper.Scraper import Scraper
-from utils import publish, publish_logo, create_job, show_jobs
-from getCounty import get_county, remove_diacritics
+from utils import publish_or_update, publish_logo, create_job, show_jobs
+from getCounty import GetCounty, remove_diacritics
 
+_counties = GetCounty()
 company = "Freudenberg"
 url = "https://jobs.freudenberg.com/Freudenberg/ro/?location=RO"
 
@@ -19,12 +20,12 @@ jobs = [
         city=remove_diacritics(job.find("div", class_="location").text.split(",")[0]),
         country="Romania",
         company=company,
-        county=get_county(job.find("div", class_="location").text.split(",")[0]),
+        county=_counties.get_county(job.find("div", class_="location").text.split(",")[0]),
     )
     for job in jobs_elements
 ]
 
-publish(4, company, jobs, "APIKEY")
+publish_or_update(jobs)
 
 publish_logo(company, "https://jobs.freudenberg.com/Freudenberg/static/img/logo.svg")
 show_jobs(jobs)
