@@ -1,54 +1,48 @@
-from scraper_peviitor import Scraper, loadingData
-import uuid
+from scraper.Scraper import Scraper
+from utils import publish_or_update, publish_logo, show_jobs, translate_city
 import json
+from getCounty import GetCounty
 
+_counties = GetCounty()
 apiUrl = " https://careers.kpmg.ro/api/Talentlyft/jobs/filter"
 
-scraper = Scraper()
-
-#Cream un header pentru a putea face request-uri POST
 headers = {
     "Accept": "application/json",
     "Content-Type": "application/json",
 }
 
-#Cream un dictionar cu datele pe care dorim sa le trimitem catre server
 data = {"Departments":[],"Locations":[],"CareerLevel":None,"WorkplaceType":None,"Tags":[],"CurrentPage":1,"PageSize":10}
 
-#Actualizam header-ul cu datele de mai sus
-scraper.session.headers.update(headers)
+scraper = Scraper()
+scraper.set_headers(headers)
 
-#Facem request-ul POST si salvam numarul total de joburi
-jobs = []
-try:
-    jobs = scraper.post(apiUrl, json=data).json().get("Results")
-except:
-    print({"succes":"no jobs found"})
+jobs = scraper.post(apiUrl, json.dumps(data)).json().get("Results") or []
 
 company = {"company": "KPMG"}
 finalJobs = list()
 
 while jobs:
     for job in jobs:
-        id = uuid.uuid4()
         job_title = job.get("Title")
         job_link = job.get("AbsoluteUrl")
-        city = job.get("Location").get("City")
+        city = translate_city(job.get("Location").get("City"))
+        county = _counties.get_county(city)
 
         finalJobs.append({
-            "id": str(id),
             "job_title": job_title,
             "job_link": job_link,
             "company": company.get("company"),
             "country": "Romania",
-            "city": city
+            "city": city,
+            "county": county,
         })
 
     data["CurrentPage"] += 1
-    jobs = scraper.post(apiUrl, json=data).json().get("Results")
+    jobs = scraper.post(apiUrl, json.dumps(data)).json().get("Results")
 
-#afisam numarul total de joburi gasite
-print(json.dumps(finalJobs, indent=4))
+publish_or_update(finalJobs)
 
-#se incarca datele in baza de date
-loadingData(finalJobs, company.get("company"))
+logo_url = "https://careers.kpmg.ro/assets/images/logo-kpmg.jpg"
+publish_logo(company.get("company"), logo_url)
+
+show_jobs(finalJobs)

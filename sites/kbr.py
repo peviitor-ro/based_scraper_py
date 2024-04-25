@@ -1,8 +1,10 @@
-from scraper_peviitor import Scraper, loadingData
-from utils import (translate_city, show_jobs)
-from getCounty import get_county
+from scraper.Scraper import Scraper
+from utils import (translate_city, show_jobs, publish_or_update, publish_logo)
+from getCounty import GetCounty
 import json
+from math import ceil
 
+_counties = GetCounty()
 apiUrl = "https://kbr.wd5.myworkdayjobs.com/wday/cxs/kbr/KBR_Careers/jobs"
 
 company = {"company": "KBR"}
@@ -17,15 +19,14 @@ headers = {
 
 data = {"appliedFacets":{},"limit":20,"offset":0,"searchText":"Romania"}
 
-scraper.session.headers.update(headers)
+scraper.set_headers(headers)
 
-numberOfJobs = scraper.post(apiUrl, json=data).json().get("total")
+response = scraper.post(apiUrl, data=json.dumps(data)).json()
+iteration = ceil(response.get("total") / 20)
+jobs = response.get("jobPostings")
 
-iteration = [i for i in range(0, numberOfJobs, 20)]
+for num in range(iteration):
 
-for num in iteration:
-    data["offset"] = num
-    jobs = scraper.post(apiUrl, json=data).json().get("jobPostings")
     for job in jobs:
         job_title = job.get("title")
         job_link = "https://kbr.wd5.myworkdayjobs.com/en-US/KBR_Careers" + job.get("externalPath")
@@ -36,7 +37,7 @@ for num in iteration:
             city = "All"
             county = "All"
         else:
-            county = get_county(city)
+            county = _counties.get_county(city)
 
         finalJobs.append({
             "job_title": job_title,
@@ -46,19 +47,11 @@ for num in iteration:
             "city": city,
             "county": county,
         })
+    data["offset"] = num * 20
+    jobs = scraper.post(apiUrl, json.dumps(data)).json().get("jobPostings")
+
+publish_or_update(finalJobs)
+logoUrl = "https://kbr.wd5.myworkdayjobs.com/KBR_Careers/assets/logo"
+publish_logo(company.get("company"), logoUrl)
 
 show_jobs(finalJobs)
-
-loadingData(finalJobs, company.get("company"))
-
-logoUrl = "https://kbr.wd5.myworkdayjobs.com/KBR_Careers/assets/logo"
-
-scraper.session.headers.update({
-    "Content-Type": "application/json",
-})
-scraper.post( "https://api.peviitor.ro/v1/logo/add/" ,json.dumps([
-    {
-        "id":company.get("company"),
-        "logo":logoUrl
-    }
-]))

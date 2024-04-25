@@ -1,44 +1,39 @@
-from scraper_peviitor import Scraper, Rules, loadingData
-import uuid
-import json
+from scraper.Scraper import Scraper
+from utils import publish_or_update, publish_logo, show_jobs, translate_city
+from getCounty import GetCounty
 
-url = "https://careers-ro.jacobsdouweegberts.com/job-search/"
+_counties = GetCounty()
+url = " https://careers-ro.jdepeets.com/job-search/"
 
-company = {"company": "JacobsDouweEgberts"}   
+company = {"company": "JacobsDouweEgberts"}
 finaljobs = list()
 
-scraper = Scraper(url)
-rules = Rules(scraper)
+scraper = Scraper()
+scraper.set_headers({"Accept-Language": "en-GB,en;q=0.9",})
+scraper.get_from_url(url)
 
-jobs = rules.getTags("li", {"class": "app-smartRecruiterSearchResult-list__item"})
+jobs = scraper.find_all("li", {"class": "app-smartRecruiterSearchResult-list__item"})
 
 for job in jobs:
-    id = uuid.uuid4()
-    job_title = job.find("span", { "class":"job-name"}).text.strip()
+    job_title = job.find("span", {"class": "job-name"}).text.strip()
     job_link = "https://careers-ro.jacobsdouweegberts.com" + job.find("a").get("href")
-    city = job.find("span", { "class":"job-city"}).text.strip()
+    city = translate_city(job.find("span", {"class": "job-city"}).text.strip())
+    county = _counties.get_county(city)
 
-    finaljobs.append({
-        "id": str(id),
-        "job_title": job_title,
-        "job_link": job_link,
-        "country": "Romania",
-        "city": city,
-        "company": company.get("company")
-    })
+    finaljobs.append(
+        {
+            "job_title": job_title,
+            "job_link": job_link,
+            "country": "Romania",
+            "city": city,
+            "county": county,
+            "company": company.get("company"),
+        }
+    )
 
-print(json.dumps(finaljobs, indent=4))
-
-loadingData(finaljobs, company.get("company"))
+publish_or_update(finaljobs)
 
 logoUrl = "https://upload.wikimedia.org/wikipedia/commons/thumb/2/21/JDE_Peet%27s_box_logo.svg/1024px-JDE_Peet%27s_box_logo.svg.png"
+publish_logo(company.get("company"), logoUrl)
 
-scraper.session.headers.update({
-    "Content-Type": "application/json",
-})
-scraper.post( "https://api.peviitor.ro/v1/logo/add/" ,json.dumps([
-    {
-        "id":company.get("company"),
-        "logo":logoUrl
-    }
-]))
+show_jobs(finaljobs)

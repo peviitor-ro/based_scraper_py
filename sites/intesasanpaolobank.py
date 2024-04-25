@@ -1,16 +1,18 @@
-from scraper_peviitor import Scraper, Rules, loadingData
-import json
-from getCounty import get_county, remove_diacritics
+from scraper.Scraper import Scraper
+from utils import publish_or_update, publish_logo, show_jobs
+from getCounty import GetCounty, remove_diacritics
 
+_counties = GetCounty()
 url = "https://www.intesasanpaolobank.ro/en/persoane-fizice/Our-World/cariere.html"
 
 company = {"company": "IntesaSanpaoloBank"}
 finalJobs = list()
 
-scraper = Scraper(url)
-rules = Rules(scraper)
+scraper = Scraper()
+scraper.get_from_url(url)
 
-jobs = rules.getTags("article", {"class": "careersItem"})
+
+jobs = scraper.find_all("article", {"class": "careersItem"})
 
 for job in jobs:
     job_title = job.find("h2").text.strip()
@@ -19,32 +21,29 @@ for job in jobs:
 
     remote = ["Remote" for location in locations if "remote" in location.lower()]
 
-    cities = [remove_diacritics(location.strip())
-              for location in locations if get_county(location.strip())]
-    counties = [get_county(cities) for cities in cities]
+    cities = [remove_diacritics(location.strip()) for location in locations]
+    counties = []
 
-    finalJobs.append({
-        "job_title": job_title,
-        "job_link": job_link,
-        "company": company.get("company"),
-        "country": "Romania",
-        "city": cities,
-        "county": counties,
-        "remote": remote
-    })
+    for city in cities:
+        county = _counties.get_county(city)
+        if county:
+            counties.extend(county)
 
-print(json.dumps(finalJobs, indent=4))
+    finalJobs.append(
+        {
+            "job_title": job_title,
+            "job_link": job_link,
+            "company": company.get("company"),
+            "country": "Romania",
+            "city": cities,
+            "county": counties,
+            "remote": remote,
+        }
+    )
 
-loadingData(finalJobs, company.get("company"))
+publish_or_update(finalJobs)
 
 logoUrl = "https://www.epromsystem.com/wp-content/uploads/2021/09/Clienti-INTESASP-epromsystem.png"
+publish_logo(company.get("company"), logoUrl)
 
-scraper.session.headers.update({
-    "Content-Type": "application/json",
-})
-scraper.post("https://api.peviitor.ro/v1/logo/add/", json.dumps([
-    {
-        "id": company.get("company"),
-        "logo": logoUrl
-    }
-]))
+show_jobs(finalJobs)

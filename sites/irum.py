@@ -1,8 +1,9 @@
 from scraper.Scraper import Scraper
-from utils import (publish, publish_logo, create_job, show_jobs, translate_city)
-from getCounty import get_county, remove_diacritics, abreviate_counties
+from utils import (publish_or_update, publish_logo, create_job, show_jobs, translate_city)
+from getCounty import GetCounty, remove_diacritics, abreviate_counties
 import re
 
+_counties = GetCounty()
 company = 'irum'
 url = 'https://www.irum.ro/posturi-vacante/'
 
@@ -15,8 +16,6 @@ pattern = re.compile(r"location.href='(.*)';")
 
 abr_counties = abreviate_counties
 
-print(abr_counties)
-
 jobs_elements = scraper.find('div', {'id':'products'}).find_all("div", class_="card")
 
 for job in jobs_elements:
@@ -25,7 +24,7 @@ for job in jobs_elements:
     locations = job.find('h6', class_='h6-two-column').text.split(',')
 
     cities = list()
-    counties = set()
+    counties = list()
 
     for city in locations:
         if 'VR' in city:
@@ -38,9 +37,9 @@ for job in jobs_elements:
             city = translate_city(
                 remove_diacritics(city.strip())
             )
-            county = get_county(city)
+            county = _counties.get_county(city)
         cities.append(city)
-        counties.add(county)
+        counties.extend(county)
 
     jobs.append(create_job(
         company=company,
@@ -51,8 +50,7 @@ for job in jobs_elements:
         country='Romania',
     ))
 
-for version in [1,4]:
-    publish(version, company, jobs, 'APIKEY')
+publish_or_update(jobs)
 
 publish_logo(company, 'https://www.irum.ro/wp-content/uploads/2020/03/logo_IRUM.png')
 show_jobs(jobs)
