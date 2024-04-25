@@ -1,47 +1,57 @@
-from scraper_peviitor import Scraper, Rules, loadingData
-import uuid
-import json
+from scraper.Scraper import Scraper
+from utils import publish_or_update, publish_logo, show_jobs, translate_city
+from getCounty import GetCounty, remove_diacritics
+from math import ceil
 
-#Cream o instanta a clasei Scraper
+_counties = GetCounty()
 url = "https://www.medlife.ro/cariere/lista-joburi"
-scraper = Scraper(url)
-rules = Rules(scraper)
+scraper = Scraper()
+scraper.get_from_url(url)
 
-#Luam numarul total de joburi
-totalJobs = int(rules.getTag("div", {"class":"title-header-listing"}).find("p").text.split(" ")[0])
+totalJobs = int(
+    scraper.find("div", {"class": "title-header-listing"}).find("p").text.split(" ")[0]
+)
 
-pageNumbers = [*range(0, totalJobs, 7 )]
+pageNumbers = ceil(totalJobs / 7)
 
 company = {"company": "Medlife"}
 finalJobs = list()
 
-#Iteram prin fiecare pagina
-for page in range(len(pageNumbers)):
-    #Setam url-ul paginii
-    pageurl = url + "/s/page/" + str(page)
-    scraper.url = pageurl
+elements = scraper.find_all("div", {"class": "mc-hand-hover"})
 
-    #Luam elementele de pe pagina
-    elements = rules.getTags("div", {"class":"mc-hand-hover"})
-    
-    #Iteram prin fiecare element si luam informatiile
+for page in range(pageNumbers):
     for element in elements:
-        id = uuid.uuid4()
-        job_title = element.find("div", {"class":"card-title-joburi-detalii"}).find_all("div")[0].text
+        job_title = (
+            element.find("div", {"class": "card-title-joburi-detalii"})
+            .find_all("div")[0]
+            .text
+        )
         job_link = element["onclick"].split("'")[1]
-        city = element.find("div", {"class":"detaii-job"}).find_all("div")[0].text.strip()
+        city = translate_city(
+            remove_diacritics(
+                element.find("div", {"class": "detaii-job"})
+                .find_all("div")[0]
+                .text.strip()
+            )
+        )
+        county = _counties.get_county(city)
 
-        finalJobs.append({
-            "id": str(id),
-            "job_title": job_title,
-            "job_link": job_link,
-            "company": company.get("company"),
-            "country": "Romania",
-            "city": city
-        })
+        finalJobs.append(
+            {
+                "job_title": job_title,
+                "job_link": job_link,
+                "company": company.get("company"),
+                "country": "Romania",
+                "city": city,
+                "county": county,
+            }
+        )
+    pageurl = url + "/s/page/" + str(page)
+    scraper.get_from_url(pageurl)
+    elements = scraper.find_all("div", {"class": "mc-hand-hover"})
 
-#Afisam numarul total de joburi
-print(json.dumps(finalJobs, indent=4))
+publish_or_update(finalJobs)
 
-#Incarcam datele in baza de date
-loadingData(finalJobs, company.get("company"))
+logo_url = "https://www.medlife.ro/cariere/sites/all/themes/cariere_medlife/images/logo-medlife.png"
+publish_logo(company.get("company"), logo_url)
+show_jobs(finalJobs)

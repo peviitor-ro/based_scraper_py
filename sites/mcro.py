@@ -1,7 +1,8 @@
 from scraper.Scraper import Scraper
-from utils import show_jobs, publish, publish_logo, translate_city
-from getCounty import get_county
+from utils import show_jobs, publish_or_update, publish_logo, translate_city
+from getCounty import GetCounty
 
+_counties = GetCounty()
 company = 'Mcro'
 base_url = 'https://mcro.tech'
 careers_url = base_url + '/careers/'
@@ -21,10 +22,9 @@ for job in jobs:
     location_country = location_slpit[1].split('|')[0].strip()
 
     city = translate_city(location_city)
-    county = get_county(city)
+    county = _counties.get_county(city)
     remote = location_slpit[1].split('|')[1].strip()
 
-    # Concatenate base_url with job_link
     full_job_link = base_url + "/" + job_link
 
     final_jobs.append({
@@ -37,8 +37,7 @@ for job in jobs:
         'company': company
     })
 
-for version in [1,4]:
-    publish(version, company, final_jobs, 'APIKEY')
+publish_or_update(final_jobs)
 
 publish_logo(company, 'https://mcro.tech/static/mcro-unicorn-logo-24cdacabaf115019db9895d78b862afb.svg')
 show_jobs(final_jobs)

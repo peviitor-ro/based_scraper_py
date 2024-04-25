@@ -1,7 +1,6 @@
-from scraper_peviitor import Scraper, Rules, loadingData
-import json
-from utils import translate_city, acurate_city_and_county
-from getCounty import get_county
+from scraper.Scraper import Scraper
+from utils import translate_city, acurate_city_and_county, publish_logo, publish_or_update, show_jobs
+from getCounty import GetCounty
 
 
 def remove_words(text, words):
@@ -19,10 +18,11 @@ acurate_city = acurate_city_and_county(
 
 url = "https://www.librabank.ro/Cariere"
 
-scraper = Scraper(url)
-rules = Rules(scraper)
+_counties = GetCounty()
+scraper = Scraper()
+scraper.get_from_url(url)
 
-jobContainer = rules.getTags("div", {"class": "jobListing"})
+jobContainer = scraper.find_all("div", {"class": "jobListing"})
 jobs = list(jobContainer)[0].find_all("div", {"class": "card-body"})
 
 company = {"company": "LibraBank"}
@@ -41,7 +41,7 @@ for job in jobs:
         county = acurate_city.get(location).get("county")
     else:
         city = translate_city(location)
-        county = get_county(city)
+        county = _counties.get_county(city)
 
         if not county:
             city = "Bucuresti"
@@ -56,6 +56,8 @@ for job in jobs:
         "county": county,
     })
 
-print(json.dumps(finalJobs, indent=4))
+publish_or_update(finalJobs)
 
-loadingData(finalJobs, company.get("company"))
+logo_url = "https://www.librabank.ro/imagini/logo-libra.svg"
+publish_logo(company.get("company"), logo_url)
+show_jobs(finalJobs)

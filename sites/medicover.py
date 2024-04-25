@@ -1,48 +1,40 @@
-from scraper_peviitor import Scraper, loadingData
-import uuid
-import json
+from scraper.Scraper import Scraper
+from utils import publish_or_update, publish_logo, show_jobs, translate_city
+from getCounty import GetCounty
 
-url = "https://mingle.ro/api/session?company=medicover"
-apiUrl = "https://mingle.ro/api/boards/mingle/jobs?q=companyUid~eq~%22medicover%22&page=0&pageSize=30&sort=modifiedDate~DESC"
+_counties = GetCounty()
+url = "https://mingle.ro/api/boards/careers-page/jobs?company=medicover&page=0&pageSize=1000&sort="
 
-scraper = Scraper(url)
-#Luam cookie-ul XSRF-TOKEN
-cookies = scraper.session.cookies.get_dict().get("XSRF-TOKEN")
-
-#Setam header-ul XSRF-TOKEN
-scraper.session.headers.update({"XSRF-TOKEN": cookies})
-#Setam header-ul Content-Type
-scraper.url = apiUrl
-
-#Luam json-ul
-jobs = scraper.getJson().get("data").get("results")
+scraper = Scraper()
+scraper.set_headers({"Content-Type": "application/json"})
+scraper.get_from_url(url, type="JSON")
 
 company = {"company": "Medicover"}
 finalJobs = list()
 
-#Pentru fiecare job
-for job in jobs:
-    id = uuid.uuid4()
-    job_title = job.get("jobTitle")
-    job_link = "https://medicover.mingle.ro/en/apply/" + job.get("publicUid")
-    city = job.get("locations")
+for job in scraper.markup.get("data").get("results"):
+    job_title = job.get("title")
+    job_link = "https://medicover.mingle.ro/en/apply/" + job.get("uid")
+    cities = [
+        translate_city(city.get("label")) for city in job.get("locations")
+    ] or []
 
-    if city is None:
-        city = "Romania"
-    else:
-        city = city[0].get("name")
+    counties = []
+    for city in cities:
+        county = _counties.get_county(city) or []
+        counties.extend(county)
 
     finalJobs.append({
-        "id": str(id),
         "job_title": job_title,
         "job_link": job_link,
         "company": company.get("company"),
         "country": "Romania",
-        "city": city
+        "city": cities,
+        "county": counties,
     })
 
-#Numarul de joburi gasite
-print(json.dumps(finalJobs, indent=4))
+publish_or_update(finalJobs)
 
-#Incarc joburile in baza de date
-loadingData(finalJobs, company.get("company"))
+logo_url = "https://upload.wikimedia.org/wikipedia/commons/d/d7/Logo-medicover.png"
+publish_logo(company.get("company"), logo_url)
+show_jobs(finalJobs)

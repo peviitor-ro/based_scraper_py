@@ -1,54 +1,56 @@
-from scraper_peviitor import Scraper, Rules, loadingData
+from scraper.Scraper import Scraper
 import json
-from utils import translate_city
-from getCounty import get_county
+from utils import (
+    translate_city,
+    publish_or_update,
+    publish_logo,
+    show_jobs,
+    translate_city,
+)
+from getCounty import GetCounty
 
+_counties = GetCounty()
 url = " https://www.mazarscareers.com/ro/wp-admin/admin-ajax.php?action=get_job_listing_html&searchTerm=&form=contract%3D%26location%3D%26service%3D&amount=-1&location="
 
 company = {"company": "Mazars"}
 finalJobs = list()
 
 scraper = Scraper()
-rules = Rules(scraper)
+scraper.get_from_url(url, "JSON")
 
-scraper.url = url
+html = scraper.markup.get("html")
+scraper.__init__(html, "html.parser")
 
-html = scraper.getJson()
-scraper.soup = html.get("html")
-
-jobs = rules.getTags("article", {"class": "JobResult"})
+jobs = scraper.find_all("article", {"class": "JobResult"})
 
 for job in jobs:
-    job_title = job.find("p", {"class":"job-title"}).text.strip()
+    job_title = job.find("p", {"class": "job-title"}).text.strip()
     job_link = job.find("a").get("href")
     city = [translate_city(job.find_all("p")[1].text.split(":")[1].strip())]
 
     if not city[0]:
         city = ["Bucuresti", "Cluj-Napoca"]
-    
-    counties = [get_county(city) for city in city]
-    
-    finalJobs.append({
-        "job_title": job_title,
-        "job_link": job_link,
-        "country": "Romania",
-        "city": city,
-        "county": counties,
-        "company": company.get("company")
-    })
 
-print(json.dumps(finalJobs, indent=4))
+    counties = []
 
-loadingData(finalJobs, company.get("company"))
+    for c in city:
+        county = _counties.get_county(c) or []
+        counties.extend(county)
+
+    finalJobs.append(
+        {
+            "job_title": job_title,
+            "job_link": job_link,
+            "country": "Romania",
+            "city": city,
+            "county": counties,
+            "company": company.get("company"),
+        }
+    )
+
+publish_or_update(finalJobs)
 
 logoUrl = "https://www.mazarscareers.com/ro/wp-content/themes/mazars-2020/assets/images/mazars-logo.png"
+publish_logo(company.get("company"), logoUrl)
 
-scraper.session.headers.update({
-    "Content-Type": "application/json",
-})
-scraper.post( "https://api.peviitor.ro/v1/logo/add/" ,json.dumps([
-    {
-        "id":company.get("company"),
-        "logo":logoUrl
-    }
-]))
+show_jobs(finalJobs)
