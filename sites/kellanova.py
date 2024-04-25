@@ -1,33 +1,30 @@
-from scraper_peviitor import Scraper, loadingData, Rules
-import json
-from getCounty import get_county, remove_diacritics
+from scraper.Scraper import Scraper
+from utils import publish_or_update, publish_logo, show_jobs, translate_city
+from getCounty import GetCounty, remove_diacritics
+from math import ceil
 
+_counties = GetCounty()
 url = "https://jobs.kellanova.com/search/?createNewAlert=false&q=&locationsearch=Romania&optionsFacetsDD_department=&optionsFacetsDD_country="
 
 company = {"company": "Kellanova"}
 finalJobs = list()
 
-scraper = Scraper(url)
-rules = Rules(scraper)
+scraper = Scraper()
+scraper.get_from_url(url)
 
-totalJobs = int(rules.getTag("span", {"class": "paginationLabel"}).find_all("b")[-1].text.strip())
-paginate = [*range(1, totalJobs, 50)]
+totalJobs = int(scraper.find("span", {"class": "paginationLabel"}).find_all("b")[-1].text.strip())
+paginate = ceil(totalJobs / 50)
 
-for row in paginate:
-    url = url + f"&startrow={row}"
-    scraper.url = url
+jobs = scraper.find("table", {"id": "searchresults"}).find("tbody").find_all("tr")
 
-    jobs = rules.getTag("table", {"id": "searchresults"}).find("tbody").find_all("tr")
+for row in range(paginate):
 
     for job in jobs:
         job_title = job.find("a").text.strip()
         job_link = "https://jobs.kellanova.com" + job.find("a").get("href")
-        city = job.find("span", {"class": "jobLocation"}).text.split(",")[0].strip()
+        city = translate_city(job.find("span", {"class": "jobLocation"}).text.split(",")[0].strip())
 
-        if city == "Bucharest":
-            city = "București"
-
-        county = get_county(city)
+        county = _counties.get_county(city)
 
         finalJobs.append({
             "job_title": job_title,
@@ -38,18 +35,13 @@ for row in paginate:
             "company": company.get("company")
         })
 
-print(json.dumps(finalJobs, indent=4))
+    page_url = url + f"&startrow={row * 50}"
+    scraper.get_from_url(page_url)
+    jobs = scraper.find("table", {"id": "searchresults"}).find("tbody").find_all("tr")
 
-loadingData(finalJobs, company.get("company"))
+publish_or_update(finalJobs)
 
 logoUrl = "https://rmkcdn.successfactors.com/e1d74a18/3cf7a194-92ba-497b-8c9b-a.jpg"
+publish_logo(company.get("company"), logoUrl)
 
-scraper.session.headers.update({
-    "Content-Type": "application/json",
-})
-scraper.post( "https://api.peviitor.ro/v1/logo/add/" ,json.dumps([
-    {
-        "id":company.get("company"),
-        "logo":logoUrl
-    }
-]))
+show_jobs(finalJobs)
