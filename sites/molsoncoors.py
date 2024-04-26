@@ -1,72 +1,62 @@
-from scraper_peviitor import Scraper, loadingData, Rules
-import json
-from utils import translate_city, acurate_city_and_county
-from getCounty import get_county
+from scraper.Scraper import Scraper
+from utils import (
+    translate_city,
+    acurate_city_and_county,
+    publish_or_update,
+    publish_logo,
+    show_jobs,
+)
+from getCounty import GetCounty
+from math import ceil
 
+_counties = GetCounty()
 url = "https://jobs.molsoncoors.com/MolsonCoors_GBSRomania/search/?q=Romania&startrow=1"
 
 company = {"company": "MolsonCoors"}
 finalJobs = list()
 
-scraper = Scraper(url)
-rules = Rules(scraper)
+scraper = Scraper()
+scraper.get_from_url(url)
 
-totalJobs = int(rules.getTag(
-    "span", {"class": "paginationLabel"}).find_all("b")[-1].text.strip())
-
-paginate = [*range(0, totalJobs, 25)]
-
-acurate_city = acurate_city_and_county(
-    Alba={
-        "city": "Alba Iulia",
-        "county": "Alba"
-    }
+totalJobs = int(
+    scraper.find("span", {"class": "paginationLabel"}).find_all("b")[-1].text.strip()
 )
 
-for page in paginate:
-    url = f"https://jobs.molsoncoors.com/MolsonCoors_GBSRomania/search/?q=Romania&startrow={page}"
-    scraper.url = url
+paginate = ceil(totalJobs / 25)
 
-    jobs = rules.getTag("table", {"id": "searchresults"}).find(
-        "tbody").find_all("tr")
+acurate_city = acurate_city_and_county(Alba={"city": "Alba Iulia", "county": "Alba"})
+jobs = scraper.find("table", {"id": "searchresults"}).find("tbody").find_all("tr")
 
+for page in range(0, paginate):
     for job in jobs:
         job_title = job.find("a").text.strip()
         job_link = "https://jobs.molsoncoors.com" + job.find("a").get("href")
-        cities = []
+
+        city = translate_city(job.find("span", {"class": "jobLocation"}).text.split(",")[0].strip())
         counties = []
 
-        for city in job.find("span", {"class": "jobLocation"}).text.split(","):
-            city = translate_city(city.strip())
-            if acurate_city.get(city):
-                cities.append(acurate_city.get(city).get("city"))
-                counties.append(acurate_city.get(city).get("county"))
-            elif get_county(city):
-                cities.append(city)
-                counties.append(get_county(city))
-        if cities and counties:
-            finalJobs.append({
+        if acurate_city.get(city):
+            city = acurate_city.get(city).get("city")
+            counties.append(acurate_city.get(city).get("county"))
+        else:
+            counties.extend(_counties.get_county(city) or [])
+
+        finalJobs.append(
+            {
                 "job_title": job_title,
                 "job_link": job_link,
                 "country": "Romania",
-                "city": cities,
+                "city": city,
                 "county": counties,
-                "company": company.get("company")
-            })
+                "company": company.get("company"),
+            }
+        )
+    url = f"https://jobs.molsoncoors.com/MolsonCoors_GBSRomania/search/?q=Romania&startrow={page + 1 * 25}"
+    scraper.get_from_url(url)
+    jobs = scraper.find("table", {"id": "searchresults"}).find("tbody").find_all("tr")
 
-
-print(json.dumps(finalJobs, indent=4))
-
-loadingData(finalJobs, company.get("company"))
+publish_or_update(finalJobs)
 
 logoUrl = "https://rmkcdn.successfactors.com/e2403c2e/b8073680-5e29-45a9-8c61-4.png"
-
-scraper.session.headers.update({
-    "Content-Type": "application/json",
-})
-scraper.post( "https://api.peviitor.ro/v1/logo/add/" ,json.dumps([
-    {
-        "id":company.get("company"),
-        "logo":logoUrl
-    }
-]))
+publish_logo(company.get("company"), logoUrl)
+show_jobs(finalJobs)

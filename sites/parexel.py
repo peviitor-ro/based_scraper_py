@@ -1,8 +1,8 @@
 from scraper.Scraper import Scraper
-import json
-from utils import translate_city, publish, publish_logo, show_jobs
-from getCounty import get_county
+from utils import publish_or_update, publish_logo, show_jobs
+from getCounty import GetCounty
 
+_counties = GetCounty()
 url = "https://jobs.parexel.com/en/search-jobs/results?ActiveFacetID=0&CurrentPage=1&RecordsPerPage=100&Distance=50&RadiusUnitType=0&Location=Romania&Latitude=46.00000&Longitude=25.00000&ShowRadius=False&IsPagination=False&FacetType=0&SearchResultsModuleName=Search+Results&SearchFiltersModuleName=Search+Filters&SortCriteria=0&SortDirection=0&SearchType=1&LocationType=2&LocationPath=798549&OrganizationIds=877&ResultsType=0"
 
 company = {"company": "Parexel"}
@@ -21,44 +21,17 @@ jobs = scraper.find_all("li")
 for job in jobs:
     job_title = job.find("h2").text
     job_link = "https://jobs.parexel.com" + job.find("a").get("href")
-    cities = []
-    counties = []
-
-    locations = job.find("span", {"class": "job-city"})
-
-    if locations:
-        city = translate_city(locations.text)
-        county = get_county(city)
-        if county:
-            cities.append(city)
-            counties.append(county)
-
-    locations = job.find(
-        "span", {"class": "additional-locations-values"})
-    if locations:
-        locations = locations.text.split(";")
-        for location in locations:
-            city = translate_city(location.split(",")[0].strip())
-            county = get_county(city)
-            if county and county not in counties:
-                cities.append(city)
-                counties.append(get_county(city))
-
-    if not cities and not counties:
-        cities.append("Bucuresti")
-        counties.append("Bucuresti")
 
     finalJobs.append({
         "job_title": job_title,
         "job_link": job_link,
         "country": "Romania",
-        "city": cities,
-        "county": counties,
+        "city": "Bucuresti",
+        "county": "Bucuresti",
         "company": company.get("company")
     })
 
-for version in [1, 4]:
-    publish(version, company.get("company"), finalJobs, 'APIKEY')
+publish_or_update(finalJobs)
     
 logoUrl = "https://www.parexel.com/packages/parexel/themes/parexel/img/logo.svg"
 publish_logo(company.get("company"), logoUrl)

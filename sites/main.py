@@ -4,11 +4,9 @@ import subprocess
 exclude = [
     "__init__.py",
     "main.py",
-    "kaufland.py",
-    "tesla.py",
-    "kellanova.py",
     "cat.py",
     "cososys.py",
+    "nshift.py",
 ]
 path = os.path.dirname(os.path.abspath(__file__))
 

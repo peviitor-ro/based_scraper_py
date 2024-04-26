@@ -1,53 +1,57 @@
-from scraper_peviitor import Scraper, Rules, loadingData
-import uuid
-import json
+from scraper.Scraper import Scraper
+from utils import publish_or_update, publish_logo, translate_city, show_jobs
+from getCounty import GetCounty
 
+_counties = GetCounty()
 url = "https://www.novartis.com/ro-ro/cariere/cauta-un-job?search_api_fulltext=&country%5B0%5D=LOC_RO&early_talent=All&page=0"
 
 company = {"company": "Novartis"}
 finaljobs = list()
 
-scraper = Scraper(url)
-rules = Rules(scraper)
+scraper = Scraper()
+scraper.get_from_url(url)
 
-jobs = rules.getTag("table", {"class": "views-view-table"}).find("tbody").find_all("tr")
+jobs = scraper.find("table", {"class": "views-table"}).find("tbody").find_all("tr")
 page = 0
 
-while len(jobs) > 0:
-    for job in jobs:
-        id = uuid.uuid4()
-        job_title = job.find("a").text.strip()
-        job_link = "https://www.novartis.com" + job.find("a").get("href")
-        city = job.find("td", {"class": "views-field-field-job-work-location"}).text.strip()
-        
-        finaljobs.append({
-            "id": str(id),
-            "job_title": job_title,
-            "job_link": job_link,
-            "company": company.get("company"),
-            "country": "Romania",
-            "city": city
-        })
-
-    page += 1
-    scraper.url = "https://www.novartis.com/ro-ro/cariere/cauta-un-job?search_api_fulltext=&country%5B0%5D=LOC_RO&early_talent=All&page=" + str(page)
+while True:
     try:
-        jobs = rules.getTag("table", {"class": "views-view-table"}).find("tbody").find_all("tr")
+        for job in jobs:
+            job_title = job.find("a").text.strip()
+            job_link = "https://www.novartis.com" + job.find("a").get("href")
+            city = translate_city(
+                job.find(
+                    "td", {"class": "views-field-field-job-work-location"}
+                ).text.strip()
+            )
+            county = _counties.get_county(city)
+
+            finaljobs.append(
+                {
+                    "job_title": job_title,
+                    "job_link": job_link,
+                    "company": company.get("company"),
+                    "country": "Romania",
+                    "city": city,
+                    "county": county,
+                }
+            )
+
+        page += 1
+        scraper.get_from_url(
+            "https://www.novartis.com/ro-ro/cariere/cauta-un-job?search_api_fulltext=&country%5B0%5D=LOC_RO&early_talent=All&page="
+            + str(page)
+        )
+
+        jobs = (
+            scraper.find("table", {"class": "views-table"}).find("tbody").find_all("tr")
+        )
     except:
-        jobs = list()
+        break
 
-print(json.dumps(finaljobs, indent=4))
-
-loadingData(finaljobs, company.get("company"))
+publish_or_update(finaljobs)
 
 logoUrl = "https://www.novartis.com/ro-ro/themes/custom/nvs_arctic/logo.svg"
+publish_logo(company.get("company"), logoUrl)
 
-scraper.session.headers.update({
-    "Content-Type": "application/json",
-})
-scraper.post( "https://api.peviitor.ro/v1/logo/add/" ,json.dumps([
-    {
-        "id":company.get("company"),
-        "logo":logoUrl
-    }
-]))
+show_jobs(finaljobs)
