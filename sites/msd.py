@@ -1,70 +1,67 @@
-from scraper_peviitor import Scraper, loadingData
+from scraper.Scraper import Scraper
 import json
 import re
-from utils import (translate_city)
-from getCounty import get_county
+from utils import translate_city, publish_or_update, publish_logo, show_jobs, create_job
+from getCounty import GetCounty
+from math import ceil
 
-url = " https://jobs.msd.com/gb/en/search-results?qcountry=Romania"  # &from=10
+_counties = GetCounty()
+url = "https://jobs.msd.com/gb/en/search-results?qcountry=Romania"
 
 company = {"company": "MSD"}
 finalJobs = list()
 
 scraper = Scraper()
-response = scraper.session.get(url)
+session = scraper.session()
+response = session.get(url)
 
 pattern = re.compile(r"phApp.ddo = {(.*?)};", re.DOTALL)
 
 data = re.search(pattern, response.text).group(1)
-totalJobs = json.loads(
-    "{" + data + "}").get("eagerLoadRefineSearch").get("totalHits")
+totalJobs = json.loads("{" + data + "}").get("eagerLoadRefineSearch").get("totalHits")
 
-querys = [*range(0, totalJobs, 10)]
+querys = ceil(totalJobs / 10)
 
-for query in querys:
-    url = "https://jobs.msd.com/gb/en/search-results?qcountry=Romania&from=" + \
-        str(query)
-    response = scraper.session.get(url)
-    data = re.search(pattern, response.text).group(1)
-    jobs = json.loads(
-        "{" + data + "}").get("eagerLoadRefineSearch").get("data").get("jobs")
+jobs = json.loads("{" + data + "}").get("eagerLoadRefineSearch").get("data").get("jobs")
 
+for query in range(querys):
     for job in jobs:
         job_title = job.get("title")
         job_link = "https://jobs.msd.com/gb/en/job/" + job.get("jobId")
         city = translate_city(job.get("city"))
-        county = get_county(city)
+        county = _counties.get_county(city)
         remote = []
 
+        job_element = create_job(
+            job_title=job_title,
+            job_link=job_link,
+            company=company.get("company"),
+            country="Romania",
+        )
+
         if not county:
-            finalJobs.append({
-                "job_title": job_title,
-                "job_link": job_link,
-                "company": company.get("company"),
-                "country": "Romania",
-                "remote": "Remote",
-            })
+            job_element["remote"] = "Remote"
         else:
-            finalJobs.append({
-                "job_title": job_title,
-                "job_link": job_link,
-                "company": company.get("company"),
-                "country": "Romania",
-                "city": city,
-                "county": county,
-            })
+            job_element["city"] = city
+            job_element["county"] = county
 
-print(json.dumps(finalJobs, indent=4))
+        finalJobs.append(job_element)
 
-loadingData(finalJobs, company.get("company"))
+    url = "https://jobs.msd.com/gb/en/search-results?qcountry=Romania&from=" + str(
+        query + 1 * 10
+    )
+    response = session.get(url)
+    data = re.search(pattern, response.text).group(1)
+    jobs = (
+        json.loads("{" + data + "}")
+        .get("eagerLoadRefineSearch")
+        .get("data")
+        .get("jobs")
+    )
+
+publish_or_update(finalJobs)
 
 logoUrl = "https://www.msdmanuals.com/Content/Images/msd_foot_logo.png"
+publish_logo(company.get("company"), logoUrl)
 
-scraper.session.headers.update({
-    "Content-Type": "application/json",
-})
-scraper.post( "https://api.peviitor.ro/v1/logo/add/" ,json.dumps([
-    {
-        "id":company.get("company"),
-        "logo":logoUrl
-    }
-]))
+show_jobs(finalJobs)
