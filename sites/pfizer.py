@@ -1,41 +1,39 @@
-from scraper_peviitor import Scraper, loadingData
+from scraper.Scraper import Scraper
+from utils import translate_city, publish_logo, publish_or_update, show_jobs
+from getCounty import GetCounty
 import json
-from utils import translate_city
-from getCounty import get_county
+from math import ceil
 
+_counties = GetCounty()
 apiUrl = "https://pfizer.wd1.myworkdayjobs.com/wday/cxs/pfizer/PfizerCareers/jobs"
 scraper = Scraper()
-#Cream un header pentru a putea face request-uri POST
+
 headers = {
     "Accept": "application/json",
     "Content-Type": "application/json",
 }
 
-#Cream un dictionar cu datele pe care dorim sa le trimitem catre server
 data = {"appliedFacets":{},"limit":20,"offset":0,"searchText":"Romania"}
 
-#Actualizam header-ul cu datele de mai sus
-scraper.session.headers.update(headers)
+scraper.set_headers(headers)
 
-#Facem request-ul POST si salvam numarul total de joburi
-numberOfJobs = scraper.post(apiUrl, json=data).json().get("total")
+numberOfJobs = scraper.post(apiUrl, json.dumps(data)).json().get("total")
 
-#Cream o lista cu numerele de la 0 la numarul total de joburi, cu pasul de 20
-iteration = [i for i in range(0, numberOfJobs, 20)]
+iteration = ceil(numberOfJobs/20)
 
 company = {"company": "Pfizer"}
 finaljobs = list()
 
-#Pentru fiecare numar din lista, extragem joburile
-for num in iteration:
-    data["offset"] = num
-    jobs = scraper.post(apiUrl, json=data).json().get("jobPostings")
+for num in range(iteration):
+    data["offset"] = num * 20
+    jobs = scraper.post(apiUrl, json.dumps(data)).json().get("jobPostings")
+
     for job in jobs:
-       
+
         job_title = job.get("title")
         job_link = "https://pfizer.wd1.myworkdayjobs.com/en-US/PfizerCareers" + job.get("externalPath")
         city = translate_city(job.get("locationsText").split("-")[-1].strip())
-        county = get_county(city)
+        county = _counties.get_county(city)
 
         finaljobs.append({
             "job_title": job_title,
@@ -46,8 +44,10 @@ for num in iteration:
             "county": county
         })
 
-#afisam numarul total de joburi gasite
-print(json.dumps(finaljobs, indent=4))
+publish_or_update(finaljobs)
 
-#se incarca datele in baza de date
-loadingData(finaljobs, company.get("company"))
+logo_url = (
+    "https://helix-core-components.digitalpfizer.com/static/logo/pfizer-logo-color.svg"
+)
+publish_logo(company.get("company"), logo_url)
+show_jobs(finaljobs)
