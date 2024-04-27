@@ -1,17 +1,16 @@
-import requests
-import json
-from bs4 import BeautifulSoup
-from utils import *
+from scraper.Scraper import Scraper
+from utils import show_jobs, publish_or_update, publish_logo
+
 
 url = 'https://quantrabbit.com/blog/'
 company = 'QUANTRABBIT'
 
 final_jobs = []
 
-r = requests.get(url)
-soup = BeautifulSoup(r.text, 'html.parser')
+scraper = Scraper()
+scraper.get_from_url(url)
 
-job_elements = soup.find_all('h2', class_='entry-title')
+job_elements = scraper.find_all('h2', class_='entry-title')
 
 for job in job_elements:
     job_title = job.text.strip()
@@ -28,9 +27,7 @@ for job in job_elements:
         }
     )
 
-for version in [1, 4]:
-    publish(version, company, final_jobs, 'Grasum_Key')
+publish_or_update(final_jobs)
 
 publish_logo(company, 'https://quantrabbit.com/wp-content/uploads/2017/09/cropped-Quant-Rabbit-Logo-Final-2.png')
-
-print(json.dumps(final_jobs, indent=4))
+show_jobs(final_jobs)
