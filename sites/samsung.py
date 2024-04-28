@@ -1,35 +1,32 @@
-from scraper_peviitor import Scraper, loadingData
+from scraper.Scraper import Scraper
+from utils import show_jobs, publish_or_update, publish_logo, translate_city
+from getCounty import GetCounty
+from math import ceil
 import json
-from utils import translate_city
-from getCounty import get_county
 
+_counties = GetCounty()
 apiUrl = "https://sec.wd3.myworkdayjobs.com/wday/cxs/sec/Samsung_Careers/jobs"
 scraper = Scraper()
-# Cream un header pentru a putea face request-uri POST
+
 headers = {
     "Accept": "application/json",
     "Content-Type": "application/json",
 }
 
-# Cream un dictionar cu datele pe care dorim sa le trimitem catre server
 data = {"appliedFacets": {}, "limit": 20, "offset": 0, "searchText": "Romania"}
 
-# Actualizam header-ul cu datele de mai sus
-scraper.session.headers.update(headers)
+scraper.set_headers(headers)
 
-# Facem request-ul POST si salvam numarul total de joburi
-numberOfJobs = scraper.post(apiUrl, json=data).json().get("total")
+numberOfJobs = scraper.post(apiUrl, json.dumps(data)).json().get("total")
 
-# Cream o lista cu numerele de la 0 la numarul total de joburi, cu pasul de 20
-iteration = [i for i in range(0, numberOfJobs, 20)]
+iteration = ceil(numberOfJobs / 20)
 
 company = {"company": "Samsung"}
 finaljobs = list()
 
-# Pentru fiecare numar din lista, extragem joburile
-for num in iteration:
-    data["offset"] = num
-    jobs = scraper.post(apiUrl, json=data).json().get("jobPostings")
+for num in range(iteration):
+    data["offset"] = num * 20
+    jobs = scraper.post(apiUrl, json.dumps(data)).json().get("jobPostings")
     for job in jobs:
         try:
             job_title = job.get("title")
@@ -39,7 +36,7 @@ for num in iteration:
                 job.get("locationsText").split(",")[1].split(" ")[1]
             )
 
-            county = get_county(city)
+            county = _counties.get_county(city)
             remote = job.get("remoteType")
 
             if county:
@@ -55,8 +52,8 @@ for num in iteration:
         except:
             pass
 
-# #afisam numarul total de joburi gasite
-print(json.dumps(finaljobs, indent=4))
+publish_or_update(finaljobs)
 
-# #se incarca datele in baza de date
-loadingData(finaljobs, company.get("company"))
+logo_url = "https://sec.wd3.myworkdayjobs.com/Samsung_Careers/assets/logo"
+publish_logo(company.get("company"), logo_url)
+show_jobs(finaljobs)

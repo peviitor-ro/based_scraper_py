@@ -1,47 +1,41 @@
-from scraper_peviitor import Scraper, loadingData
-import uuid
-import json
+from scraper.Scraper import Scraper
+from utils import show_jobs, publish_or_update, publish_logo, translate_city
+from getCounty import GetCounty, remove_diacritics
 import re
+import json
 
+_counties = GetCounty()   
 url = "https://www.randstad.ro/locuri-de-munca/lucreaza-la-randstad/"
 
 company = {"company": "Randstad"}
 finalJobs = list()
 
-scraper = Scraper(url)
+scraper = Scraper()
+session = scraper.session()
+response = session.get(url)
 
 pattern = re.compile(r"const data = {(.*?)};", re.DOTALL)
 
-data = re.search(pattern, scraper.soup.prettify()).group(1)
+data = re.search(pattern, response.text).group(1)
 jobs = json.loads("{" + data + "}").get("ecommerce").get("impressions")
 
 for job in jobs:
-    id = uuid.uuid4()
     job_title = job.get("job_title")
     job_link = "https://www.randstad.ro" + job.get("url")
-    city = job.get("city")
-    
+    city = translate_city(remove_diacritics(job.get("city")))
+    county = _counties.get_county(city) or []
+
     finalJobs.append({
-        "id": str(id),
         "job_title": job_title,
         "job_link": job_link,
         "company": company.get("company"),
         "country": "Romania",
-        "city": city
+        "city": city,
+        "county": county
     })
 
-print(json.dumps(finalJobs, indent=4))
-
-loadingData(finalJobs, company.get("company"))
+publish_or_update(finalJobs)
 
 logoUrl = "https://upload.wikimedia.org/wikipedia/commons/1/10/Randstad_Logo.svg"
-
-scraper.session.headers.update({
-    "Content-Type": "application/json",
-})
-scraper.post( "https://api.peviitor.ro/v1/logo/add/" ,json.dumps([
-    {
-        "id":company.get("company"),
-        "logo":logoUrl
-    }
-]))
+publish_logo(company.get("company"), logoUrl)
+show_jobs(finalJobs)

@@ -1,35 +1,33 @@
 # TODO: De verificat cand sunt joburi noi
 
-from scraper_peviitor import Scraper, Rules, loadingData
-import json
-from utils import translate_city, acurate_city_and_county
-from getCounty import get_county
+from scraper.Scraper import Scraper
+from utils import (
+    translate_city,
+    acurate_city_and_county,
+    publish_or_update,
+    publish_logo,
+    show_jobs,
+)
+from getCounty import GetCounty
 
-# Cream o instanta de tip Scraper
-scraper = Scraper(
-    "https://cariere.romstal.ro/search/?createNewAlert=false&q=&locationsearch=&optionsFacetsDD_location=&optionsFacetsDD_department=")
-rules = Rules(scraper)
+_counties = GetCounty()
+url = "https://cariere.romstal.ro/search/?createNewAlert=false&q=&locationsearch=&optionsFacetsDD_location=&optionsFacetsDD_department="
+scraper = Scraper()
+scraper.get_from_url(url)
 
-# Luam toate joburile
-jobs = rules.getTags('li', {'class': 'job-tile'})
+jobs = scraper.find_all("li", {"class": "job-tile"})
 
 company = {"company": "Romstal"}
 finalJobs = list()
 
-acurate_city = acurate_city_and_county(
-    Iasi={
-        "city": "Iasi",
-        "county": "Iasi"
-    }
-)
+acurate_city = acurate_city_and_county(Iasi={"city": "Iasi", "county": "Iasi"})
 
-# Pentru fiecare job luam titlul, linkul, compania, tara si orasul
 for job in jobs:
-    job_title = job.find('a', {"class": "jobTitle-link"}).text.strip()
-    job_link = "https://cariere.romstal.ro" + \
-        job.find('a', {"class": "jobTitle-link"})['href']
-    city = job.find('div', {"class": "location"}).find(
-        'div').text.split(',')[0].strip()
+    job_title = job.find("a", {"class": "jobTitle-link"}).text.strip()
+    job_link = (
+        "https://cariere.romstal.ro" + job.find("a", {"class": "jobTitle-link"})["href"]
+    )
+    city = job.find("div", {"class": "location"}).find("div").text.split(",")[0].strip()
 
     if "SECTOR" in city:
         city = "Bucuresti"
@@ -39,19 +37,22 @@ for job in jobs:
     if acurate_city.get(city):
         county = acurate_city.get(city).get("county")
     else:
-        county = get_county(city)
+        county = _counties.get_county(city)
 
-    finalJobs.append({
-        "job_title": job_title,
-        "job_link": job_link,
-        "company": company.get("company"),
-        "country": "Romania",
-        "city": city,
-        "county": county
-    })
+    finalJobs.append(
+        {
+            "job_title": job_title,
+            "job_link": job_link,
+            "company": company.get("company"),
+            "country": "Romania",
+            "city": city,
+            "county": county,
+        }
+    )
 
-# Afisam numarul de joburi
-print(json.dumps(finalJobs, indent=4))
+publish_or_update(finalJobs)
 
-# Incarcam datele in baza de date
-loadingData(finalJobs, company.get("company"))
+logo_url = "https://rmkcdn.successfactors.com/129e1186/1bb86fb4-a088-4fcc-b390-5.png"
+publish_logo(company.get("company"), logo_url)
+
+show_jobs(finalJobs)

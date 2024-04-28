@@ -1,48 +1,49 @@
-from scraper_peviitor import Scraper, Rules, loadingData
-import uuid
-import json
+from scraper.Scraper import Scraper
+from utils import show_jobs, publish_or_update, publish_logo, translate_city
+from getCounty import GetCounty, remove_diacritics
+from math import ceil
 
-#Cream o instanta a clasei Scraper
+_counties = GetCounty()
 url = "https://careers.rompetrol.com/search/?q=&locationsearch=Romania"
 scraper = Scraper(url)
-rules = Rules(scraper)
+scraper.get_from_url(url)
 
-#Obtinem numarul total de joburi
-jobs = int(rules.getTag("span", {"class": "paginationLabel"}).find_all("b")[1].text)
+jobs = int(scraper.find("span", {"class": "paginationLabel"}).find_all("b")[1].text)
 
-#Cream o lista cu toate query-urile
-queryList = [*range(0, jobs, 25)]
+queryList = ceil(jobs / 25)
 
 company = {"company": "Rompetrol"}
 finaljobs = list()
 
-#Iteram prin fiecare query
-for query in queryList:
-    #Setam url-ul paginii curente
-    url = "https://careers.rompetrol.com/search/?q=&locationsearch=Romania&startrow=" + str(query)
-    scraper.url = url
+for query in range(queryList):
+    url = (
+        "https://careers.rompetrol.com/search/?q=&locationsearch=Romania&startrow="
+        + str(query * 25)
+    )
+    scraper.get_from_url(url)
 
-    #Luam toate joburile de pe pagina curenta
-    jobs = rules.getTags("tr", {"class": "data-row"})
+    jobs = scraper.find_all("tr", {"class": "data-row"})
 
-    #Iteram prin fiecare job
     for job in jobs:
-        id = uuid.uuid4()
         job_title = job.find("a").text
         job_link = "https://careers.rompetrol.com" + job.find("a")["href"]
-        city = job.find("span", {"class": "jobLocation"}).text.split(",")[0].strip()
+        city = translate_city(
+            job.find("span", {"class": "jobLocation"}).text.split(",")[0].strip()
+        )
+        county = _counties.get_county(city) or []
 
-        finaljobs.append({
-            "id": str(id),
-            "job_title": job_title,
-            "job_link": job_link,
-            "company": company.get("company"),
-            "country": "Romania",
-            "city": city
-        })
+        finaljobs.append(
+            {
+                "job_title": job_title,
+                "job_link": job_link,
+                "company": company.get("company"),
+                "country": "Romania",
+                "city": city,
+                "county": county,
+            }
+        )
+publish_or_update(finaljobs)
 
-#Afisam numarul total de joburi
-print(json.dumps(finaljobs, indent=4))
-
-#Incarcam datele in baza de date
-loadingData(finaljobs, company.get("company"))
+logo_url = "https://www.rompetrol.com/upload/photos/rompetrol_2961.png"
+publish_logo(company.get("company"), logo_url)
+show_jobs(finaljobs)
