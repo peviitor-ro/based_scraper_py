@@ -1,5 +1,5 @@
 from scraper.Scraper import Scraper
-from utils import publish, publish_logo, show_jobs
+from utils import publish_or_update, publish_logo, show_jobs
 
 company = "stratpharma"
 url = "https://jobs.workable.com/api/v1/companies/kRMJQQdcEfWFqoT2heypL5"
@@ -21,7 +21,7 @@ jobs = [
     if job["location"]["countryName"] == "Romania"
 ]
 
-publish(4, company, jobs, "APIKEY")
+publish_or_update(jobs)
 
 publish_logo(
     company,

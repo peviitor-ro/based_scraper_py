@@ -1,75 +1,63 @@
-from scraper_peviitor import Scraper, Rules, loadingData
-import json
-from utils import translate_city
+from scraper.Scraper import Scraper
+from utils import show_jobs, publish_or_update, publish_logo, translate_city
+from getCounty import GetCounty
+from math import ceil
 
+_counties = GetCounty()
 url = "https://jobs.siemens-energy.com/en_US/jobs/Jobs/?29454=964547&29454_format=11381&listFilterMode=1&folderRecordsPerPage=20&folderOffset=0"
 
 company = {"company": "SiemensEnergy"}
 finalJobs = list()
 
-scraper = Scraper(url)
-rules = Rules(scraper)
+scraper = Scraper()
+scraper.get_from_url(url)
 
-totalJobs = int(rules.getTag("div", {
-                "class": "list-controls__text__legend"}).text.split("of")[1].replace("results", "").strip())
+totalJobs = int(
+    scraper.find("div", {"class": "list-controls__text__legend"})
+    .text.split("of")[1]
+    .replace("results", "")
+    .strip()
+)
 
-pages = [*range(0, totalJobs, 20)]
+pages = ceil(totalJobs / 20)
 
-for page in pages:
-    url = "https://jobs.siemens-energy.com/en_US/jobs/Jobs/?29454=964547&29454_format=11381&listFilterMode=1&folderRecordsPerPage=20&folderOffset=" + \
-        str(page)
-    scraper.url = url
+for page in range(pages):
+    url = (
+        "https://jobs.siemens-energy.com/en_US/jobs/Jobs/?29454=964547&29454_format=11381&listFilterMode=1&folderRecordsPerPage=20&folderOffset="
+        + str(page * 20)
+    )
+    scraper.get_from_url(url)
 
-    jobs = rules.getTags("details", {"class": "article--result--container"})
+    jobs = scraper.find_all("details", {"class": "article--result--container"})
 
     for job in jobs:
-        job_title = job.find(
-            "div", {"class": "article__header__text"}).find("a").text.strip()
-        job_link = job.find(
-            "div", {"class": "article__header__text"}).find("a")["href"]
-        locations = job.find("div", {"class": "article__content"}).find(
-            "p").text.split(",")
-
+        locations = (
+            job.find("div", {"class": "article__content"}).find("p").text.split(",")
+        )
         country = locations[0].split(":")[-1].strip()
-        city = translate_city(locations[2].strip())
-        county = translate_city(locations[1].strip())
-
-        job = {
-            "job_title": job_title,
-            "job_link": job_link,
-            "company": company.get("company"),
-        }
-
-        
         if len(country.split("|")) == 1 and country.split("|")[0].strip() == "Romania":
-            job["country"] = "Romania"
-            job["city"] = translate_city(
-                city.split("|")[0].strip()
+            job_title = (
+                job.find("div", {"class": "article__header__text"}).find("a").text.strip()
             )
-            job["county"] = county
+            job_link = job.find("div", {"class": "article__header__text"}).find("a")["href"]
+
+            city = translate_city(locations[2].strip())
+            county = _counties.get_county(city) or []
+
+            job = {
+                "job_title": job_title,
+                "job_link": job_link,
+                "company": company.get("company"),
+                "country": "Romania",
+                "city": city,
+                "county": county,
+            }
 
             finalJobs.append(job)
 
-        elif country.split("|")[-1].strip() != "Romania":
-            job["country"] = country.split("|")[-1].strip()
-            job["city"] = city.split("|")[0].strip()
-            job["county"] = county
-
-            finalJobs.append(job)
-
-
-print(json.dumps(finalJobs, indent=4))
-
-loadingData(finalJobs, company.get("company"))
+publish_or_update(finalJobs)
 
 logoUrl = "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f2/Siemens_Energy_logo.svg/799px-Siemens_Energy_logo.svg.png?20200823090225"
+publish_logo(company.get("company"), logoUrl)
 
-scraper.session.headers.update({
-    "Content-Type": "application/json",
-})
-scraper.post("https://api.peviitor.ro/v1/logo/add/", json.dumps([
-    {
-        "id": company.get("company"),
-        "logo": logoUrl
-    }
-]))
+show_jobs(finalJobs)

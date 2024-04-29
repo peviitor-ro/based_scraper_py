@@ -1,14 +1,14 @@
 from scraper.Scraper import Scraper
 from utils import (
-    publish,
+    publish_or_update,
     publish_logo,
     create_job,
     show_jobs,
     translate_city
 )
-from getCounty import get_county, remove_diacritics
+from getCounty import GetCounty, remove_diacritics
 
-
+_counties = GetCounty()
 def remove_umlaut(string):
     """
     Removes umlauts from strings and replaces them with the letter+e convention
@@ -43,7 +43,7 @@ for job in jobs_elements:
     )
     job_link = "https://jobs.svn.ro" + job.find("a")["href"]
     city = translate_city(job.find("ul").find_all("li")[-1].text).replace("È", "s")
-    county = get_county(city)
+    county = _counties.get_county(city)
 
     jobs.append(
         create_job(
@@ -57,7 +57,7 @@ for job in jobs_elements:
     )
 
 
-publish(4, company, jobs, "APIKEY")
+publish_or_update(jobs)
 
 publish_logo(company, "https://www.svn.ro/assets/images/logo/3.png")
 show_jobs(jobs)
