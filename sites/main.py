@@ -7,6 +7,9 @@ exclude = [
     "cat.py",
     "cososys.py",
     "nshift.py",
+    "stratpharma.py",
+    "uipath.py",
+    "uplift.py",
 ]
 path = os.path.dirname(os.path.abspath(__file__))
 

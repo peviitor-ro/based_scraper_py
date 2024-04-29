@@ -1,5 +1,5 @@
 import requests
-from utils import publish, publish_logo, show_jobs
+from utils import publish_or_update, publish_logo, show_jobs
 
 apiurl = "https://cariere.solo.ro/api/jobs/"
 company = "SOLO"
@@ -11,6 +11,7 @@ jobs = []
 for job in raw_jobs:
     title = job["Title"]
     city = "Bucuresti"
+    county = "Bucuresti"
     country = "Romania"
     job_link = f"https://cariere.solo.ro/job/{job['Slug']}"
 
@@ -19,12 +20,11 @@ for job in raw_jobs:
         "job_link": job_link,
         "company": company,
         "country": country,
-        "county": "Bucuresti",
-        "city": city
+        "city": city,
+        "county": county
     })
 
-for v in [1, 4]:
-    publish(v, company, jobs, "MSCDAVID")
+publish_or_update(jobs)
 
 publish_logo(company, logo)
 show_jobs(jobs)
