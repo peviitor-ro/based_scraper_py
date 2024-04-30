@@ -1,5 +1,5 @@
 from scraper.Scraper import Scraper
-from utils import publish, publish_logo, show_jobs
+from utils import publish_or_update, publish_logo, show_jobs
 
 url = "https://jobs.telusinternational.com/en_US/careers/Romania?source=TI+website&amp%3Btags=telus_main_website&listFilterMode=1&2947=5170&2947_format=4626"
 
@@ -23,7 +23,7 @@ finalJobs = [
 ]
 
 
-publish(4, company, finalJobs, "APIKEY")
+publish_or_update(finalJobs)
 publish_logo(
     company,
     "https://jobs.telusinternational.com/portal/11/images/logo_telus-international_header-v2.svg",

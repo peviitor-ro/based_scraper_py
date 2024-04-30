@@ -1,7 +1,8 @@
-from scraper_peviitor import Scraper
-from utils import show_jobs, translate_city, publish, publish_logo
-from getCounty import get_county
+from scraper.Scraper import Scraper
+from utils import show_jobs, translate_city, publish_or_update, publish_logo
+from getCounty import GetCounty
 
+_counties = GetCounty()
 apiUrl = "https://careers.uipath.com/api/jobs?location=romania&stretch=50&stretchUnit=MILES&page=1&limit=100&country=Romania&sortBy=relevance&descending=false&internal=false"
 
 scraper = Scraper(apiUrl)
@@ -17,14 +18,16 @@ for job in jobs:
     job_title = job.get("title")
     job_link = job.get("meta_data").get("canonical_url")
     city = translate_city(job.get("city"))
-    county = get_county(city)
+    county = _counties.get_county(city) or []
     if not county:
 
         city = [
             translate_city(location.get("city"))
             for location in job.get("additional_locations")
         ]
-        county = [get_county(city) for city in city]
+        county = []
+        for city in city:
+            county.extend(_counties.get_county(city) or [])
     remote = []
 
     if job.get("location_type") == "ANY":
@@ -42,8 +45,7 @@ for job in jobs:
         }
     )
 
-
-publish(4, company.get("company"), finalJobs, "APIKEY")
+publish_or_update(finalJobs)
 
 publish_logo(
     company.get("company"),
