@@ -1,7 +1,8 @@
 from scraper.Scraper import Scraper
-from utils import show_jobs, publish, publish_logo, translate_city
-from getCounty import get_county
+from utils import show_jobs, publish_or_update, publish_logo, translate_city
+from getCounty import GetCounty
 
+_counties = GetCounty()
 company = "vivadotcom"
 url = "https://jobs.workable.com/api/v1/companies/qyz2RtURJuCaXrFz4yDvNc"
 
@@ -20,7 +21,7 @@ while scraper.markup.get("nextPageToken"):
 
         if job["location"]["countryName"] == "Romania":
             city = translate_city(job["location"]["city"])
-            county = get_county(city)
+            county = _counties.get_county(city)
 
             final_jobs.append(
                 {
@@ -38,7 +39,7 @@ while scraper.markup.get("nextPageToken"):
     )
     jobs = scraper.markup.get("jobs")
 
-publish(4, company, final_jobs, "APIKEY")
+publish_or_update(final_jobs)
 
 logourl = "https://workablehr.s3.amazonaws.com/uploads/account/logo/3676/logo"
 publish_logo(company, logourl)
