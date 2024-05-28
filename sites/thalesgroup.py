@@ -1,7 +1,10 @@
-from scraper_peviitor import Scraper
-from utils import publish, publish_logo, show_jobs, translate_city
-from getCounty import get_county
+from scraper.Scraper import Scraper
+from utils import publish_or_update, publish_logo, show_jobs, translate_city
+from getCounty import GetCounty
+import json
+from math import ceil
 
+_counties = GetCounty()
 apiUrl = "https://thales.wd3.myworkdayjobs.com/wday/cxs/thales/Careers/jobs"
 
 company = {"company": "ThalesGroup"}
@@ -21,22 +24,22 @@ data = {
     "searchText": "",
 }
 
-scraper.session.headers.update(headers)
+scraper.set_headers(headers)
 
-numberOfJobs = scraper.post(apiUrl, json=data).json().get("total")
+numberOfJobs = scraper.post(apiUrl, json.dumps(data)).json().get("total")
 
-iteration = [i for i in range(0, numberOfJobs, 20)]
+iteration = ceil(numberOfJobs / 20)
 
-for num in iteration:
-    data["offset"] = num
-    jobs = scraper.post(apiUrl, json=data).json().get("jobPostings")
+for num in range(iteration):
+    data["offset"] = num * 20
+    jobs = scraper.post(apiUrl, json.dumps(data)).json().get("jobPostings")
     for job in jobs:
         job_title = job.get("title")
         job_link = "https://thales.wd3.myworkdayjobs.com/en-US/Careers" + job.get(
             "externalPath"
         )
         city = translate_city(job.get("locationsText").split(",")[0])
-        county = get_county(city)
+        county = _counties.get_county(city)
 
         finalJobs.append(
             {
@@ -49,7 +52,7 @@ for num in iteration:
             }
         )
 
-publish(4, company.get("company"), finalJobs, "APIKEY")
+publish_or_update(finalJobs)
 
 logoUrl = "https://upload.wikimedia.org/wikipedia/commons/thumb/2/21/Thales_Logo.svg/484px-Thales_Logo.svg.png?20210518101610"
 publish_logo(company.get("company"), logoUrl)

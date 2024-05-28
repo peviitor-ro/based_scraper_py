@@ -1,5 +1,5 @@
 from scraper.Scraper import Scraper
-from utils import publish, publish_logo, show_jobs, get_jobtype
+from utils import publish_or_update, publish_logo, show_jobs, get_jobtype
 
 url = "https://tremend.com/careers/"
 company = "tremend"
@@ -32,7 +32,7 @@ for job in job_elements:
             }
         )
 
-publish(4, company, final_jobs, "Grasum_Key")
+publish_or_update(final_jobs)
 
 publish_logo(
     company,

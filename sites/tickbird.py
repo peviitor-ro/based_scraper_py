@@ -1,5 +1,5 @@
 import requests
-from utils import publish, publish_logo, show_jobs
+from utils import publish_or_update, publish_logo, show_jobs
 
 url = "https://join-us.tickbird.com/recruit/v2/public/Job_Openings?pagename=Careers&source=CareerSite&extra_fields=%5B%22State%22,%22Salary%22,%22Industry%22%5D"
 company = "TICKBIRD"
@@ -35,7 +35,7 @@ for job in data["data"]:
         }
     )
 
-publish(4, company, final_jobs, "Grasum_Key")
+publish_or_update(final_jobs)
 
 publish_logo(company, "https://tickbird.com/assets/images/logo/tickbird-logo.svg")
 

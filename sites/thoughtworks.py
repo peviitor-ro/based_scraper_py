@@ -3,12 +3,13 @@ from utils import (
     translate_city,
     acurate_city_and_county,
     create_job,
-    publish,
+    publish_or_update,
     publish_logo,
     show_jobs,
 )
-from getCounty import get_county
+from getCounty import GetCounty
 
+_counties = GetCounty()
 url = "https://www.thoughtworks.com/rest/careers/jobs"
 
 company = {"company": "ThoughtWorks"}
@@ -45,11 +46,11 @@ for job in jobs:
             job["county"] = acurate_city.get(city).get("county")
         else:
             job["city"] = city
-            job["county"] = get_county(city)
+            job["county"] = _counties.get_county(city)
 
         finalJobs.append(job)
 
-publish(4, company.get("company"), finalJobs, "APIKEY")
+publish_or_update(finalJobs)
 
 logoUrl = "https://www.thoughtworks.com/etc.clientlibs/thoughtworks/clientlibs/clientlib-site/resources/images/thoughtworks-logo.svg"
 publish_logo(company.get("company"), logoUrl)

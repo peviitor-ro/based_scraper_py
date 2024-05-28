@@ -1,15 +1,16 @@
 from scraper.Scraper import Scraper
 from utils import (
     translate_city,
-    publish,
+    publish_or_update,
     publish_logo,
     show_jobs,
     acurate_city_and_county,
 )
-from getCounty import get_county, remove_diacritics
+from getCounty import GetCounty, remove_diacritics
 
+_counties = GetCounty()
 acurate_city = acurate_city_and_county(
-    Iasi={"city": "Iasi", "county": "Iasi"}, Ilfov={"city": "All", "county": "Ilfov"}
+    Iasi={"city": "Iasi", "county": ["Iasi"]}, Ilfov={"city": "All", "county": ["Ilfov"]}
 )
 
 
@@ -22,13 +23,13 @@ def get_aditional_city(url):
     ].split(",")
 
     cities = []
-    counties = set()
+    counties = []
 
     for location in locations:
         city = (
             translate_city(remove_diacritics(location.strip()))
             if acurate_city.get(remove_diacritics(location.strip()))
-            or get_county(location.strip())
+            or _counties.get_county(location.strip())
             else None
         )
 
@@ -37,10 +38,10 @@ def get_aditional_city(url):
                 county = acurate_city.get(city)["county"]
                 city = acurate_city.get(city)["city"]
             else:
-                county = get_county(city)
+                county = _counties.get_county(city)
 
             cities.append(city)
-            counties.add(county)
+            counties.extend(county)
 
     return cities, counties
 
@@ -62,20 +63,20 @@ while jobs:
         job_url = job.find("h2", class_="JCContentMiddle__Title").find("a")["href"]
         job_url = "https://www.ejobs.ro" + job_url
         locations = (
-            job.find("span", class_="JCContentMiddle__Info").text.strip().split(",")
+            job.find("div", class_="JCContentMiddle__Info").text.strip().split(",")
         )
 
         if "și alte" in locations[-1]:
             cities, counties = get_aditional_city(job_url)
         else:
             cities = []
-            counties = set()
+            counties = []
 
             for location in locations:
                 city = (
                     translate_city(remove_diacritics(location.strip()))
                     if acurate_city.get(remove_diacritics(location.strip()))
-                    or get_county(location.strip())
+                    or _counties.get_county(location.strip())
                     else None
                 )
 
@@ -84,21 +85,17 @@ while jobs:
                         county = acurate_city.get(city)["county"]
                         city = acurate_city.get(city)["city"]
                     else:
-                        county = get_county(city)
-
-                    if not county:
-                        city = city.replace(" ", "-")
-                        county = get_county(city)
+                        county = _counties.get_county(city)
 
                     cities.append(city)
-                    counties.add(county)
+                    counties.extend(county)
 
         final_jobs.append(
             {
                 "job_title": job_title,
                 "job_link": job_url,
                 "city": cities,
-                "county": list(counties),
+                "county": counties,
                 "company": company,
                 "country": "Romania",
             }
@@ -110,8 +107,7 @@ while jobs:
         "div", class_="JobCard"
     )
 
-publish(4, company, final_jobs, "Grasum_Key")
+publish_or_update(final_jobs)
 
 publish_logo(company, "https://content.ejobs.ro/img/logos/1/161798.png")
-
 show_jobs(final_jobs)

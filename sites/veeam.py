@@ -1,8 +1,9 @@
 from scraper.Scraper import Scraper
-from utils import publish, publish_logo, create_job, show_jobs, translate_city
-from getCounty import get_county
+from utils import publish_or_update, publish_logo, create_job, show_jobs, translate_city
+from getCounty import GetCounty
 from urllib.parse import quote
 
+_counties = GetCounty()
 url = "https://careers.veeam.com/api/vacancy"
 
 company = "Veeam"
@@ -21,8 +22,13 @@ for job in jobs_elements:
         for location in job["location"]
         if location["country"] == "Romania"
     ]
-    counties = [get_county(city) for city in cities]
-    if cities and counties:
+    counties = []
+
+    for city in cities:
+        county = _counties.get_county(city) or []
+        counties.extend(county)
+
+    if cities:
 
         jobObj = create_job(
             job_title=job_title,
@@ -35,8 +41,7 @@ for job in jobs_elements:
 
         jobs.append(jobObj)
 
-
-publish(4, company, jobs, "APIKEY")
+publish_or_update(jobs)
 
 publish_logo(company, "https://img.veeam.com/careers/logo/veeam/veeam_logo_bg.svg")
 show_jobs(jobs)

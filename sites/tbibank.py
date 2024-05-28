@@ -1,8 +1,9 @@
 from scraper.Scraper import Scraper
 import json
-from utils import show_jobs, translate_city, publish, publish_logo
-from getCounty import get_county
+from utils import show_jobs, translate_city, publish_or_update, publish_logo
+from getCounty import GetCounty
 
+_counties = GetCounty()
 url = "https://tbibank.ro/cariere/"
 
 scraper = Scraper()
@@ -32,7 +33,11 @@ for job in jobs:
 
     if country == "Romania":
         translated_cities = [translate_city(city.strip()) for city in cities]
-        counties = [get_county(city) for city in translated_cities]
+        counties = []
+
+        for city in translated_cities:
+            county = _counties.get_county(city) or []
+            counties.extend(county)
 
         job_obj["city"] = translated_cities
         job_obj["county"] = counties
@@ -42,7 +47,7 @@ for job in jobs:
     finalJobs.append(job_obj)
 
 
-publish(4, company, finalJobs, "APIKEY")
+publish_or_update(finalJobs)
 
 logoUrl = "https://tbibank.ro/wp-content/themes/Avada-child-bg/assets/images/tbi-layout/logo/new-logo.svg"
 publish_logo(company, logoUrl)

@@ -1,5 +1,5 @@
 from scraper_peviitor import Scraper
-from utils import translate_city, publish_logo, show_jobs, publish_or_update
+from utils import translate_city, publish_logo, show_jobs, publish_or_update, get_jobtype
 from getCounty import GetCounty
 import re
 
@@ -22,17 +22,7 @@ finalJobs = [
         "country": "Romania",
         "city": translate_city(job.get("Location")),
         "county": _counties.get_county(translate_city(job.get("Location"))),
-        "remote": (
-            remote_pattern.search(job.get("JobTitle"))
-            .group(0)
-            .replace("(", "")
-            .replace(")", "")
-            .replace("full", "")
-            .replace(" ", "")
-            .split("/")
-            if remote_pattern.search(job.get("JobTitle"))
-            else []
-        ),
+        "remote": get_jobtype(job.get("JobTitle")),
         "company": company.get("company"),
     }
     for job in jobs
