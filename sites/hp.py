@@ -21,9 +21,6 @@ for job in jobs:
     city = translate_city(job.get("primary_city"))
     county = _counties.get_county(city)
 
-    if "https://jobs.hp.com/" not in job_link:
-        job_link = "https://jobs.hp.com/jobdetails/" + str(job.get("id"))
-
     finalJobs.append(
         {
             "job_title": job_title,
