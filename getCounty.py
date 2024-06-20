@@ -74,11 +74,12 @@ class GetCounty:
 
         response = requests.get(api_endpoint).json()
 
-        while response.get("next") is not None:
+        while response and response.get("next"):
             counties_found.extend(response.get("results"))
             response = requests.get(response.get("next")).json()
         else:
-            counties_found.extend(response.get("results"))
+            if response:
+                counties_found.extend(response.get("results"))
 
         self.counties.append(
             {

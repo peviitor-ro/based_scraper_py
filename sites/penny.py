@@ -7,7 +7,7 @@ url = "https://cariere.penny.ro/joburi/"
 scraper = Scraper()
 scraper.get_from_url(url)
 
-pageNum = 1 
+pageNum = 1
 
 jobs = scraper.find_all("div", {"class": "job_position"})
 
@@ -19,21 +19,32 @@ while jobs:
         job_title = job.find("span", {"itemprop": "title"}).text.strip()
         job_link = job.find("a", {"itemprop": "url"}).get("href")
 
-        city = job.find("span", {"itemprop": "addressLocality"}).text.strip().replace("-", " ").title().replace("De", "de")
+        try:
+            city = (
+                job.find("span", {"itemprop": "addressLocality"})
+                .text.strip()
+                .replace("-", " ")
+                .title()
+                .replace("De", "de")
+            )
+        except:
+            city = ""
 
         if "Sector" in city:
             city = city.split("Sector")[0].strip()
 
         county = _counties.get_county(city) or []
 
-        finalJobs.append({
-            "job_title": job_title,
-            "job_link": job_link,
-            "company": company.get("company"),
-            "country": "Romania",
-            "city": city,
-            "county": county
-        })
+        finalJobs.append(
+            {
+                "job_title": job_title,
+                "job_link": job_link,
+                "company": company.get("company"),
+                "country": "Romania",
+                "city": city,
+                "county": county,
+            }
+        )
 
     pageNum += 1
     scraper.get_from_url(url + f"page/{pageNum}/")
