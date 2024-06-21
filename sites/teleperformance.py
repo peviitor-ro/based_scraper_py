@@ -8,6 +8,9 @@ apiUrl = "https://www.teleperformance.com/Umbraco/Api/Careers/GetCareersBase?nod
 company = {"company": "Teleperformance"}
 
 scraper = Scraper()
+scraper.set_headers({
+    "Content-Type": "application/json",
+})
 scraper.get_from_url(apiUrl, "JSON")
 
 finalJobs = [

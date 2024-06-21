@@ -13,7 +13,7 @@ url = "https://cariere.mega-image.ro/api/vacancy/?options%5Bsort_order%5D=desc&s
 _counties = GetCounty()
 
 scraper = Scraper()
-scraper.set_headers({"Content-Type": "application/json"})
+scraper.set_headers({"Content-Type": "application/json", "X-Requested-With": "XMLHttpRequest"})
 scraper.get_from_url(url, type="JSON")
 
 pageNumber = 1
