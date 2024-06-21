@@ -1,5 +1,5 @@
 from scraper.Scraper import Scraper
-from utils import create_job, show_jobs, publish, publish_logo
+from utils import create_job, show_jobs, publish_or_update, publish_logo
 
 url = "https://www.wtb.ro/category/careers/category/careers/"
 
@@ -40,7 +40,6 @@ while jobs:
         jobs = None
 
 
-publish(4, company, finalJobs, "APIKEY")
-
+publish_or_update(finalJobs)
 publish_logo(company, "https://www.wtb.ro/wp-content/uploads/2018/04/logoblack.svg")
 show_jobs(finalJobs)

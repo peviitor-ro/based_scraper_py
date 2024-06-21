@@ -1,5 +1,5 @@
 import requests
-from utils import publish, publish_logo, create_job, show_jobs
+from utils import publish_or_update, publish_logo, create_job, show_jobs
 
 
 url = "https://apply.workable.com/api/v3/accounts/cososys/jobs"
@@ -35,7 +35,7 @@ final_jobs = [
     for job in response
 ]
 
-publish(4, company, final_jobs, "Grasum_Key")
+publish_or_update(final_jobs)
 
 publish_logo(
     company,

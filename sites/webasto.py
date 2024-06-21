@@ -1,16 +1,18 @@
-from scraper_peviitor import Scraper, Rules
-from utils import translate_city, publish, publish_logo, show_jobs
-from getCounty import get_county
+from scraper.Scraper import Scraper
+from utils import translate_city, publish_or_update, publish_logo, show_jobs
+from getCounty import GetCounty
+
+_counties = GetCounty()
 
 url = "https://jobs.webasto.com/search/?createNewAlert=false&q=&optionsFacetsDD_country=RO&optionsFacetsDD_location=&optionsFacetsDD_dept=&optionsFacetsDD_shifttype="
 
 company = {"company": "Webasto"}
 finaljobs = list()
 
-scraper = Scraper(url)
-rules = Rules(scraper)
+scraper = Scraper()
+scraper.get_from_url(url)
 
-jobs = rules.getTag("table", {"id": "searchresults"}).find(
+jobs = scraper.find("table", {"id": "searchresults"}).find(
     "tbody").find_all("tr")
 
 for job in jobs:
@@ -19,7 +21,7 @@ for job in jobs:
     city = translate_city(
         job.find("span", {"class": "jobLocation"}).text.split(",")[0].strip()
     )
-    county = get_county(city)
+    county = _counties.get_county(city)
     
     finaljobs.append({
         "job_title": job_title,
@@ -30,7 +32,7 @@ for job in jobs:
         "county": county,
     })
 
-publish(4, company.get("company"), finaljobs, "APIKEY")
+publish_or_update(finaljobs)
 
 logoUrl = "https://upload.wikimedia.org/wikipedia/commons/8/81/Webasto_20xx_logo.svg"
 publish_logo(company.get("company"), logoUrl)

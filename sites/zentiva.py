@@ -1,16 +1,19 @@
-from scraper_peviitor import Scraper
-from utils import translate_city, publish, publish_logo, show_jobs
-from getCounty import get_county
+from scraper.Scraper import Scraper
+from utils import translate_city, publish_or_update, publish_logo, show_jobs
+from getCounty import GetCounty
+from math import ceil
+import json
+
+_counties = GetCounty()
 
 apiUrl = "https://zentiva.wd3.myworkdayjobs.com/wday/cxs/zentiva/Zentiva/jobs"
 scraper = Scraper()
-# Cream un header pentru a putea face request-uri POST
+
 headers = {
     "Accept": "application/json",
     "Content-Type": "application/json",
 }
 
-# Cream un dictionar cu datele pe care dorim sa le trimitem catre server
 data = {
     "appliedFacets": {"locations": ["ca7924da36fa0149be9376945a35dd27"]},
     "limit": 20,
@@ -18,22 +21,18 @@ data = {
     "searchText": "",
 }
 
-# Actualizam header-ul cu datele de mai sus
-scraper.session.headers.update(headers)
+scraper.set_headers(headers)
 
-# Facem request-ul POST si salvam numarul total de joburi
-numberOfJobs = scraper.post(apiUrl, json=data).json().get("total")
+numberOfJobs = scraper.post(apiUrl, json.dumps(data)).json().get("total")
 
-# Cream o lista cu numerele de la 0 la numarul total de joburi, cu pasul de 20
-iteration = [i for i in range(0, numberOfJobs, 20)]
+iteration = ceil(numberOfJobs / 20)
 
 company = {"company": "Zentiva"}
 finaljobs = list()
 
-# Pentru fiecare numar din lista, extragem joburile
-for num in iteration:
+for num in range(iteration):
     data["offset"] = num
-    jobs = scraper.post(apiUrl, json=data).json().get("jobPostings")
+    jobs = scraper.post(apiUrl, json.dumps(data)).json().get("jobPostings")
     for job in jobs:
         job_title = job.get("title")
         job_link = "https://zentiva.wd3.myworkdayjobs.com/en-US/Zentiva" + job.get(
@@ -43,7 +42,7 @@ for num in iteration:
             job.get("bulletFields")[1].split("/")[1].split(";")[0].strip()
         )
 
-        county = get_county(city)
+        county = _counties.get_county(city)
 
         finaljobs.append(
             {
@@ -56,8 +55,7 @@ for num in iteration:
             }
         )
 
-publish(4, company.get("company"), finaljobs, "APIKEY")
-
+publish_or_update(finaljobs)
 logoUrl = "https://zentiva.wd3.myworkdayjobs.com/Zentiva/assets/logo"
 publish_logo(company.get("company"), logoUrl)
 

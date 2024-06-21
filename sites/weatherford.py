@@ -1,6 +1,8 @@
 from scraper.Scraper import Scraper
-from utils import create_job, publish, publish_logo, show_jobs
-from getCounty import get_county
+from utils import create_job, publish_or_update, publish_logo, show_jobs, translate_city
+from getCounty import GetCounty
+
+_counties = GetCounty()
 
 url = "https://external-weatherford.icims.com/jobs/search?ss=1&searchRelation=keyword_all&searchLocation=13526--&mobile=false&width=1424&height=500&bga=true&needsRedirect=false&jan1offset=120&jun1offset=180&in_iframe=1"
 
@@ -30,12 +32,12 @@ for job in jobs_elements:
         counties = []
 
         for county in city:
-            city = county.replace("RO-", "").strip().capitalize()
+            city = translate_city(county.replace("RO-", "").strip().capitalize())
             if city == "Cimpina":
                 city = "Campina"
-            judet = get_county(city)
+            judet = _counties.get_county(city)
             if judet and judet not in counties:
-                counties.append(judet)
+                counties.extend(judet)
             if judet and city not in cities:
                 cities.append(city)
         if cities and counties:
@@ -51,8 +53,7 @@ for job in jobs_elements:
             )
 
 
-publish(4, company, jobs, "APIKEY")
-
+publish_or_update(jobs)
 publish_logo(
     company, "https://www.weatherford.com/Content/Images/logo-weatherford-text.png"
 )
