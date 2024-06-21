@@ -1,5 +1,5 @@
 from scraper.Scraper import Scraper
-from utils import show_jobs, publish, publish_logo
+from utils import show_jobs, publish_or_update, publish_logo
 
 company = "mindera"
 url = "https://jobs.workable.com/api/v1/companies/kAFiuZuCGfsouMaZWJDxvE"
@@ -32,8 +32,7 @@ while scraper.markup.get("nextPageToken"):
     scraper.get_from_url(url + "?pageToken=" + scraper.markup.get("nextPageToken"), "JSON")
     jobs = scraper.markup.get("jobs")
 
-publish(4, company, final_jobs, "APIKEY")
-
+publish_or_update(final_jobs)
 logurl = "https://workablehr.s3.amazonaws.com/uploads/account/logo/108453/logo"
 publish_logo(company, logurl)
 
