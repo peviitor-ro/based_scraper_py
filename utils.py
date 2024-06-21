@@ -26,9 +26,6 @@ def create_job(**kwargs):
     return job
 
 
-def publish(version, company, data, apikey):
-    print("Publishing...")
-
 def publish_or_update(data):
     route = os.environ.get("ADD_JOBS_ROUTE")
     url = f"{domain}{route}"
