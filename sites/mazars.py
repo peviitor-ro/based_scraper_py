@@ -24,9 +24,15 @@ scraper.__init__(html, "html.parser")
 jobs = scraper.find_all("article", {"class": "JobResult"})
 
 for job in jobs:
-    job_title = job.find("p", {"class": "job-title"}).text.strip()
-    job_link = job.find("a").get("href")
-    city = [translate_city(job.find_all("p")[1].text.split(":")[1].strip())]
+    job_title = job.find("h3").text.strip()
+    job_link = job.find("h3").find("a").get("href")
+    city = [
+        translate_city(
+            job.find("p", {"class": "job-listing__location"})
+            .text.split(":")[-1]
+            .strip()
+        )
+    ]
 
     if not city[0]:
         city = ["Bucuresti", "Cluj-Napoca"]
