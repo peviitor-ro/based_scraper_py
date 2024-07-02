@@ -15,8 +15,9 @@ def get_token():
     """
     endpoint = os.environ.get("TOKEN_ROUTE")
     email = os.environ.get("EMAIL")
+    headers = {"User-Agent": "Mozilla/5.0"}
     url = f"{domain}{endpoint}"
-    response = requests.post(url, json={"email": email})
+    response = requests.post(url, json={"email": email}, headers=headers)
     return response.json()["access"]
 
 
