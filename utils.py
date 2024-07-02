@@ -32,9 +32,19 @@ def publish_or_update(data):
     url = f"{domain}{route}"
     token = os.environ.get("TOKEN") if os.environ.get("TOKEN") else get_token()
 
-    headers = {"Content-Type": "application/json", "Authorization": f"Bearer {token}"}
+    headers = {"Content-Type": "application/json", "Authorization": f"Bearer {token}", "User-Agent": "Mozilla/5.0"}
 
-    requests.post(url, headers=headers, json=data)
+    res = requests.post(url, headers=headers, json=data)
+
+    status_code = res.status_code
+
+    if status_code == 200:
+        company = data[0].get("company")
+        total_jobs = len(data)
+
+        print(f"Successfully added {total_jobs} jobs for {company} company.")
+    else:
+        raise Exception(f"Failed to add jobs. Status code: {status_code}")
 
 
 def publish_logo(company, logo_url):
