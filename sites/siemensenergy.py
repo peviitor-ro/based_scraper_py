@@ -31,29 +31,24 @@ for page in range(pages):
     jobs = scraper.find_all("details", {"class": "article--result--container"})
 
     for job in jobs:
-        locations = (
-            job.find("div", {"class": "article__content"}).find("p").text.split(",")
+        job_title = (
+            job.find("div", {"class": "article__header__text"}).find("a").text.strip()
         )
-        country = locations[0].split(":")[-1].strip()
-        if len(country.split("|")) == 1 and country.split("|")[0].strip() == "Romania":
-            job_title = (
-                job.find("div", {"class": "article__header__text"}).find("a").text.strip()
-            )
-            job_link = job.find("div", {"class": "article__header__text"}).find("a")["href"]
+        job_link = job.find("div", {"class": "article__header__text"}).find("a")["href"]
 
-            city = translate_city(locations[2].strip())
-            county = _counties.get_county(city) or []
+        
 
-            job = {
-                "job_title": job_title,
-                "job_link": job_link,
-                "company": company.get("company"),
-                "country": "Romania",
-                "city": city,
-                "county": county,
-            }
+        job = {
+            "job_title": job_title,
+            "job_link": job_link,
+            "company": company.get("company"),
+            "country": "Romania",
+            "city": "",
+            "county": "",
+        }
 
-            finalJobs.append(job)
+        finalJobs.append(job)
+    
 
 publish_or_update(finalJobs)
 
