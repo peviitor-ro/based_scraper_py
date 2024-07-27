@@ -1,23 +1,27 @@
 from scraper.Scraper import Scraper
-from utils import show_jobs, publish_or_update, publish_logo, translate_city
+from utils import show_jobs, publish_or_update, publish_logo, translate_city, get_jobtype
 from getCounty import GetCounty
 
 _counties = GetCounty()
 company = "qualitest"
-url = "https://jobs.workable.com/api/v1/jobs?location=Romania&query=qualitest"
+# url = "https://jobs.workable.com/api/v1/jobs?location=Romania&query=qualitest"
+row = 0
+url = "https://careers.qualitestgroup.com/search/?q=&locationsearch=Romania&searchby=location&d=10&startrow=0"
 
 scraper = Scraper()
-scraper.get_from_url(url, "JSON")
+scraper.get_from_url(url)
 
-jobs = scraper.markup.get("jobs")
+jobs = scraper.find("table", {"id": "searchresults"}).find("tbody").find_all("tr")
+  
 final_jobs = []
 
-while True:
+while len(jobs) > 0:
     for job in jobs:
-        job_title = job["title"]
-        job_link = job["url"]
-        remote = job["workplace"].replace("_", "-")
-        city = translate_city(job["location"]["city"]) or []
+        job_title = job.find("a", {"class": "jobTitle-link"}).text
+        job_link = "https://careers.qualitestgroup.com/" + \
+            job.find("a", {"class": "jobTitle-link"}).get("href")
+        remote = get_jobtype(job_title.lower())
+        city = translate_city(job.find("span", {"class": "jobLocation"}).text.split(",")[0].strip())
 
         if city:
             county = _counties.get_county(city)
@@ -35,14 +39,11 @@ while True:
                 "county": county,
             }
         )
-
-    if not scraper.markup.get("nextPageToken"):
-        break
-
-    scraper.get_from_url(
-        url + "&pageToken=" + scraper.markup.get("nextPageToken"), "JSON"
-    )
-    jobs = scraper.markup.get("jobs")
+    
+    row += 25
+    url = "https://careers.qualitestgroup.com/search/?q=&locationsearch=Romania&searchby=location&d=10&startrow=" + str(row)
+    scraper.get_from_url(url)
+    jobs = scraper.find("table", {"id": "searchresults"}).find("tbody").find_all("tr")
 
 publish_or_update(final_jobs)
 
