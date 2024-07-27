@@ -9,9 +9,7 @@ url = "https://www.sonnentor.ro/despre-noi/cariere.html"
 scraper = Scraper()
 scraper.get_from_url(url)
 
-jobs_elements = scraper.find("section", class_="js-go-to-link").find_all(
-    "div", class_="row"
-)
+jobs_elements = scraper.find_all("section", class_="js-go-to-link")
 
 for job in jobs_elements:
     jobs.append(
