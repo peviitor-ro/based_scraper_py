@@ -1,5 +1,5 @@
 from scraper.Scraper import Scraper
-from utils import translate_city, publish_or_update, publish_logo, show_jobs
+from utils import translate_city, publish_or_update, publish_logo, show_jobs, get_jobtype
 from getCounty import GetCounty
 
 _counties = GetCounty()
@@ -22,7 +22,7 @@ while True:
             .replace("  ", "")
         )
         job_link = element.find("a")["href"]
-        remote = element.find("div", {"class": "jobs-type"}).text
+        remote = get_jobtype(element.find("div", {"class": "jobs-type"}).text)
         city = translate_city(
             element.find("div", {"class": "jobs-location"}).text.split(",")[0]
         )
@@ -47,6 +47,8 @@ while True:
         scraper.get_from_url(domain + nextPageLink)
     except:
         break
+
+show_jobs(finalJobs)
 
 publish_or_update(finalJobs)
 
