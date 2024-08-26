@@ -37,7 +37,7 @@ for page in range(pages):
             + job.get("externalPath")
         )
         location = job.get("locationsText").split(",")
-        city = translate_city(location[1].strip())
+        city = translate_city(location[-1].strip())
 
         finalJobs.append(
             {

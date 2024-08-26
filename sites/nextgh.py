@@ -5,6 +5,7 @@ from utils import (
     create_job,
     show_jobs,
     translate_city,
+    get_jobtype
     )
 from getCounty import GetCounty
 
@@ -63,7 +64,7 @@ for job in jobs_elements:
             country=country,
             city=city,
             county=county,
-            remote=remote,
+            remote=get_jobtype(remote.replace("_", "-"))
         )
     )
 

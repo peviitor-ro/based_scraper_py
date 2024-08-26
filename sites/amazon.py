@@ -30,7 +30,7 @@ while True:
             company=company,
         )
         if city == "Virtual":
-            job_element["remote"] = "Remote"
+            job_element["remote"] = "remote"
             del job_element["city"]
             del job_element["county"]
 

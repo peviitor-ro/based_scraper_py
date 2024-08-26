@@ -87,7 +87,8 @@ class GetCounty:
                 "county": [
                     item.get("county")
                     for item in counties_found
-                    if item.get("name") == remove_diacritics(city.title())
+                    if item.get("name").lower()
+                      == remove_diacritics(city.lower())
                 ],
             }
         )
