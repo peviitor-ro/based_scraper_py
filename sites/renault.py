@@ -29,24 +29,27 @@ for num in range(iteration):
     data["offset"] = num * 20
     jobs = scraper.post(apiUrl, json.dumps(data)).json().get("jobPostings")
     for job in jobs:
-        job_title = job.get("title").replace("[", "").replace("]", "")
-        job_link = "https://alliancewd.wd3.myworkdayjobs.com/ro-RO/renault-group-careers" + \
-            job.get("externalPath")
-        city = translate_city(remove_diacritics(job.get("bulletFields")[0]))
-        county = _counties.get_county(city) or []
+        try:
+            job_title = job.get("title").replace("[", "").replace("]", "")
+            job_link = "https://alliancewd.wd3.myworkdayjobs.com/ro-RO/renault-group-careers" + \
+                job.get("externalPath")
+            city = translate_city(remove_diacritics(job.get("bulletFields")[0]))
+            county = _counties.get_county(city) or []
 
-        if not county:
-            city = "Bucuresti"
-            county = "Bucuresti"
+            if not county:
+                city = "Bucuresti"
+                county = "Bucuresti"
 
-        finaljobs.append({
-            "job_title": job_title,
-            "job_link": job_link,
-            "company": company.get("company"),
-            "country": "Romania",
-            "city": city,
-            "county": county
-        })
+            finaljobs.append({
+                "job_title": job_title,
+                "job_link": job_link,
+                "company": company.get("company"),
+                "country": "Romania",
+                "city": city,
+                "county": county
+            })
+        except Exception:
+            continue
 
 publish_or_update(finaljobs)
 
