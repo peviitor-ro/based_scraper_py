@@ -29,7 +29,7 @@ for page in range(paginations):
         county = _counties.get_county(city)
         remote = []
 
-        jobs_types = ["Remote", "Hybrid"]
+        jobs_types = ["remote", "hybrid"]
 
 
         for types in jobs_types:
