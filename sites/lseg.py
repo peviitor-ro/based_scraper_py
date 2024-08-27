@@ -11,7 +11,7 @@ from getCounty import GetCounty
 from math import ceil
 
 _counties = GetCounty() 
-apiUrl = "https://refinitiv.wd3.myworkdayjobs.com/wday/cxs/refinitiv/Careers/jobs"
+apiUrl = "https://lseg.wd3.myworkdayjobs.com/wday/cxs/lseg/Careers/jobs"
 
 
 def get_aditional_city(url):
@@ -60,10 +60,14 @@ headers = {
 }
 
 data = {
-    "appliedFacets": {"locationCountry": ["f2e609fe92974a55a05fc1cdc2852122"]},
+    "appliedFacets": {
+        "locationCountry": [
+            "f2e609fe92974a55a05fc1cdc2852122"
+        ]
+    },
     "limit": 20,
     "offset": 0,
-    "searchText": "",
+    "searchText": ""
 }
 
 scraper.set_headers(headers)
@@ -76,7 +80,6 @@ pages = ceil(totalJobs / 20)
 jobs = response.get("jobPostings")
 
 for page in range(pages):
-
     for job in jobs:
         job_title = job.get("title")
         job_link = "https://refinitiv.wd3.myworkdayjobs.com/en-US/Careers" + job.get(
@@ -93,7 +96,7 @@ for page in range(pages):
 
         if not counties:
             aditional_url = (
-                "https://refinitiv.wd3.myworkdayjobs.com/wday/cxs/refinitiv/Careers"
+                "https://lseg.wd3.myworkdayjobs.com//wday/cxs/refinitiv/Careers"
                 + job.get("externalPath")
             )
 

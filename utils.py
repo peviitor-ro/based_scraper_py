@@ -28,6 +28,11 @@ def create_job(**kwargs):
 
 
 def publish_or_update(data):
+
+    if not data:
+        print("No jobs Available")
+        return
+    
     route = os.environ.get("ADD_JOBS_ROUTE")
     url = f"{domain}{route}"
     token = os.environ.get("TOKEN") if os.environ.get("TOKEN") else get_token()
@@ -126,8 +131,12 @@ def get_jobtype(sentence, **kwargs):
     Returns:
         list: A list of job types mentioned in the sentence.
     """
+
     jobs_typse = ["on-site", "remote", "hybrid"]
     jobs_typse.extend(kwargs.get("jobs_typse", []))
+
+    sentence = sentence.lower().replace("_", "-").replace("onsite", "on-site")
+
     types = [jobtype for jobtype in jobs_typse if jobtype in sentence.lower()]
 
     return list(set(types))

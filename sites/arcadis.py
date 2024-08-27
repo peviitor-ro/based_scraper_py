@@ -6,6 +6,7 @@ from utils import (
     show_jobs,
     translate_city,
     acurate_city_and_county,
+    get_jobtype
 )
 from getCounty import GetCounty
 from math import ceil
@@ -35,7 +36,7 @@ for page in range(1, pages + 1):
         job_title = job.get("name")
         job_link = job.get("canonicalPositionUrl")
         country = "Romania"
-        remote = job.get("work_location_option")
+        remote = get_jobtype(job.get("work_location_option"))
 
         cities = []
         cities.extend(
