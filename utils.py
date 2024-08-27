@@ -28,6 +28,11 @@ def create_job(**kwargs):
 
 
 def publish_or_update(data):
+
+    if not data:
+        print("No jobs Available")
+        return
+    
     route = os.environ.get("ADD_JOBS_ROUTE")
     url = f"{domain}{route}"
     token = os.environ.get("TOKEN") if os.environ.get("TOKEN") else get_token()
