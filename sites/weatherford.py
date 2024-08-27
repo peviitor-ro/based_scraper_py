@@ -4,54 +4,29 @@ from getCounty import GetCounty
 
 _counties = GetCounty()
 
-url = "https://external-weatherford.icims.com/jobs/search?ss=1&searchRelation=keyword_all&searchLocation=13526--&mobile=false&width=1424&height=500&bga=true&needsRedirect=false&jan1offset=120&jun1offset=180&in_iframe=1"
+url = "https://fa-exmi-saasfaprod1.fa.ocs.oraclecloud.com/hcmRestApi/resources/latest/recruitingCEJobRequisitions?onlyData=true&expand=requisitionList.secondaryLocations,flexFieldsFacet.values,requisitionList.requisitionFlexFields&finder=findReqs;siteNumber=CX_1,facetsList=LOCATIONS%3BWORK_LOCATIONS%3BWORKPLACE_TYPES%3BTITLES%3BCATEGORIES%3BORGANIZATIONS%3BPOSTING_DATES%3BFLEX_FIELDS,limit=25,locationId=300000000465601,sortBy=POSTING_DATES_DESC"
 
 company = "Weatherford"
 jobs = []
 
 scraper = Scraper()
-rendered = scraper.get_from_url(url)
+headers = {
+  "Content-Type": "application/json",
+}
+scraper.set_headers(headers)
+scraper.get_from_url(url, "JSON")
 
-jobs_elements = scraper.find("div", class_="iCIMS_JobsTable").find_all(
-    "div", class_="row"
-)
+elements = scraper.markup.get("items")[0].get("requisitionList")
 
-for job in jobs_elements:
-    if job.find("div", {"class": "title"}):
-        job_title = job.find("div", class_="title").find("h3").text.strip()
-        job_link = job.find("div", class_="title").find("a")["href"]
-        country = "Romania"
-        city = (
-            job.find("div", {"class": "header"})
-            .find_all("span")[-1]
-            .text.strip()
-            .split("|")
-        )
-
-        cities = []
-        counties = []
-
-        for county in city:
-            city = translate_city(county.replace("RO-", "").strip().capitalize())
-            if city == "Cimpina":
-                city = "Campina"
-            judet = _counties.get_county(city)
-            if judet and judet not in counties:
-                counties.extend(judet)
-            if judet and city not in cities:
-                cities.append(city)
-        if cities and counties:
-            jobs.append(
-                create_job(
-                    job_title=job_title,
-                    job_link=job_link,
-                    city=cities,
-                    county=counties,
-                    country=country,
-                    company=company,
-                )
-            )
-
+jobs = [
+    {
+        "job_title": job.get("Title"),
+        "job_link": "https://careers.weatherford.com/#en/sites/CX_1/job/" + job.get("Id"),
+        "country": "Romania",
+        "company": company,
+    }
+    for job in elements
+]
 
 publish_or_update(jobs)
 publish_logo(
