@@ -22,9 +22,11 @@ pattern = re.compile(r"jobsCallback\({(.*?)}\)", re.DOTALL)
 data = re.search(pattern, scraper.text).group(1)
 jobs = json.loads("{" + data + "}").get("searchResults")
 
+# show_jobs(jobs)
+
 for job in jobs:
     job_title = job.get("job").get("title")
-    job_link = job.get("job").get("url")
+    job_link = "https://jobs.adp.com/en/jobs/" + job.get("job").get("ref")
     locations = job.get("job").get("google_locations")
 
     cities = [
@@ -55,3 +57,4 @@ logoUrl = "https://cdn-static.findly.com/wp-content/uploads/sites/794/2019/03/Ne
 publish_logo(company.get("company"), logoUrl)
 
 show_jobs(finalJobs)
+

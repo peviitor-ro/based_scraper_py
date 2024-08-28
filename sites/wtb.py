@@ -10,7 +10,7 @@ scraper = Scraper()
 scraper.get_from_url(url)
 page = 1
 
-jobs = scraper.find("div", {"class": "isotope-wrapper half-gutter"}).find_all(
+jobs = scraper.find_all(
     "h3", {"class": "t-entry-title h5"}
 )
 
@@ -32,13 +32,7 @@ while jobs:
 
     page += 1
     scraper.get_from_url(url + f"category/careers/category/careers/?%&upage={page}")
-    try:
-        jobs = scraper.find("div", {"class": "isotope-wrapper half-gutter"}).find_all(
-            "h3", {"class": "t-entry-title h5"}
-        )
-    except:
-        jobs = None
-
+    jobs = scraper.find_all( "h3", {"class": "t-entry-title h5"})
 
 publish_or_update(finalJobs)
 publish_logo(company, "https://www.wtb.ro/wp-content/uploads/2018/04/logoblack.svg")
