@@ -16,7 +16,7 @@ r = requests.post(url, json = {"update": "true"}, headers=headers)
 
 response = r.json()
 
-if response.get("succes"):
+if response.get("success"):
     print(response.get("succes"))
 else:
     print(response.get("error"))
