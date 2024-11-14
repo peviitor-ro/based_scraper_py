@@ -73,7 +73,7 @@ for page in range(totalJobs):
 
         finalJobs.append(job)
 
-publish_or_update(finalJobs)
+#publish_or_update(finalJobs)
 
 logoUrl = "https://www.eon-romania.ro/content/dam/eon/eon-romania-ro/logo/header_M.png"
 publish_logo(company.get("company"), logoUrl)
