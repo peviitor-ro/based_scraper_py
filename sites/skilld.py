@@ -9,36 +9,6 @@ acurete_city = acurate_city_and_county(
     }
 )
 
-
-def get_aditional_city(url):
-    scraper = Scraper()
-    scraper.get_from_url(url)
-
-    locations = scraper.find("meta", {"data-hid": "cXenseParse:b19-ejobs_city"})[
-        "content"
-    ].split(",")
-
-    cities = []
-    counties = []
-
-    for location in locations:
-        city = translate_city(remove_diacritics(location.strip()))
-
-        if acurete_city.get(city):
-            city = acurete_city.get(city)["city"]
-
-        county = _counties.get_county(city)
-
-        if not county:
-            city = location.replace(" ", "-")
-            county = _counties.get_county(city)
-
-        cities.append(city)
-        counties.extend(county)
-
-    return cities, counties
-
-
 url = "https://www.ejobs.ro/company/skilld-by-ejobs/317733"
 company = "SKILLD"
 
@@ -56,35 +26,11 @@ for job in job_elements:
     job_url = job.find("h2", class_="JCContentMiddle__Title").find("a")["href"]
     job_url = "https://www.ejobs.ro" + job_url
 
-    locations = job.find("div", class_="JCContentMiddle__Info").text.strip().split(",") 
-
-    if "și alte" in locations[-1]:
-        cities, counties = get_aditional_city(job_url)
-    else:
-        cities = []
-        counties = []
-
-        for location in locations:
-            city = translate_city(remove_diacritics(location.strip()))
-
-            if acurete_city.get(city):
-                city = acurete_city.get(city)["city"]
-
-            county = _counties.get_county(city)
-
-            if not county:
-                city = city.replace(" ", "-")
-                county = _counties.get_county(city)
-
-            cities.append(city)
-            counties.extend(county)
 
     final_jobs.append(
         {
             "job_title": job_title,
             "job_link": job_url,
-            "city": cities,
-            "county": list(counties),
             "country": "Romania",
             "company": company,
         }
