@@ -4,15 +4,24 @@ from getCounty import GetCounty
 
 _counties = GetCounty()
 
-url = "https://www.betfairromania.ro/find-a-job/?search=&country=Romania&pagesize=1000#results"
+url = "https://www.betfairromania.ro/jobs/?country=Romania&pagesize=200"
+
 
 scraper = Scraper()
+scraper.set_headers(
+    {
+        "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.0 Safari/605.1.15",
+    }
+)
 scraper.get_from_url(url)
 
-jobs = scraper.find_all("div", {"class": "card-job"})
+jobs = scraper.find(
+    "div", {"id": "js-job-search-results"}
+).find_all("div", {"class": "card card-job"})
 
 company = {"company": "Betfair"}
 finalJobs = list()
+
 
 for job in jobs:
     job_title = job.find("h2", {"class": "card-title"}).text.strip()
@@ -44,6 +53,7 @@ for job in jobs:
         job_element["county"] = counties
 
     finalJobs.append(job_element)
+
 
 publish_or_update(finalJobs)
 
