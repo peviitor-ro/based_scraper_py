@@ -5,7 +5,7 @@ from getCounty import GetCounty
 _counties = GetCounty()
 url = " https://careers-ro.jdepeets.com/job-search/"
 
-company = {"company": "JacobsDouweEgberts"}
+company = {"company": "Jacobsdouweegberts"}
 finaljobs = list()
 
 scraper = Scraper()
