@@ -36,8 +36,7 @@ for page in range(pages):
                 city=cities,
                 county=counties,
                 country="Romania",
-                company=company,
-                remote=job["work_location_option"].title().replace("Onsite", "on-site"),
+                company=company
             )
         )
         
