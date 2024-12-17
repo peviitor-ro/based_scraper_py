@@ -3,36 +3,45 @@ from getCounty import GetCounty, remove_diacritics
 from scraper.Scraper import Scraper
 
 _counties = GetCounty()
-acurete_city = acurate_city_and_county(
-    Ilfov={
-        "city": "Otopeni",
-    }
-)
 
-url = "https://www.ejobs.ro/company/skilld-by-ejobs/317733"
+url = "https://api.ejobs.ro/companies/317733?jobsPageSize=1000"
 company = "SKILLD"
 
 scraper = Scraper()
-scraper.get_from_url(url)
-
-job_elements = scraper.find("main", class_="CDInner__Main").find_all(
-    "div", class_="JobCard"
-)
+scraper.get_from_url(url, 'JSON')
 
 final_jobs = []
 
-for job in job_elements:
-    job_title = job.find("h2", class_="JCContentMiddle__Title").text.strip()
-    job_url = job.find("h2", class_="JCContentMiddle__Title").find("a")["href"]
-    job_url = "https://www.ejobs.ro" + job_url
+for job in scraper.markup["jobs"]:
+    title = job["title"]
+    job_url = 'https://www.ejobs.ro/user/locuri-de-munca/' + \
+        job["slug"] + '/' + str(job["id"])
+    locations = job["locations"]
+    counties = []
 
+    try:
+        cities = [
+            remove_diacritics(
+                translate_city(location["address"])).replace(", Romania", "")
+            for location in locations
+        ]
+
+        for city in cities:
+            county = _counties.get_county(city)
+            if county:
+                counties += county
+
+    except Exception as e:
+        cities = []
 
     final_jobs.append(
         {
-            "job_title": job_title,
+            "job_title": title,
             "job_link": job_url,
             "country": "Romania",
             "company": company,
+            "city": cities,
+            "county": counties,
         }
     )
 
