@@ -11,7 +11,7 @@ response = requests.get(
 cookies = response.cookies.get_dict()
 header_cookies = response.headers.get("Set-Cookie")
 
-
+page = 1
 url = "https://careers.fedex.com/api/get-jobs?location_name=Romania&location_type=4&filter%5Bcountry%5D%5B0%5D=Romania&_pathname_=%2Fjobs&job_source=paradox&search_mode=2&enable_kilometers=false&include_remote_jobs=true"
 
 payload = {
@@ -233,9 +233,18 @@ headers = {
     "Content-Type": "application/json",
 }
 
-response = requests.post(url, json=payload, headers=headers, cookies=cookies).json()
+jobs = list()
+while True:
 
-jobs = response.get("jobs")
+    response = requests.post(
+        url + f"&page_number={page}", json=payload, headers=headers, cookies=cookies).json()
+
+    if not response.get("jobs"):
+        break
+
+    jobs.extend(response.get("jobs"))
+    page += 1
+
 
 company = {"company": "FedEx"}
 finaljobs = list()
@@ -244,6 +253,12 @@ for job in jobs:
     job_title = job.get("title")
     job_link = f"https://careers.fedex.com/{job.get('originalURL')}"
     locations = job.get("locations")
+    country = [
+        location.get("country")
+        for location in locations
+        if location.get("country") == "Romania"
+    ]
+
     cities = [
         translate_city(location.get("city"))
         for location in locations
@@ -258,18 +273,20 @@ for job in jobs:
             city = "Cluj-Napoca"
 
         county = _counties.get_county(city)
-        counties.extend(county)
+        if county:
+            counties.extend(county)
 
-    finaljobs.append(
-        {
-            "job_title": job_title,
-            "job_link": job_link,
-            "company": company.get("company"),
-            "country": "Romania",
-            "city": city,
-            "county": counties,
-        }
-    )
+    if "Romania" in country:
+        finaljobs.append(
+            {
+                "job_title": job_title,
+                "job_link": job_link,
+                "company": company.get("company"),
+                "country": "Romania",
+                "city": city,
+                "county": counties,
+            }
+        )
 
 publish_or_update(finaljobs)
 
