@@ -15,12 +15,13 @@ scraper.set_headers({
 
 scraper.get_from_url(url)
 
-jobs = scraper.find("div", {"id": "search-results-list"}).find_all("li")
+jobs = scraper.find("section", {"id": "search-results-list"}).find_all("li")
 
 for job in jobs:
-    job_title = job.find("h2").text.strip()
+    job_title = job.find("h3").text.strip()
     job_link = "https://ro.cariera.primark.com" + job.find("a").get("href")
-    city = translate_city(job.find("span", {"class": "job-location"}).text.split(",")[0].strip())
+    city = translate_city(job.find(
+        "span", {"class": "job-list-info--location"}).text.split(",")[0].strip())
     county = _counties.get_county(city)
 
     finalJobs.append({
