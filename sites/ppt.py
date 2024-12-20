@@ -4,32 +4,6 @@ from scraper.Scraper import Scraper
 
 _counties = GetCounty()
 
-
-def get_aditional_city(url):
-    scraper = Scraper()
-    scraper.get_from_url(url)
-
-    locations = scraper.find("meta", {"data-hid": "jobs-show-main-summaries__summary-value jobs-show-main-summaries__summary-location"})[
-        "content"
-    ].split(",")
-
-    cities = []
-    counties = list()
-
-    for location in locations:
-        city = translate_city(remove_diacritics(location.strip()))
-        county = _counties.get_county(city) or []
-
-        if not county:
-            city = location.replace(" ", "-")
-            county = _counties.get_county(city)
-
-        cities.append(city)
-        counties.extend(county)
-
-    return cities, counties
-
-
 url = "https://www.ejobs.ro/company/preturi-pentru-tine/194591"
 company = "PPT"
 
