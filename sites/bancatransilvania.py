@@ -4,41 +4,20 @@ from getCounty import GetCounty, remove_diacritics
 
 _counties = GetCounty()
 company = "BANCATRANSILVANIA"
-url = "https://api.ejobs.ro/companies/8092"
+url = "https://cariere.bancatransilvania.ro/hrscapi/api/CareersSite/jobOpenings?currentPage=1&itemsPerPage=1000"
 
 jobs = []
 
 scraper = Scraper()
 scraper.get_from_url(url, "JSON")
 
-response = scraper.markup.get("jobs")
-
-
-def get_aditional_city(url):
-    scraper = Scraper()
-    scraper.get_from_url(url)
-
-    locations = scraper.find("meta", {"data-hid": "cXenseParse:b19-ejobs_city"})[
-        "content"
-    ].split(",")
-
-    cities = [translate_city(remove_diacritics(location)) for location in locations]
-    counties = []
-
-    for city in cities:
-        county = _counties.get_county(city)
-        counties.extend(county or [])
-
-    return cities, counties
-
+response = scraper.markup.get("jobOpenings")
 
 for job in response:
     job_title = job.get("title")
     job_link = (
-        "https://www.ejobs.ro/user/locuri-de-munca/"
-        + job.get("slug")
-        + "/"
-        + str(job.get("id"))
+        "https://cariere.bancatransilvania.ro/joburi-disponibile/"
+        + job.get("postSlug")
     )
     country = "Romania"
     locations = job.get("locations")
@@ -49,13 +28,15 @@ for job in response:
     for location in locations:
         try:
             city = translate_city(
-                remove_diacritics(location.get("address").split(",")[0].strip())
+                remove_diacritics(location.get(
+                    "name").title().replace(" ", "-"))
             )
             county = _counties.get_county(city)
 
             if not county:
                 city = remove_diacritics(
-                    location.get("address").split(",")[0].strip().replace(" ", "-")
+                    location.get("address").split(",")[
+                        0].strip().replace(" ", "-")
                 )
                 county = _counties.get_county(city)
 
@@ -65,9 +46,6 @@ for job in response:
             cities = []
             counties = []
 
-    if not cities:
-        cities, counties = get_aditional_city(job_link)
-
     jobs.append(
         create_job(
             job_title=job_title,
@@ -75,10 +53,9 @@ for job in response:
             company=company,
             country=country,
             city=cities,
-            county=counties,
+            county=list(set(counties)),
         )
     )
-
 
 publish_or_update(jobs)
 publish_logo(

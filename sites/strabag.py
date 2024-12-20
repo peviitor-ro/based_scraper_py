@@ -60,7 +60,7 @@ while True:
                 job_link=job_container.find("a")["href"],
                 country="Romania",
                 city=cities,
-                county=counties,
+                county=list(set(counties)),
                 company=company,
             )
         )
