@@ -2,54 +2,45 @@ from scraper.Scraper import Scraper
 import re
 from utils import translate_city, publish_or_update, publish_logo, show_jobs
 from getCounty import GetCounty
+from math import ceil
 
 _counties = GetCounty()
 scraper = Scraper()
-regex = re.compile(r"search-results-(.*?)-bodyEl")
+url = "https://jobs.ea.com/en_US/careers/Home/?8171=%5B10605%5D&8171_format=5683&listFilterMode=1&jobRecordsPerPage=20&jobOffset=0"
 
-pageNumber = 1
-foundedJobs = True
+scraper.get_from_url(url)
+
+totalJobs = int(scraper.find(
+    "div", {"class": "list-controls__text__legend"}).get("aria-label").split(" ")[0])
+
+pages = ceil(totalJobs / 20)
 
 company = {"company": "ElectronicArts"}
 finalJobs = list()
 
-while foundedJobs:
-    url = f"https://ea.gr8people.com/jobs?page={pageNumber}&geo_location=ChIJw3aJlSb_sUARlLEEqJJP74Q"
+for page in range(pages):
+    url = f"https://jobs.ea.com/en_US/careers/Home/?8171=%5B10605%5D&8171_format=5683&listFilterMode=1&jobRecordsPerPage=20&jobOffset={page * 20}"
+    scraper.get_from_url(url)
 
-    doom = scraper.post(url, {}).text
-    scraper.__init__(doom, "html.parser")
-
-    elementId = re.findall(regex, doom)[0]
-    jobsContainer = scraper.find("tbody", {"id": f"search-results-{elementId}-bodyEl"})
-    jobs = jobsContainer.find_all("tr")
-
-    foundedJobs = len(jobs) > 0
+    jobs = scraper.find("div", {"class": "results"}).find_all(
+        "article", {"class": "article"})
 
     for job in jobs:
-        job_title = job.find_all("td")[1].text.strip()
-        job_link = job.find("a").get("href")
-        city = translate_city(job.find_all("td")[3].text.strip().split(",")[0])
-        remote = ""
-
+        job_title = job.find("h3").text.strip()
+        job_link = job.find("h3").find("a").get("href")
+        city = translate_city(
+            job.find("span", {"class": "list-item-location"}).text.split(",")[0].strip())
         county = _counties.get_county(city)
 
-        if not county:
-            city = ""
-            county = ""
-            remote = "Remote"
+        finalJobs.append({
+            "job_title": job_title,
+            "job_link": job_link,
+            "company": company.get("company"),
+            "country": "Romania",
+            "city": city,
+            "county": county
+        })
 
-        finalJobs.append(
-            {
-                "job_title": job_title,
-                "job_link": job_link,
-                "company": company.get("company"),
-                "country": "Romania",
-                "city": city,
-                "county": county,
-                "remote": remote,
-            }
-        )
-    pageNumber += 1
 
 publish_or_update(finalJobs)
 
