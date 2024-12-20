@@ -9,7 +9,7 @@ def get_aditional_city(url):
     scraper = Scraper()
     scraper.get_from_url(url)
 
-    locations = scraper.find("meta", {"data-hid": "cXenseParse:b19-ejobs_city"})[
+    locations = scraper.find("meta", {"data-hid": "jobs-show-main-summaries__summary-value jobs-show-main-summaries__summary-location"})[
         "content"
     ].split(",")
 
@@ -36,35 +36,37 @@ company = "PPT"
 scraper = Scraper()
 scraper.get_from_url(url)
 
-job_elements = scraper.find("main", class_="CDInner__Main").find_all(
-    "div", class_="JobCard"
+job_elements = scraper.find("ul", class_="companies-show-jobs__items").find_all(
+    "div", class_="job-card"
 )
 
 final_jobs = []
 
 for job in job_elements:
-    job_title = job.find("h2", class_="JCContentMiddle__Title").text.strip()
-    job_url = job.find("h2", class_="JCContentMiddle__Title").find("a")["href"]
+    job_title = job.find(
+        "h2", class_="job-card-content-middle__title").text.strip()
+    job_url = job.find(
+        "h2", class_="job-card-content-middle__title").find("a")["href"]
     job_url = "https://www.ejobs.ro" + job_url
 
-    locations = job.find("div", class_="JCContentMiddle__Info").text.strip().split(",")
+    locations = job.find(
+        "div", class_="job-card-content-middle__info").text.strip().split(",") if job.find("div", class_="job-card-content-middle__info") else []
 
-    if "și alte" in locations[-1]:
-        cities, counties = get_aditional_city(job_url)
-    else:
-        cities = []
-        counties = []
+    locations.extend(
+        job.find("span", class_="PartialList__Rest").get("title").split(
+            ",") if job.find("span", class_="PartialList__Rest") else []
+    )
 
-        for location in locations:
-            city = translate_city(remove_diacritics(location.strip()))
-            county = _counties.get_county(city) or []
+    cities = []
+    counties = []
 
-            if not county:
-                city = city.replace(" ", "-")
-                county = _counties.get_county(city) or []
+    for location in locations:
+        city = translate_city(remove_diacritics(
+            location.replace("și alte  orașe", "").strip()))
+        county = _counties.get_county(city) or []
 
-            cities.append(city)
-            counties.extend(county)
+        cities.append(city)
+        counties.extend(county)
 
     final_jobs.append(
         {
