@@ -7,6 +7,7 @@ from utils import (
     publish_logo,
     show_jobs,
 )
+from math import ceil
 
 _counties = GetCounty()
 
@@ -28,7 +29,9 @@ acurate_city = acurate_city_and_county()
 company = {"company": "Decathlon"}
 finalJobs = list()
 
-while result.get("nextPage"):
+pages = ceil(result.get("total") / 10)
+
+for page in range(pages):
     for job in jobs:
         job_title = job.get("title")
         job_link = "https://apply.workable.com/decathlon-romania/j/" + job.get(
