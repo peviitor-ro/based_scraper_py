@@ -16,23 +16,27 @@ company = {"company": "MolsonCoors"}
 finalJobs = list()
 
 scraper = Scraper()
-scraper.get_from_url(url)
+scraper.get_from_url(url, verify=False)
 
 totalJobs = int(
-    scraper.find("span", {"class": "paginationLabel"}).find_all("b")[-1].text.strip()
+    scraper.find("span", {"class": "paginationLabel"}
+                 ).find_all("b")[-1].text.strip()
 )
 
 paginate = ceil(totalJobs / 25)
 
-acurate_city = acurate_city_and_county(Alba={"city": "Alba Iulia", "county": "Alba"})
-jobs = scraper.find("table", {"id": "searchresults"}).find("tbody").find_all("tr")
+acurate_city = acurate_city_and_county(
+    Alba={"city": "Alba Iulia", "county": "Alba"})
+jobs = scraper.find("table", {"id": "searchresults"}).find(
+    "tbody").find_all("tr")
 
 for page in range(0, paginate):
     for job in jobs:
         job_title = job.find("a").text.strip()
         job_link = "https://jobs.molsoncoors.com" + job.find("a").get("href")
 
-        city = translate_city(job.find("span", {"class": "jobLocation"}).text.split(",")[0].strip())
+        city = translate_city(
+            job.find("span", {"class": "jobLocation"}).text.split(",")[0].strip())
         counties = []
 
         if acurate_city.get(city):
@@ -52,8 +56,9 @@ for page in range(0, paginate):
             }
         )
     url = f"https://jobs.molsoncoors.com/MolsonCoors_GBSRomania/search/?q=Romania&startrow={page + 1 * 25}"
-    scraper.get_from_url(url)
-    jobs = scraper.find("table", {"id": "searchresults"}).find("tbody").find_all("tr")
+    scraper.get_from_url(url, verify=False)
+    jobs = scraper.find("table", {"id": "searchresults"}).find(
+        "tbody").find_all("tr")
 
 publish_or_update(finalJobs)
 
