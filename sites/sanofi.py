@@ -34,7 +34,6 @@ for job in jobs:
         {
             "job_title": job_title,
             "job_link": job_link,
-            "remote": "no",
             "country": "Romania",
             "company": company,
             "city": city,
