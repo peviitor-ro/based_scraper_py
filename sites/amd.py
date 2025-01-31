@@ -11,7 +11,7 @@ from getCounty import GetCounty
 
 _counties = GetCounty()
 
-url = "https://careers.amd.com/api/jobs?stretchUnits=MILES&stretch=10&location=Romania&limit=100&page=1&sortBy=relevance&descending=false&internal=false"
+url = " https://careers.amd.com/api/jobs?stretchUnit=MILES&stretch=10&location=Romania&woe=12&regionCode=RO&limit=100&page=1&sortBy=relevance&descending=false&internal=false"
 
 company = "AMD"
 
