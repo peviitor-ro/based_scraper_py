@@ -30,9 +30,13 @@ acurate_city = acurate_city_and_county(
 )
 
 for job in jobs_elements:
-    city = translate_city(
-        remove_diacritics(job.find("div", class_="js-job-oras").text.strip())
-    )
+    try:
+        city = translate_city(
+            remove_diacritics(job.find("div", class_="js-job-oras").text.strip())
+        )
+    except Exception:
+        city = ""
+        
     county = ""
 
     if city in acurate_city.keys():
