@@ -21,7 +21,7 @@ finalJobs = [
         "country": "Romania",
         "city": translate_city(job.get("city").title()),
         "county": _counties.get_county(translate_city(job.get("city").title())),
-        "remote": job.get("workFromHome"),
+        "remote": job.get("workFromHome").replace("Field", "")
     }
     for job in jobs
 ]

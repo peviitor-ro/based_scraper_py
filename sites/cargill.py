@@ -34,7 +34,7 @@ scraper.set_headers(
         "Accept-Language": "en-GB,en;q=0.9",
     }
 )
-scraper.get_from_url(url)
+scraper.get_from_url(url, verify=False)
 
 jobs = scraper.find("section", {"id": "search-results-list"}).find_all("li")
 
