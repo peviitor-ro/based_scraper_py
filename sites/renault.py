@@ -39,15 +39,15 @@ for num in range(iteration):
             if not county:
                 city = "Bucuresti"
                 county = "Bucuresti"
-
-            finaljobs.append({
-                "job_title": job_title,
-                "job_link": job_link,
-                "company": company.get("company"),
-                "country": "Romania",
-                "city": city,
-                "county": county
-            })
+            if len(job_link) < 300:
+                finaljobs.append({
+                    "job_title": job_title,
+                    "job_link": job_link,
+                    "company": company.get("company"),
+                    "country": "Romania",
+                    "city": city,
+                    "county": county
+                })
         except Exception:
             continue
 
