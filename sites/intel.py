@@ -1,6 +1,7 @@
 from scraper.Scraper import Scraper
 from getCounty import remove_diacritics, GetCounty
 from utils import publish_or_update, publish_logo, show_jobs, translate_city
+import json
 
 
 def get_aditional_city(url):
@@ -15,7 +16,8 @@ def get_aditional_city(url):
     counties = []
 
     for location in locations:
-        city = remove_diacritics(translate_city(location.split(",")[0].strip()))
+        city = remove_diacritics(translate_city(
+            location.split(",")[0].strip()))
         county = _counties.get_county(city)
 
         if county:
@@ -24,34 +26,35 @@ def get_aditional_city(url):
 
     return cities, counties
 
+
 _counties = GetCounty()
-url = "https://jobs.intel.com/en/search-jobs/Romania/599/2/798549/46/25/50/2"
+url = "https://intel.wd1.myworkdayjobs.com/wday/cxs/intel/External/jobs"
 
 company = "Intel"
 finalJobs = list()
 
+post_data = {"appliedFacets": {"locations": [
+    "1e4a4eb3adf101fc3983e778bf8131d1"]}, "limit": 20, "offset": 0, "searchText": ""}
+headers = {"Content-Type": "application/json"}
+
 scraper = Scraper()
-scraper.set_headers(
-    {
-        "Accept-Language": "en-GB,en;q=0.9",
-    }
-)
+scraper.set_headers(headers)
 
-scraper.get_from_url(url)
+scraper.post(url, json.dumps(post_data))
 
-jobs = scraper.find("section", {"id": "search-results-list"}).findAll("li")
+jobs = scraper.post(url, json.dumps(post_data)).json().get("jobPostings")
 
 for job in jobs:
-    job_title = job.find("h2").text.strip()
-    job_link = "https://jobs.intel.com" + job.find("a").get("href")
+    job_title = job.get("title")
+    job_link = "https://intel.wd1.myworkdayjobs.com/en-US/External" + \
+        job.get("externalPath")
 
-    cities = job.find("span", {"class": "job-location"}).text.strip()
-    if "Multiple Locations" in cities:
-        cities, counties = get_aditional_city(job_link)
+    if "," in job.get("locationsText"):
+        cities = translate_city(job.get("locationsText").split(",")[1])
     else:
-        locations = cities.split(",")
-        cities = remove_diacritics(locations[0].strip())
-        counties = remove_diacritics(locations[1].strip())
+        cities = translate_city(job.get("locationsText").split(" ")[1])
+
+    counties = _counties.get_county(cities)
 
     finalJobs.append(
         {

@@ -25,8 +25,9 @@ links = {
     3: "https://cariere.penny.ro/joburi/aplica/logistica"
 }
 
-while jobs:
+while category <= 3:
     for job in jobs:
+        
         job_title = job.get("title")
         job_link = links[category] + "#" + str(idx)
         locations = job.get("location").split(",")
