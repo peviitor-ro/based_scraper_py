@@ -9,7 +9,7 @@ def remove_words(text, words):
     return text
 
 
-url = "https://jobboerse.strabag.at/inc/jobsuche_2022.php"
+url = "https://jobboerse.strabag.at/inc/jobsuche_2025_v1.php"
 
 company = "Strabag"
 jobs = list()
@@ -29,38 +29,20 @@ while True:
     response = scraper.post(url, data=data).text
     scraper.__init__(response, "html.parser")
 
-    jobs_containers = scraper.find_all("div", class_="row datenSatz dunkelGrau")
+    jobs_containers = scraper.find_all("div", class_="search-entry__container")
 
     if len(jobs_containers) == 0:
         break
 
     for job_container in jobs_containers:
-        locations = (
-            job_container.find("div", class_="row")
-            .find_all("div")[1]
-            .text.replace("Romania", "")
-            .split(",")
-        )
-        cities = [
-            translate_city(remove_words(location, ["jud.", "(Jilava)"]).strip().title())
-            for location in locations
-        ]
-
-        counties = []
-
-        for city in cities:
-            county = _counties.get_county(city) or []
-            counties.extend(county)
 
         jobs.append(
             create_job(
-                job_title=job_container.find("div", class_="row")
-                .find_all("div")[0]
+                job_title=job_container.find(
+                    "h4", class_="search-entry__headline")
                 .text.strip(),
                 job_link=job_container.find("a")["href"],
                 country="Romania",
-                city=cities,
-                county=list(set(counties)),
                 company=company,
             )
         )
