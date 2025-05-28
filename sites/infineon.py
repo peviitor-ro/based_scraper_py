@@ -1,44 +1,44 @@
 from scraper.Scraper import Scraper
-from utils import publish_or_update, publish_logo, show_jobs, translate_city
+from utils import publish_or_update, publish_logo, show_jobs, translate_city, get_jobtype
 from getCounty import GetCounty
 
 _counties = GetCounty()
-url = "https://www.infineon.com/search/jobs/jobs"
+
+start = 0
+num = 10
+
+url = f"https://jobs.infineon.com/api/apply/v2/jobs?domain=infineon.com&start={start}&num={num}&location=Romania&pid=563808958979269&domain=infineon.com&sort_by=relevance&triggerGoButton=false"
 
 company = {"company": "Infineon"}
 finaljobs = list()
 
-data = {
-    "term": "",
-    "offset":0,
-    "max_results":100,
-    "lang":"en",
-    "country":"Romania"
-}
-
 scraper = Scraper()
-scraper.set_headers(
-    {"Content-Type": "application/x-www-form-urlencoded; charset=UTF-8"}
-)
 
-response = scraper.post(url = url, data = data)
+scraper.get_from_url(url, "JSON")
+jobs = scraper.markup.get("positions")
 
-jobs = response.json().get("pages").get("items")
+while len(jobs) > 0:
+    for job in jobs:
+        job_title = job.get("name")
+        job_link = job.get("canonicalPositionUrl")
+        city = translate_city(job.get("location").split(" ")[0].strip())
+        county = _counties.get_county(city)
+        remote = get_jobtype(job.get("work_location_option"))
 
-for job in jobs:
-    job_title = job.get("title")
-    job_link = "https://www.infineon.com" + job.get("detail_page_url")
-    city = translate_city(job.get("location")[0])
-    county = _counties.get_county(city)
-    
-    finaljobs.append({
-        "job_title": job_title,
-        "job_link": job_link,
-        "country": "Romania",
-        "city": city,
-        "county": county,
-        "company": company.get("company")
-    })
+        finaljobs.append({
+            "job_title": job_title,
+            "job_link": job_link,
+            "country": "Romania",
+            "city": city,
+            "county": county,
+            "company": company.get("company"),
+            "remote": remote
+        })
+
+    start += 10
+    url = f"https://jobs.infineon.com/api/apply/v2/jobs?domain=infineon.com&start={start}&num={num}&location=Romania&pid=563808958979269&domain=infineon.com&sort_by=relevance&triggerGoButton=false"
+    scraper.get_from_url(url, "JSON")
+    jobs = scraper.markup.get("positions")
 
 publish_or_update(finaljobs)
 
