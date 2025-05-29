@@ -5,7 +5,7 @@ company = "evozone"
 url = "https://www.evozon.com/careers/"
 
 scraper = Scraper()
-scraper.get_from_url(url)
+scraper.get_from_url(url, verify=False)
 
 jobs = scraper.find_all("div", class_="job-name")
 
