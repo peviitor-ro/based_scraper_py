@@ -9,7 +9,7 @@ _counties = GetCounty()
 url = "https://jobs.msd.com/gb/en/search-results?qcountry=Romania"
 
 company = {"company": "MSD"}
-finalJobs = list()
+finalJobs = []
 
 scraper = Scraper()
 session = scraper.session()
@@ -40,7 +40,7 @@ for query in range(querys):
         )
 
         if not county:
-            job_element["remote"] = "Remote"
+            job_element["remote"] = "remote"
         else:
             job_element["city"] = city
             job_element["county"] = county
