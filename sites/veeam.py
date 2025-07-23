@@ -1,7 +1,6 @@
 from scraper.Scraper import Scraper
 from utils import publish_or_update, publish_logo, create_job, show_jobs, translate_city
 from getCounty import GetCounty
-from urllib.parse import quote
 
 _counties = GetCounty()
 url = "https://careers.veeam.com/search-jobs/results?ActiveFacetID=0&CurrentPage=1&RecordsPerPage=150&TotalContentResults=&Distance=50&RadiusUnitType=1&Keywords=&Location=Romania&Latitude=46.00000&Longitude=25.00000&ShowRadius=False&IsPagination=False&CustomFacetName=&FacetTerm=&FacetType=0&SearchResultsModuleName=Section+11+-+Search+Results+List&SearchFiltersModuleName=Section+11+-+Search+Filters&SortCriteria=0&SortDirection=0&SearchType=1&LocationType=2&LocationPath=798549&OrganizationIds=22681&PostalCode=&ResultsType=0&fc=&fl=&fcf=&afc=&afl=&afcf=&TotalContentPages=NaN"
