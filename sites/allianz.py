@@ -1,39 +1,86 @@
 from scraper.Scraper import Scraper
-from utils import publish_or_update, publish_logo, show_jobs
-from math import ceil
-import re
+from utils import publish_or_update, publish_logo, show_jobs, translate_city
+from getCounty import GetCounty
+import json
 
-url = "https://careers.allianz.com/search/?searchby=location&createNewAlert=false&q=&locationsearch=Romania&optionsFacetsDD_department=&optionsFacetsDD_shifttype=&optionsFacetsDD_customfield3=&optionsFacetsDD_customfield2=&optionsFacetsDD_facility=&optionsFacetsDD_customfield4=&inputSearchValue=Romania&quatFlag=false"
-numberOfResults = 0
+_counties = GetCounty()
+
+url = "https://careers.allianz.com/widgets"
+
+payload = payload = json.dumps({
+    "sortBy": "",
+    "subsearch": "",
+    "from": 0,
+    "jobs": True,
+    "counts": True,
+    "all_fields": [
+        "phLocSlider",
+        "category",
+        "country",
+        "state",
+        "city",
+        "remote",
+        "employmentType",
+        "jobLevel",
+        "type",
+        "unit"
+    ],
+    "pageName": "search-results",
+    "size": 99,
+    "clearAll": False,
+    "jdsource": "facets",
+    "isSliderEnable": True,
+    "pageId": "page1",
+    "siteType": "external",
+    "keywords": "",
+    "global": True,
+    "selected_fields": {
+        "state": [
+            "Bucuresti"
+        ]
+    },
+    "locationData": {
+        "place_id": "ChIJw3aJlSb_sUARlLEEqJJP74Q",
+        "sliderRadius": 50,
+        "aboveMaxRadius": False,
+        "LocationUnit": "miles",
+        "placeVal": "Romania"
+    },
+    "s": "1",
+    "lang": "en_global",
+    "deviceType": "desktop",
+    "country": "global",
+    "refNum": "AISAIPGB",
+    "ddoKey": "eagerLoadRefineSearch"
+})
+
+headers = {
+    "Content-Type": "application/json",
+}
 
 company = {"company": "Allianz"}
-finaljobs = list()
+finaljobs = []
 
 scraper = Scraper()
-scraper.get_from_url(url, "HTML")
+scraper.set_headers(headers)
+res = scraper.post(url, payload)
 
-pattern = re.compile(r'jobRecordsFound: parseInt\("(.*)"\)')
+jobs = res.json().get("eagerLoadRefineSearch").get("data").get("jobs")
 
-totalJobs = re.search(pattern, scraper.prettify()).group(1)
 
-queryStrings = ceil(int(totalJobs) / 25)
-
-for number in range(queryStrings):
-    scraper.get_from_url(url + f"&startrow={number * 25}")
-    elements = scraper.find_all("li", {"class": "job-tile"})
-    finaljobs.extend(
-        [
-            {
-                "job_title": element.find("a").text.strip(),
-                "job_link": "https://careers.allianz.com" + element.find("a").get("href"),
-                "company": company.get("company"),
-                "country": "Romania",
-                "city": "Bucuresti",
-                "county": "Bucuresti",
-                "remote": ["Hybrid"],
-            }
-            for element in elements
-        ])
+finaljobs.extend(
+    [
+        {
+            "job_title": element.get("title"),
+            "job_link": "https://careers.allianz.com/global/en/job/" + element.get("jobId"),
+            "company": company.get("company"),
+            "country": element.get("country"),
+            "city": translate_city(element.get("city")),
+            "county": _counties.get_county(translate_city(element.get("city"))),
+            "remote": ["Hybrid"],
+        }
+        for element in jobs
+    ])
 
 publish_or_update(finaljobs)
 
