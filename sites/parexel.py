@@ -6,7 +6,7 @@ _counties = GetCounty()
 url = "https://jobs.parexel.com/en/search-jobs/results?ActiveFacetID=0&CurrentPage=1&RecordsPerPage=100&Distance=50&RadiusUnitType=0&Location=Romania&Latitude=46.00000&Longitude=25.00000&ShowRadius=False&IsPagination=False&FacetType=0&SearchResultsModuleName=Search+Results&SearchFiltersModuleName=Search+Filters&SortCriteria=0&SortDirection=0&SearchType=1&LocationType=2&LocationPath=798549&OrganizationIds=877&ResultsType=0"
 
 company = {"company": "Parexel"}
-finalJobs = list()
+finalJobs = []
 
 scraper = Scraper()
 scraper.set_headers({
