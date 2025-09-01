@@ -1,10 +1,7 @@
 from scraper.Scraper import Scraper
-from utils import translate_city, publish_or_update, publish_logo, show_jobs
-from getCounty import GetCounty
+from utils import publish_or_update, publish_logo, show_jobs
 from math import ceil
 import json
-
-_counties = GetCounty()
 
 apiUrl = "https://zentiva.wd3.myworkdayjobs.com/wday/cxs/zentiva/Zentiva/jobs"
 scraper = Scraper()
@@ -38,11 +35,6 @@ for num in range(iteration):
         job_link = "https://zentiva.wd3.myworkdayjobs.com/en-US/Zentiva" + job.get(
             "externalPath"
         )
-        city = translate_city(
-            job.get("bulletFields")[1].split("/")[1].split(";")[0].strip()
-        )
-
-        county = _counties.get_county(city)
 
         finaljobs.append(
             {
@@ -50,8 +42,8 @@ for num in range(iteration):
                 "job_link": job_link,
                 "company": company.get("company"),
                 "country": "Romania",
-                "city": city,
-                "county": county,
+                "city": "Bucuresti",
+                "county": "Bucuresti",
             }
         )
 
