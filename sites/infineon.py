@@ -14,7 +14,7 @@ finaljobs = list()
 
 scraper = Scraper()
 
-scraper.get_from_url(url, "JSON")
+scraper.get_from_url(url=url,type= "JSON", verify=False)
 jobs = scraper.markup.get("positions")
 
 while len(jobs) > 0:
@@ -37,7 +37,7 @@ while len(jobs) > 0:
 
     start += 10
     url = f"https://jobs.infineon.com/api/apply/v2/jobs?domain=infineon.com&start={start}&num={num}&location=Romania&pid=563808958979269&domain=infineon.com&sort_by=relevance&triggerGoButton=false"
-    scraper.get_from_url(url, "JSON")
+    scraper.get_from_url(url=url,type= "JSON", verify=False)
     jobs = scraper.markup.get("positions")
 
 publish_or_update(finaljobs)
