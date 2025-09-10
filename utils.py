@@ -58,6 +58,7 @@ def publish_logo(company, logo_url):
         "https://api.peviitor.ro/v3/logo/add/",
         headers={"Content-Type": content_type},
         json=[{"id": company, "logo": logo_url}],
+        timeout=10,
     )
 
 
