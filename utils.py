@@ -54,12 +54,15 @@ def publish_or_update(data):
 
 def publish_logo(company, logo_url):
     content_type = "application/json"
-    requests.post(
-        "https://api.peviitor.ro/v3/logo/add/",
-        headers={"Content-Type": content_type},
-        json=[{"id": company, "logo": logo_url}],
-        timeout=10,
-    )
+    try:
+        requests.post(
+            "https://api.peviitor.ro/v3/logo/add/",
+            headers={"Content-Type": content_type},
+            json=[{"id": company, "logo": logo_url}],
+            timeout=10,
+        )
+    except Exception as e:
+        print(f"Failed to publish logo for {company}. Error: {e}")
 
 
 def show_jobs(data):
