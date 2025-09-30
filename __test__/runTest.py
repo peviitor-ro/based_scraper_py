@@ -1,3 +1,35 @@
+"""
+Scraper Validation Test Script
+
+This script validates scrapers by checking their output against required rules.
+
+Validation Rules:
+-----------------
+1. Required keys (must be present with non-None values):
+   - company: The company name
+   - job_title: The job title
+   - job_link: URL to the job posting
+
+2. Optional keys (may be present):
+   - city: City location(s) 
+   - county: County location(s)
+   - remote: Work arrangement options (must be a list)
+
+3. Remote field validation (when present):
+   - Must be a list (even if empty)
+   - All values must be lowercase
+   - Only allowed values: 'remote', 'on-site', 'hybrid'
+   - Examples:
+     * {"remote": ["remote"]}
+     * {"remote": ["on-site", "hybrid"]}
+     * {"remote": []}
+
+4. All other keys are rejected.
+
+The script runs all changed scraper files (in sites/ directory) and validates
+their JSON output against these rules.
+"""
+
 import subprocess
 import json
 import re 
