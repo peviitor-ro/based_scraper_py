@@ -14,7 +14,7 @@ for file in files:
     if file.startswith('sites/'):
         run_file = subprocess.run(["python3", os.getcwd() + "/" + file], capture_output=True).stdout.decode('utf-8')
 
-        pattern = re.compile(r"(\[.*?\])", re.DOTALL)
+        pattern = re.compile(r"(\[.*\])", re.DOTALL)
         matches = pattern.findall(run_file)
 
         scraper_obj = json.loads(matches[0])
