@@ -44,7 +44,10 @@ files = list(filter(None, files))
 for file in files:
     print(f'Running {file} ...')
     if file.startswith('sites/'):
-        run_file = subprocess.run(["python3", os.getcwd() + "/" + file], capture_output=True).stdout.decode('utf-8')
+        directory = os.path.abspath(file).rsplit('/', 1)[0].replace('__test__/', '')
+        file_name = file.rsplit('/', 1)[1]
+
+        run_file = subprocess.run(["python3", directory + "/" + file_name], capture_output=True).stdout.decode('utf-8')
 
         pattern = re.compile(r"(\[.*\])", re.DOTALL)
         matches = pattern.findall(run_file)
