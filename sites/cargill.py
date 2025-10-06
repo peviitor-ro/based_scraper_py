@@ -61,7 +61,6 @@ for job in jobs:
             "job_title": job_title,
             "job_link": job_link,
             "company": company.get("company"),
-            "country": "Romania",
             "city": city,
             "county": county,
         }
