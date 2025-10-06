@@ -5,7 +5,7 @@ from getCounty import GetCounty, remove_diacritics
 _counties = GetCounty()
 def get_aditional_city(url):
     scraper = Scraper()
-    scraper.get_from_url(url)
+    scraper.get_from_url(url, verify=False)
 
     locations = scraper.find("span", {"class": "job-location"}).text.split("|")
 
