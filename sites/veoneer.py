@@ -40,7 +40,6 @@ for job in jobs:
         {
             "job_title": job_title,
             "job_link": job_link,
-            "country": "Romania",
             "city": cities,
             "county": counties,
             "company": company.get("company"),
