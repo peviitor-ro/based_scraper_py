@@ -56,7 +56,7 @@ for file in files:
 
         # Define required and optional keys
         required_keys = ['company', 'job_title', 'job_link']
-        optional_keys = ['city', 'county', 'remote']
+        optional_keys = ['city', 'county', 'remote', 'country']
         allowed_keys = required_keys + optional_keys
         
         # Define allowed remote values
