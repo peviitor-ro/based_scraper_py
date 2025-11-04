@@ -5,43 +5,44 @@ from math import ceil
 
 _counties = GetCounty()
 company = "SiemensHealthineers"
-url = "https://jobs.siemens-healthineers.com/api/apply/v2/jobs?domain=siemens.com&profile=&query=Romania&location=Romania&pid=563156116352285&domain=siemens.com&sort_by=relevance&triggerGoButton=true"
+url = "https://jobs.siemens-healthineers.com/en_US/searchjobs/SearchJobs/?42449=%5B812022%5D&42449_format=17593&listFilterMode=1&folderRecordsPerPage=6&"
 
 scraper = Scraper()
-scraper.get_from_url(url, type="JSON")
-
+scraper.get_from_url(url, verify=False)
 jobs = []
 
-step = 10
-total_jobs = scraper.markup["count"]
+step = 6
+total_jobs = int(scraper.find(
+    "div", class_="list-controls__text__legend").text.strip().split(" ")[0]
+)
 
-pages = ceil(int(total_jobs) / step)
+pages = ceil(total_jobs / step)
 
 for page in range(pages):
-    for job in scraper.markup["positions"]:
-        cities = [
-            translate_city(city.split(",")[0].replace("?", "s").replace(" ", "-"))
-            for city in job["locations"]
-        ]
+    jobs_elements = scraper.find_all("article", class_="article")
+    for job in jobs_elements:
+        city = translate_city(
+            job.find("span", class_="list-item-jobCity").text.strip()
+        )
         counties = []
 
-        for city in cities:
-            county = _counties.get_county(city) or []
-            counties.extend(county)
+        county = _counties.get_county(city) or []
+        counties.extend(county)
 
         jobs.append(
             create_job(
-                job_title=job["name"],
-                job_link=job["canonicalPositionUrl"],
-                city=cities,
+                job_title=job.find("a", class_="link").text.strip(),
+                job_link=job.find("a", class_="link")["href"],
+                city=city,
                 county=counties,
                 country="Romania",
                 company=company
             )
         )
         
-    url = f"{url}&start={page * step}&num={page * step + step}"
-    scraper.get_from_url(url, type="JSON")
+    url = f"https://jobs.siemens-healthineers.com/en_US/searchjobs/SearchJobs/?42449=%5B812022%5D&42449_format=17593&listFilterMode=1&folderRecordsPerPage=6&folderOffset={step * (page + 1)}"
+    scraper.get_from_url(url, verify=False)
+
 
 publish_or_update(jobs)
 
