@@ -43,6 +43,7 @@ for job in jobs:
             "city": cities,
             "county": counties,
             "company": company.get("company"),
+            "country": "Romania",
         }
     )
 
