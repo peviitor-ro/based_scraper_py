@@ -4,7 +4,7 @@ from getCounty import GetCounty
 from math import ceil
 
 _counties = GetCounty()
-url = "https://jobs.ericsson.com/api/apply/v2/jobs?domain=ericsson.com&start=0&num=10&location=Romania&domain=ericsson.com&sort_by=relevance"
+url = "https://jobs.ericsson.com/api/pcsx/search?domain=ericsson.com&query=&location=Romania&start=0&sort_by=distance&filter_include_remote=1"
 
 company = "Ericsson"
 jobs = list()
@@ -12,16 +12,16 @@ jobs = list()
 scraper = Scraper()
 scraper.get_from_url(url, "JSON")
 
-tota_jobs = scraper.markup["count"]
+tota_jobs = scraper.markup["data"]["count"]
 step = 10
 
 pages = ceil(tota_jobs / step)
 
 for page in range(pages):
-    url = f"https://jobs.ericsson.com/api/apply/v2/jobs?domain=ericsson.com&start={page * step}&num={step}&location=Romania&domain=ericsson.com&sort_by=relevance"
+    url = f"https://jobs.ericsson.com/api/pcsx/search?domain=ericsson.com&query=&location=Romania&start={page * step}&sort_by=distance&filter_include_remote=1"
     scraper.get_from_url(url, "JSON")
 
-    for job in scraper.markup["positions"]:
+    for job in scraper.markup["data"]["positions"]:
         cities = [
             translate_city(location.split(",")[0])
             for location in job["locations"]
@@ -35,7 +35,7 @@ for page in range(pages):
         jobs.append(
             create_job(
                 job_title=job["name"],
-                job_link=job["canonicalPositionUrl"],
+                job_link="https://jobs.ericsson.com" + job["positionUrl"],
                 company=company,
                 country="Romania",
                 city=cities,
