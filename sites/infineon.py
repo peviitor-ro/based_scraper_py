@@ -26,7 +26,9 @@ while len(jobs) > 0:
         county = [
             c for city_name in city for c in _counties.get_county(city_name) or []
         ]
-        remote = job.get("efcustomTextWorkplaceType")
+        remote = [
+            type.lower() for type in job.get("efcustomTextWorkplaceType", [])
+        ]
 
         finaljobs.append({
             "job_title": job_title,
