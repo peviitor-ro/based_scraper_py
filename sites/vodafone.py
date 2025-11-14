@@ -5,7 +5,7 @@ from getCounty import GetCounty
 
 _counties = GetCounty()
 
-url = "https://jobs.vodafone.com/api/apply/v2/jobs?domain=vodafone.com&start=10&num=10&exclude_pid=563018680721259&location=Romania&pid=563018680721259&domain=vodafone.com&sort_by=relevance"
+url = "https://jobs.vodafone.com/api/pcsx/search?domain=vodafone.com&query=&location=Romania&start=0&"
 
 company = "Vodafone"
 jobs = []
@@ -13,13 +13,13 @@ jobs = []
 scraper = Scraper(url)
 scraper.get_from_url(url, "JSON")
 
-total_jobs = scraper.markup["count"]
+total_jobs = scraper.markup["data"]["count"]
 step = 10
 pages = ceil(total_jobs / step)
 
 for page in range(0, pages):
 
-    for job in scraper.markup["positions"]:
+    for job in scraper.markup["data"]["positions"]:
         locations = job["location"].split(",")
         country = locations[-1].strip()
         consol = locations[0].strip()
@@ -32,7 +32,7 @@ for page in range(0, pages):
         jobs.append(
             create_job(
                 job_title=job["name"],
-                job_link=job["canonicalPositionUrl"],
+                job_link="https://jobs.vodafone.com" + job["positionUrl"],
                 city=city,
                 country="Romania",
                 company=company,
@@ -40,7 +40,7 @@ for page in range(0, pages):
             )
         )
 
-    url = f"https://jobs.vodafone.com/api/apply/v2/jobs?domain=vodafone.com&start={page * step}&num={step}&exclude_pid=563018680721259&location=Romania&pid=563018680721259&domain=vodafone.com&sort_by=relevance"
+    url = f"https://jobs.vodafone.com/api/pcsx/search?domain=vodafone.com&query=&location=Romania&start={ (page + 1) * step }&"
     scraper.get_from_url(url, "JSON")
 
 publish_or_update(jobs)
