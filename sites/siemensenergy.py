@@ -10,7 +10,7 @@ company = {"company": "SiemensEnergy"}
 finalJobs = list()
 
 scraper = Scraper()
-scraper.get_from_url(url)
+scraper.get_from_url(url, verify=False)
 
 totalJobs = int(
     scraper.find("div", {"class": "list-controls__text__legend"})
@@ -26,7 +26,7 @@ for page in range(pages):
         "https://jobs.siemens-energy.com/en_US/jobs/Jobs/?29454=964547&29454_format=11381&listFilterMode=1&folderRecordsPerPage=20&folderOffset="
         + str(page * 20)
     )
-    scraper.get_from_url(url)
+    scraper.get_from_url(url, verify=False)
 
     jobs = scraper.find_all("details", {"class": "article--result--container"})
 
