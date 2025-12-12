@@ -21,9 +21,12 @@ pages = ceil(total_jobs / step)
 for page in range(pages):
     jobs_elements = scraper.find_all("article", class_="article")
     for job in jobs_elements:
-        city = translate_city(
-            job.find("span", class_="list-item-jobCity").text.strip()
-        )
+        try:
+            city = translate_city(
+                job.find("span", class_="list-item-jobCity").text.strip()
+            )
+        except Exception as e:
+            city = ""
         counties = []
 
         county = _counties.get_county(city) or []
