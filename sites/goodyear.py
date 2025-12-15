@@ -1,46 +1,46 @@
 from scraper.Scraper import Scraper
 from utils import publish_or_update, publish_logo, create_job, show_jobs, translate_city
 from math import ceil
-from getCounty import GetCounty
+import json
 
-_counties = GetCounty()
 company = "GoodYear"
-url = "https://jobs.goodyear.com/search/?createNewAlert=false&q=&locationsearch=Romania"
+url = " https://goodyear.wd1.myworkdayjobs.com/wday/cxs/goodyear/GoodyearCareers/jobs"
 
+post_data = {"appliedFacets": {"locations": ["013bdadd1adf100168e66388c7390000",
+                                             "8e6033e1c034100168b80fcc8d420000"]}, "limit": 20, "offset": 0, "searchText": ""}
+
+headers = {"Content-Type": "application/json"}
 scraper = Scraper()
-scraper.get_from_url(url)
+scraper.set_headers(headers)
+obj = scraper.post(url, json.dumps(post_data))
 
-totalJobs = int(
-    scraper.find("span", class_="paginationLabel").find_all("b")[-1].text.strip()
-)
-
-pages = ceil(totalJobs / 25)
+step = 20
+total_jobs = obj.json()["total"]
+pages = ceil(total_jobs / step)
 
 jobs = []
 
-for page in range(1, pages + 1):
+for pages in range(0, pages):
+    if pages > 1:
+        post_data["offset"] = pages * step
+        obj = scraper.post(url, json.dumps(post_data))
 
-    jobs_elements = (
-        scraper.find("table", id="searchresults").find("tbody").find_all("tr")
-    )
-
-    for job in jobs_elements:
-        job_link = "https://jobs.goodyear.com" + job.find("a")["href"]
-        job_title = job.find("a").text.strip()
-        job_location = translate_city(job.find("span", class_="jobLocation").text.split(",")[0].title().strip())
+    for job in obj.json()["jobPostings"]:
+        job_title = job["title"]
+        job_link = "https://goodyear.wd1.myworkdayjobs.com/en-US/GoodyearCareers" + \
+            job["externalPath"]
+        country = "Romania"
+        remote = [job.get("remoteType") if job.get("remoteType") else []]
 
         jobs.append(
             create_job(
                 job_title=job_title,
                 job_link=job_link,
-                city=job_location,
-                county = _counties.get_county(job_location),
                 country="Romania",
                 company=company,
+                remote=remote,
             )
         )
-
-    scraper.get_from_url(url + f"&startrow={page * 25}")
 
 
 publish_or_update(jobs)
