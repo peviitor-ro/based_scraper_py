@@ -7,7 +7,7 @@ _counties = GetCounty()
 url = "https://tbibankro.recruitee.com/"
 
 scraper = Scraper()
-scraper.get_from_url(url)
+scraper.get_from_url(url, verify=False)
 
 container = scraper.find("div", {"data-component": "PublicApp"})
 
