@@ -13,7 +13,7 @@ finalJobs = []
 
 scraper = Scraper()
 session = scraper.session()
-response = session.get(url)
+response = session.get(url, verify=False)
 
 pattern = re.compile(r"phApp.ddo = {(.*?)};", re.DOTALL)
 
