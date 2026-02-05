@@ -16,7 +16,7 @@ data = {"Departments":[],"Locations":[],"CareerLevel":None,"WorkplaceType":None,
 scraper = Scraper()
 scraper.set_headers(headers)
 
-jobs = scraper.post(apiUrl, json.dumps(data)).json().get("Results") or []
+jobs = scraper.post(apiUrl, json.dumps(data), verify=False).json().get("Results") or []
 
 company = {"company": "KPMG"}
 finalJobs = list()

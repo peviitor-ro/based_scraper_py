@@ -20,7 +20,7 @@ headers = {
 
 scraper = Scraper()
 scraper.set_headers(headers)
-response = scraper.post(url, data=payload)
+response = scraper.post(url, data=payload, verify=False)
 
 for job in response.json()["data"]["jobs"]:
     city = translate_city(remove_diacritics(job["city"]))
