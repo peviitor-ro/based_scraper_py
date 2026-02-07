@@ -1,61 +1,53 @@
 from scraper.Scraper import Scraper
 from utils import publish_or_update, publish_logo, create_job, show_jobs, translate_city
-from getCounty import GetCounty
+import json
+from math import ceil
 
-_counties = GetCounty()
 company = "atkinsrealis"
-url = "https://careers.atkinsrealis.com/jobs?options=,6477&page="
-page = 1
+url = "https://slihrms.wd3.myworkdayjobs.com/wday/cxs/slihrms/Careers/jobs"
+post_data = {"appliedFacets": {"locations": [
+    "a19c13ab2cba10a5238f4fb548d3bdf5"]}, "limit": 20, "offset": 0, "searchText": ""}
 
 scraper = Scraper()
 scraper.set_headers(
-    {
+    {   
+        "content-type": "application/json",
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/ 91.0.4472.124 Safari/537.36",
     }
 )
 
-scraper.get_from_url(url + str(page), verify=False)
+obj = scraper.post(url, json.dumps(post_data))
+
+step = 20
+total_jobs = obj.json()["total"]
+pages = ceil(total_jobs / step)
 
 jobs = []
-jobs_elements = scraper.find("div", class_="attrax-list-widget__lists").find_all(
-    "div", class_="attrax-vacancy-tile")
 
-while True:
-    for job in jobs_elements:
+for pages in range(0, pages):
+    if pages > 1:
+        post_data["offset"] = pages * step
+        obj = scraper.post(url, json.dumps(post_data))
 
-        job_title = job.find(
-            "a", class_="attrax-vacancy-tile__title").text.strip()
-        job_link = (
-            "https://careers.atkinsrealis.com"
-            + job.find("a", class_="attrax-vacancy-tile__title")["href"]
-        )
-        city = translate_city(
-            job.find(
-                "div", class_="attrax-vacancy-tile__option-location-valueset"
-            ).text.strip()
-        )
-
-        county = _counties.get_county(city) or []
+    for job in obj.json()["jobPostings"]:
+        job_title = job["title"]
+        job_link = "https://slihrms.wd3.myworkdayjobs.com/en-US/Careers" + \
+            job["externalPath"]
+        country = "Romania"
+        remote = [job.get("remoteType")] if job.get("remoteType") else []
 
         jobs.append(
             create_job(
                 job_title=job_title,
                 job_link=job_link,
-                city=city,
-                county=county,
-                company=company,
                 country="Romania",
+                city="Bucuresti",
+                county="Bucuresti",
+                company=company,
+                remote=remote,
             )
         )
 
-    page += 1
-    scraper.get_from_url(url + str(page), verify=False)
-    try:
-        jobs_elements = scraper.find(
-            "div", class_="attrax-list-widget__lists"
-        ).find_all("div", class_="attrax-vacancy-tile")
-    except AttributeError:
-        break
 
 publish_or_update(jobs)
 
