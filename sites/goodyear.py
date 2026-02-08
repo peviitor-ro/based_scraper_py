@@ -4,10 +4,10 @@ from math import ceil
 import json
 
 company = "GoodYear"
-url = " https://goodyear.wd1.myworkdayjobs.com/wday/cxs/goodyear/GoodyearCareers/jobs"
+url = "https://goodyear.wd1.myworkdayjobs.com/wday/cxs/goodyear/GoodyearCareers/jobs"
 
-post_data = {"appliedFacets": {"locations": ["013bdadd1adf100168e66388c7390000",
-                                             "8e6033e1c034100168b80fcc8d420000"]}, "limit": 20, "offset": 0, "searchText": ""}
+post_data = {"appliedFacets": {"locations": ["8e6033e1c034100168b80fcc8d420000",
+                                             "013bdadd1adf100168e66388c7390000"]}, "limit": 20, "offset": 0, "searchText": ""}
 
 headers = {"Content-Type": "application/json"}
 scraper = Scraper()
@@ -30,7 +30,7 @@ for pages in range(0, pages):
         job_link = "https://goodyear.wd1.myworkdayjobs.com/en-US/GoodyearCareers" + \
             job["externalPath"]
         country = "Romania"
-        remote = [job.get("remoteType") if job.get("remoteType") else []]
+        remote = [job.get("remoteType")] if job.get("remoteType") else []
 
         jobs.append(
             create_job(
