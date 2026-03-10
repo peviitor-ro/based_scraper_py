@@ -11,16 +11,22 @@ url = "https://career.hm.com/wp-json/hm/v1/sr/jobs/search?_locale=user"
 
 headers = {
     "Content-Type": "application/json",
-    "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.0 Safari/605.1.15"
+    "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.0 Safari/605.1.15",
+    "Accept": "application/json",
+    "Accept-Language": "en-US,en;q=0.9",
+    "Origin": "https://career.hm.com",
+    "Referer": "https://career.hm.com/",
+    "Sec-Fetch-Dest": "empty",
+    "Sec-Fetch-Mode": "cors",
+    "Sec-Fetch-Site": "same-origin"
 }
 
 scraper = Scraper()
 scraper.set_headers(headers)
-jobs = scraper.post(url, json.dumps(data)).json()
+jobs = scraper.post(url, data=json.dumps(data)).json()
 
 company = {"company": "HM"}
 finalJobs = list()
-z
 while jobs.get("jobs"):
     for job in jobs.get("jobs"):
         job_title = job.get("title")
@@ -40,7 +46,7 @@ while jobs.get("jobs"):
         )
 
     data["page"] += 1
-    jobs = scraper.post(url, data).json()
+    jobs = scraper.post(url, data=json.dumps(data)).json()
 
 publish_or_update(finalJobs)
 

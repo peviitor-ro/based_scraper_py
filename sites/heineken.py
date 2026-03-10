@@ -24,7 +24,7 @@ acurate_city = acurate_city_and_county(
 
 while jobsFound:
     url = f"https://careers.theheinekencompany.com/search/?createNewAlert=false&q=&locationsearch=Romania&startrow={startRow}"
-    scraper.get_from_url(url)
+    scraper.get_from_url(url, verify=False)
     jobs = scraper.find_all("tr", {"class": "data-row"})
     for job in jobs:
         if (

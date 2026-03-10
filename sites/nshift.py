@@ -1,54 +1,68 @@
 from scraper.Scraper import Scraper
-from utils import publish_or_update, publish_logo, create_job, show_jobs
-import re
+from utils import publish_or_update, publish_logo, create_job, show_jobs, translate_city
 import requests
 
 company = "nShift"
-url = "https://cdn.jobylon.com/jobs/companies/890/embed/v1/?target=jobylon-jobs-widget&page_size=100"
-pattern = re.compile(r"var html_embed = '(.*?)';")
+url = "https://careers.nshift.com/jobs"
 
 response = requests.get(url)
-html = re.findall(pattern, response.text)[0]
-scraper = Scraper(html, "html.parser")
+scraper = Scraper(response.text, "html.parser")
 
 jobs = []
 
-jobs_elements = scraper.find_all("div", class_="jobylon-job")
+job_elements = scraper.find_all("a", href=lambda x: x and "/jobs/" in x and "locations" not in x)
 
-for job_element in jobs_elements:
+target_locations = ["Bucharest", "Brasov", "Cluj-Napoca", "București"]
 
-    locations = ["Romania", "Buchares"]
-
-    location = (
-        job_element.find("li", class_="jobylon-location")
-        .text.split(":")[1]
-        .split(" ")[1]
-        .strip()
-    )
-    print(location)
-
-    if location in locations:
-        if location == "Romania":
+for job_element in job_elements:
+    try:
+        title_elem = job_element.find("span", class_="text-block-base-link")
+        if not title_elem:
+            continue
+        
+        job_title = title_elem.text.strip()
+        job_link = job_element.get("href")
+        
+        spans = job_element.find_all("span")
+        
+        location_text = None
+        for i, span in enumerate(spans):
+            span_text = span.text.strip()
+            for target in target_locations:
+                if target.lower() in span_text.lower():
+                    location_text = span_text
+                    break
+            if location_text:
+                break
+        
+        if not location_text:
+            continue
+            
+        city = location_text.split(",")[0].strip()
+        
+        if "București" in city:
             city = "Bucharest"
-        else:
-            city = location
-            location = "Romania"
+        elif "Brașov" in city:
+            city = "Brasov"
+            
+        city = translate_city(city)
+        
         jobs.append(
             create_job(
-                job_title=job_element.find(
-                    "div", class_="jobylon-job-title"
-                ).text.strip(),
-                job_link=job_element.find("a", class_="jobylon-apply-btn")["href"],
+                job_title=job_title,
+                job_link=job_link,
                 city=city,
-                country=location,
+                country="Romania",
                 company=company,
             )
         )
+    except Exception as e:
+        continue
 
 publish_or_update(jobs)
 
 publish_logo(
     company,
-    "https://media-eu.jobylon.com/CACHE/companies/company-logo/nshift/nshift-gart-lp-logo.1a151e03/2ace39d080af84b6618cdc6fd1b86896.jpg",
+    "https://images.teamtailor-cdn.com/images/s3/teamtailor-production/logotype-v1/image_uploads/6b643d11-63d9-466b-bdc1-dfbab828db19/original.png",
 )
 show_jobs(jobs)
