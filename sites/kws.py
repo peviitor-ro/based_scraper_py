@@ -12,25 +12,27 @@ scraper.get_from_url(url)
 
 jobs = []
 
-jobs_elements = scraper.find(
-    'table', id='searchresults').find('tbody').find_all('tr')
+searchresults_table = scraper.find('table', id='searchresults')
 
-for job in jobs_elements:
-    job_title = job.find('a', class_='jobTitle-link').text
-    job_link = 'https://jobs.kws.com' + \
-        job.find('a', class_='jobTitle-link')['href']
-    city = translate_city(remove_diacritics(
-        job.find('span', class_='jobLocation').text.split(',')[0].strip()))
-    county = _counties.get_county(city)
+if searchresults_table:
+    jobs_elements = searchresults_table.find('tbody').find_all('tr')
 
-    jobs.append(create_job(
-        job_title=job_title,
-        job_link=job_link,
-        city=city,
-        county=county,
-        country='Romania',
-        company=company,
-    ))
+    for job in jobs_elements:
+        job_title = job.find('a', class_='jobTitle-link').text
+        job_link = 'https://jobs.kws.com' + \
+            job.find('a', class_='jobTitle-link')['href']
+        city = translate_city(remove_diacritics(
+            job.find('span', class_='jobLocation').text.split(',')[0].strip()))
+        county = _counties.get_county(city)
+
+        jobs.append(create_job(
+            job_title=job_title,
+            job_link=job_link,
+            city=city,
+            county=county,
+            country='Romania',
+            company=company,
+        ))
 
 publish_or_update(jobs)
 

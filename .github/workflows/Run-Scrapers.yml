@@ -6,7 +6,7 @@ on:
   workflow_dispatch:    
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   build:
@@ -19,12 +19,29 @@ jobs:
       uses: actions/setup-python@v3
       with:
         python-version: "3.10"
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: "20"
     - name: Install dependencies
       run: |
         python3 -m pip install --upgrade pip
         python3 setup.py develop
         npm i peviitor_jsscraper
+        npm i -g opencode-ai@latest
     - name: Runing Scrapers
       run: |
         source access_token.sh
         python3 sites/main.py
+    - name: Push repaired scrapers
+      run: |
+        if git diff --quiet -- sites; then
+          echo "No repaired scrapers to push."
+          exit 0
+        fi
+
+        git config user.name "github-actions[bot]"
+        git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+        git add sites
+        git commit -m "fix auto-repaired scrapers"
+        git push

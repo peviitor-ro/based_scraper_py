@@ -15,7 +15,7 @@ scraper.set_headers(
     }
 )
 
-scraper.get_from_url(url, "JSON")
+scraper.get_from_url(url, "JSON", verify=False)
 scraper.__init__(scraper.markup.get("results"), "html.parser")
 
 jobs = scraper.find_all("li")
