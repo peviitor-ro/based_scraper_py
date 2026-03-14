@@ -1,8 +1,10 @@
-from scraper.Scraper import Scraper
 from utils import publish_or_update, publish_logo, create_job, show_jobs, translate_city
 from getCounty import GetCounty, remove_diacritics
+import requests
+import urllib3
 
 _counties = GetCounty()
+urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 company = "Segula"
 jobs = []
 
@@ -10,7 +12,7 @@ url = "https://careers.segulatechnologies.com/wp/wp-admin/admin-ajax.php"
 
 payload = {
     "action": "sgl_jobs_ajax",
-    "" "limit": 100,
+    "limit": 100,
     "location": "Romania",
 }
 
@@ -18,9 +20,7 @@ headers = {
     "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
 }
 
-scraper = Scraper()
-scraper.set_headers(headers)
-response = scraper.post(url, data=payload, verify=False)
+response = requests.post(url, data=payload, headers=headers, timeout=10, verify=False)
 
 for job in response.json()["data"]["jobs"]:
     city = translate_city(remove_diacritics(job["city"]))

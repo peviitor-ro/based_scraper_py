@@ -1,10 +1,12 @@
-from scraper.Scraper import Scraper
 from utils import publish_or_update, publish_logo, show_jobs, translate_city
-import json
 from getCounty import GetCounty
+import requests
+import urllib3
 
 _counties = GetCounty()
-apiUrl = " https://careers.kpmg.ro/api/Talentlyft/jobs/filter"
+urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+
+apiUrl = "https://careers.kpmg.ro/api/Talentlyft/jobs/filter"
 
 headers = {
     "Accept": "application/json",
@@ -13,19 +15,16 @@ headers = {
 
 data = {"Departments":[],"Locations":[],"CareerLevel":None,"WorkplaceType":None,"Tags":[],"CurrentPage":1,"PageSize":10}
 
-scraper = Scraper()
-scraper.set_headers(headers)
-
-jobs = scraper.post(apiUrl, json.dumps(data), verify=False).json().get("Results") or []
-
 company = {"company": "KPMG"}
 finalJobs = list()
+
+jobs = requests.post(apiUrl, json=data, headers=headers, timeout=10, verify=False).json().get("Data") or []
 
 while jobs:
     for job in jobs:
         job_title = job.get("Title")
         job_link = job.get("AbsoluteUrl")
-        city = translate_city(job.get("Location").get("City"))
+        city = translate_city(job.get("City"))
         county = _counties.get_county(city)
 
         finalJobs.append({
@@ -38,7 +37,7 @@ while jobs:
         })
 
     data["CurrentPage"] += 1
-    jobs = scraper.post(apiUrl, json.dumps(data)).json().get("Results")
+    jobs = requests.post(apiUrl, json=data, headers=headers, timeout=10, verify=False).json().get("Data") or []
 
 publish_or_update(finalJobs)
 

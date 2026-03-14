@@ -1,74 +1,91 @@
-from scraper.Scraper import Scraper
 from utils import translate_city, publish_or_update, publish_logo, show_jobs
 from getCounty import GetCounty
-import json
-import re
-from math import ceil
+import requests
 
 _counties = GetCounty()
 
-url = "https://careers.adobe.com/us/en/search-results"
+url = "https://careers.adobe.com/widgets"
+
+payload = {
+    "lang": "en_us",
+    "deviceType": "desktop",
+    "country": "us",
+    "pageName": "search-results",
+    "ddoKey": "refineSearch",
+    "sortBy": "",
+    "subsearch": "",
+    "from": 0,
+    "irs": False,
+    "jobs": True,
+    "counts": True,
+    "all_fields": [
+        "remote",
+        "country",
+        "state",
+        "city",
+        "experienceLevel",
+        "category",
+        "profession",
+        "employmentType",
+        "jobLevel",
+    ],
+    "size": 10,
+    "clearAll": False,
+    "jdsource": "facets",
+    "isSliderEnable": False,
+    "pageId": "page15-ds",
+    "siteType": "external",
+    "keywords": "",
+    "global": True,
+    "selected_fields": {"country": ["Romania"]},
+    "locationData": {},
+}
+
+headers = {"Content-Type": "application/json"}
 
 company = {"company": "Adobe"}
 finalJobs = list()
 
-scraper = Scraper()
-scraper.get_from_url(url, "HTML")
+def get_jobs(offset):
+    request_payload = payload.copy()
+    request_payload["from"] = offset
+    response = requests.post(url, json=request_payload, headers=headers, timeout=10)
+    response = response.json().get("refineSearch", {})
+    return response.get("totalHits", 0), response.get("data", {}).get("jobs", [])
 
-pattern = re.compile(r"phApp.ddo = {(.*?)};", re.DOTALL)
+totalJobs, jobs = get_jobs(0)
 
-data = re.search(pattern, scraper.prettify()).group(1)
-totalJobs = json.loads("{" + data + "}").get("eagerLoadRefineSearch").get("totalHits")
-
-querys = ceil(totalJobs / 10)
-
-for query in range(0, querys):
-    url = (
-        "https://careers.adobe.com/us/en/search-results?keywords=Romania&from="
-        + str(query * 10)
-        + "&s=1"
-    )
-    scraper.get_from_url(url, "HTML")
-    data = re.search(pattern, scraper.prettify()).group(1)
-    jobs = (
-        json.loads("{" + data + "}")
-        .get("eagerLoadRefineSearch")
-        .get("data")
-        .get("jobs")
-    )
+for offset in range(0, totalJobs, payload["size"]):
+    if offset != 0:
+        _, jobs = get_jobs(offset)
 
     for job in jobs:
         country = job.get("country")
-        if country == "Romania":
-            job_title = job.get("title")
-            job_link = "https://careers.adobe.com/us/en/job/" + job.get("jobId")
-            city = job.get("city")
+        if country != "Romania":
+            continue
 
-            remote = []
+        city = job.get("city") or (job.get("cityStateCountry") or "").split(",")[0]
+        remote = []
 
-            if not city:
-                city = job.get("cityStateCountry").split(",")[0]
+        if city == "Remote":
+            city = ""
+            remote.append("Remote")
 
-            if city == "Remote":
-                city = ""
-                remote.append("Remote")
+        job_element = {
+            "job_title": job.get("title"),
+            "job_link": "https://careers.adobe.com/us/en/job/" + job.get("jobId"),
+            "company": company.get("company"),
+            "country": country,
+            "city": city,
+            "remote": remote,
+        }
 
-            job_element = {
-                "job_title": job_title,
-                "job_link": job_link,
-                "company": company.get("company"),
-                "country": country,
-                "city": city,
-                "remote": remote,
-            }
+        if city:
+            city = translate_city(city)
+            county = _counties.get_county(city)
+            job_element.update({"city": city, "county": county})
 
-            if city:
-                city = translate_city(city)
-                county = _counties.get_county(city)
-
-                job_element.update({"city": city, "county": county})
-
-            finalJobs.append(job_element)
+        finalJobs.append(job_element)
 
 publish_or_update(finalJobs)
 
