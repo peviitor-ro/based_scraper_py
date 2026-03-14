@@ -82,22 +82,22 @@ jobs = response.get("jobPostings")
 for page in range(pages):
     for job in jobs:
         job_title = job.get("title")
-        job_link = "https://refinitiv.wd3.myworkdayjobs.com/en-US/Careers" + job.get(
-            "externalPath"
-        )
+        job_link = "https://refinitiv.wd3.myworkdayjobs.com/en-US/Careers" + (job.get(
+            "externalPath") or "")
         cities, counties = None, None
 
-        if "," in job.get("locationsText"):
-            cities = translate_city(job.get("locationsText").split(",")[0])
+        locations_text = job.get("locationsText") or ""
+        if "," in locations_text:
+            cities = translate_city(locations_text.split(",")[0]) or "Bucuresti"
         else:
-            cities = translate_city(job.get("locationsText").split(" ")[0])
+            cities = translate_city(locations_text.split(" ")[0]) or "Bucuresti"
 
         counties = _counties.get_county(cities)
 
         if not counties:
             aditional_url = (
                 "https://lseg.wd3.myworkdayjobs.com//wday/cxs/refinitiv/Careers"
-                + job.get("externalPath")
+                + (job.get("externalPath") or "")
             )
 
             try:
@@ -109,6 +109,13 @@ for page in range(pages):
             if not counties:
                 cities = "Bucuresti"
                 counties = "Bucuresti"
+
+        if not cities:
+            cities = "Bucuresti"
+        if not counties:
+            counties = "Bucuresti"
+        if isinstance(counties, list):
+            counties = ",".join(counties)
 
         finalJobs.append(
             create_job(

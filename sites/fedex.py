@@ -4,6 +4,10 @@ import requests
 
 _counties = GetCounty()
 
+session = requests.Session()
+
+response = session.get(
+    "https://careers.fedex.com/jobs?location_name=Romania&location_type=4&filter%5Bcountry%5D%5B0%5D=Romania"
 headers = {
     "Content-Type": "application/json",
     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
@@ -16,225 +20,28 @@ response = requests.get(
     "https://careers.fedex.com/jobs?location_name=Romania&location_type=4&filter%5Bcountry%5D%5B0%5D=Romania", headers=headers
 )
 
-cookies = response.cookies.get_dict()
+cookies = session.cookies.get_dict()
 header_cookies = response.headers.get("Set-Cookie")
 
 page = 1
 url = "https://careers.fedex.com/api/get-jobs?location_name=Romania&location_type=4&filter%5Bcountry%5D%5B0%5D=Romania&_pathname_=%2Fjobs&job_source=paradox&search_mode=2&enable_kilometers=false&include_remote_jobs=true"
 
+headers = {
+    "Content-Type": "application/json",
+    "Accept": "application/json",
+    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+    "Referer": "https://careers.fedex.com/jobs?location_name=Romania",
+    "Origin": "https://careers.fedex.com",
+    "X-Requested-With": "XMLHttpRequest",
+}
+
 payload = {
-    "jobs_filter_options": [
-        {
-            "field": "category",
-            "alias": "Categories",
-            "facet_field_keyvalue": [
-                {
-                    "original_value": "Package Handler",
-                    "custom_value": "Package Handler",
-                    "doc_count": 1,
-                },
-                {
-                    "original_value": "Professional",
-                    "custom_value": "Professional",
-                    "doc_count": 14,
-                },
-            ],
-        },
-        {
-            "field": "brand",
-            "alias": "Companies",
-            "facet_field_keyvalue": [
-                {
-                    "original_value": "Federal Express Corporation",
-                    "custom_value": "Federal Express Corporation",
-                    "doc_count": 4,
-                },
-                {
-                    "original_value": "Federal Express Corporation EU",
-                    "custom_value": "Federal Express Corporation EU",
-                    "doc_count": 7,
-                },
-                {
-                    "original_value": "FedEx Dataworks",
-                    "custom_value": "FedEx Dataworks",
-                    "doc_count": 3,
-                },
-                {
-                    "original_value": "FedEx Office",
-                    "custom_value": "FedEx Office",
-                    "doc_count": 1,
-                },
-            ],
-        },
-        {
-            "field": "is_remote",
-            "alias": "Remote",
-            "facet_field_keyvalue": [
-                {"original_value": "false", "custom_value": "No", "doc_count": 7},
-                {"original_value": "true", "custom_value": "Yes", "doc_count": 8},
-            ],
-        },
-        {
-            "field": "employment_type",
-            "alias": "Employment",
-            "facet_field_keyvalue": [
-                {
-                    "original_value": "FULL_TIME",
-                    "custom_value": "Full Time",
-                    "doc_count": 15,
-                }
-            ],
-        },
-        {
-            "field": "country",
-            "alias": "Country",
-            "facet_field_keyvalue": [
-                {
-                    "original_value": "Romania",
-                    "custom_value": "Romania",
-                    "doc_count": 7,
-                },
-                {
-                    "original_value": "United States",
-                    "custom_value": "United States",
-                    "doc_count": 8,
-                },
-            ],
-        },
-        {
-            "field": "state",
-            "alias": "State",
-            "facet_field_keyvalue": [
-                {
-                    "original_value": "Arizona",
-                    "custom_value": "Arizona",
-                    "doc_count": 2,
-                },
-                {
-                    "original_value": "Arkansas",
-                    "custom_value": "Arkansas",
-                    "doc_count": 2,
-                },
-                {
-                    "original_value": "București",
-                    "custom_value": "București",
-                    "doc_count": 2,
-                },
-                {
-                    "original_value": "Florida",
-                    "custom_value": "Florida",
-                    "doc_count": 2,
-                },
-                {
-                    "original_value": "Județul Cluj",
-                    "custom_value": "Județul Cluj",
-                    "doc_count": 2,
-                },
-                {
-                    "original_value": "Județul Ilfov",
-                    "custom_value": "Județul Ilfov",
-                    "doc_count": 1,
-                },
-                {
-                    "original_value": "Județul Timiș",
-                    "custom_value": "Județul Timiș",
-                    "doc_count": 2,
-                },
-                {
-                    "original_value": "Pennsylvania",
-                    "custom_value": "Pennsylvania",
-                    "doc_count": 4,
-                },
-                {
-                    "original_value": "Tennessee",
-                    "custom_value": "Tennessee",
-                    "doc_count": 7,
-                },
-                {"original_value": "Texas", "custom_value": "Texas", "doc_count": 5},
-            ],
-        },
-        {
-            "field": "city",
-            "alias": "City",
-            "facet_field_keyvalue": [
-                {
-                    "original_value": "Bucharest",
-                    "custom_value": "Bucharest",
-                    "doc_count": 2,
-                },
-                {
-                    "original_value": "Ghiroda",
-                    "custom_value": "Ghiroda",
-                    "doc_count": 2,
-                },
-                {
-                    "original_value": "Harrison",
-                    "custom_value": "Harrison",
-                    "doc_count": 2,
-                },
-                {
-                    "original_value": "Judetul Cluj",
-                    "custom_value": "Judetul Cluj",
-                    "doc_count": 2,
-                },
-                {
-                    "original_value": "Memphis",
-                    "custom_value": "Memphis",
-                    "doc_count": 7,
-                },
-                {
-                    "original_value": "Orlando",
-                    "custom_value": "Orlando",
-                    "doc_count": 2,
-                },
-                {
-                    "original_value": "Otopeni",
-                    "custom_value": "Otopeni",
-                    "doc_count": 1,
-                },
-                {
-                    "original_value": "Phoenix",
-                    "custom_value": "Phoenix",
-                    "doc_count": 2,
-                },
-                {
-                    "original_value": "Pittsburgh",
-                    "custom_value": "Pittsburgh",
-                    "doc_count": 4,
-                },
-                {"original_value": "Plano", "custom_value": "Plano", "doc_count": 5},
-            ],
-        },
-    ],
-    "jobs_target_list": {
-        "language": ["en"],
-        "feed_id": {
-            "Paradox Feed": ["paradox-fedexapi.paradox.ai-2634"],
-            "FedEx Supply Chain": ["158901-53669"],
-            "Federal Express Corporation - PROD external": ["25_2634_external"],
-        },
-        "cf_posting_type": ["External", "Internal/External"],
+    "site_available_languages": ["en"],
+    "jobs_filter_options": [],
+    "page_attributes": {
+        "jobs_target_language": "en",
     },
     "oeid": 25,
-    "page_attributes": {
-        "custom_fields": {
-            "employment_contractor": None,
-            "employment_entrylevel": None,
-            "employment_fellowship": None,
-            "employment_fulltime": "Full Time",
-            "employment_intern": None,
-            "job_remote_false": "No",
-            "job_remote_true": "Yes",
-            "employment_parttime": None,
-            "employment_perdiem": None,
-            "employment_resident": None,
-            "employment_seasonal": None,
-            "employment_temporary": None,
-            "employment_volunteer": None,
-        },
-        "jobs_target_language": "",
-        "jobs_radius_enable_kilometers": False,
-    },
     "site_available_languages": ["en"],
 }
 
@@ -249,8 +56,8 @@ headers = {
 jobs = list()
 while True:
 
-    response = requests.post(
-        url + f"&page_number={page}", json=payload, headers=headers, cookies=cookies).json()
+    response = session.post(
+        url + f"&page_number={page}", json=payload, headers=headers).json()
 
     if not response.get("jobs"):
         break
