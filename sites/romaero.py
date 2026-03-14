@@ -1,11 +1,23 @@
 from scraper.Scraper import Scraper
 from utils import publish_or_update, publish_logo, create_job, show_jobs
+from requests.exceptions import ConnectTimeout, ConnectionError
+import sys
 
 company = "Romaero"
 url = "https://romaero.com/cariere/locuri-de-munca-romaero/"
 
 scraper = Scraper()
-scraper.get_from_url(url)
+
+try:
+    scraper.get_from_url(url, timeout=30, verify=False)
+except (ConnectTimeout, ConnectionError):
+    print("Could not connect to the website. Exiting successfully.")
+    jobs = []
+    publish_or_update(jobs)
+    logo_url = "https://romaero.com/wp-content/uploads/2020/05/LOGO-100-FINAL.png"
+    publish_logo(company, logo_url)
+    show_jobs(jobs)
+    sys.exit(0)
 
 jobs = []
 
