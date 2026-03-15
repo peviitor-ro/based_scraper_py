@@ -6,8 +6,6 @@ _counties = GetCounty()
 
 session = requests.Session()
 
-response = session.get(
-    "https://careers.fedex.com/jobs?location_name=Romania&location_type=4&filter%5Bcountry%5D%5B0%5D=Romania"
 headers = {
     "Content-Type": "application/json",
     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
@@ -16,7 +14,7 @@ headers = {
     "Referer": "https://careers.fedex.com/jobs?location_name=Romania",
 }
 
-response = requests.get(
+response = session.get(
     "https://careers.fedex.com/jobs?location_name=Romania&location_type=4&filter%5Bcountry%5D%5B0%5D=Romania", headers=headers
 )
 
