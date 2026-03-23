@@ -1,10 +1,10 @@
 from scraper.Scraper import Scraper
 from utils import publish_or_update, publish_logo, show_jobs
 
-url = "https://www.brd.ro/cariere"
+url = "https://brd.ro/cariere"
 
 scraper = Scraper()
-scraper.get_from_url(url, verify=False)
+scraper.get_from_url(url, verify=False, timeout=15)
 
 company = "BRD"
 j = set()
@@ -12,15 +12,15 @@ j = set()
 elements = scraper.find_all("a", {"class": "category-card-link"})
 
 for element in elements:
-    jobCategory = "https://www.brd.ro" + element["href"]
-    scraper.get_from_url(jobCategory, verify=False)
+    jobCategory = "https://brd.ro" + element["href"]
+    scraper.get_from_url(jobCategory, verify=False, timeout=15)
 
     jobs = scraper.find_all("div", {"class": "card"})
     category = element.text.strip()
 
     for job in jobs:
         title = job.find("div", {"class": "card-header"}).text
-        link = "https://www.brd.ro" + job.find("a")["href"]
+        link = "https://brd.ro" + job.find("a")["href"]
 
         j.add((title, link, category))
 finalJobs = list()
