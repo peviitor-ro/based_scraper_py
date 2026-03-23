@@ -23,7 +23,7 @@ data = {
 
 scraper = Scraper()
 scraper.set_headers({"Content-Type": "application/json"})
-scraper.markup = scraper.post(url, json.dumps(data)).json().get("results")
+scraper.markup = scraper.post(url, json.dumps(data)).json().get("results") or []
 
 jobs = [
     {

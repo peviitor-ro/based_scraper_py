@@ -18,7 +18,7 @@ data = {
     "remote": [],
 }
 
-response = requests.post(url, json=data).json()["results"]
+response = requests.post(url, json=data).json().get("results") or []
 
 final_jobs = []
 

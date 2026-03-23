@@ -104,18 +104,16 @@ for page in range(pages):
                 cities, counties = get_aditional_city(aditional_url)
             except:
                 cities = "Bucuresti"
-                counties = "Bucuresti"
+                counties = ["Bucuresti"]
 
             if not counties:
                 cities = "Bucuresti"
-                counties = "Bucuresti"
+                counties = ["Bucuresti"]
 
         if not cities:
             cities = "Bucuresti"
         if not counties:
-            counties = "Bucuresti"
-        if isinstance(counties, list):
-            counties = ",".join(counties)
+            counties = ["Bucuresti"]
 
         finalJobs.append(
             create_job(

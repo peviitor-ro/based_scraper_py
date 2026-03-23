@@ -17,7 +17,7 @@ headers = {
     "Referer": "https://careers.fedex.com/jobs?location_name=Romania",
 }
 
-response = requests.get(
+response = session.get(
     "https://careers.fedex.com/jobs?location_name=Romania&location_type=4&filter%5Bcountry%5D%5B0%5D=Romania", headers=headers
 )
 
