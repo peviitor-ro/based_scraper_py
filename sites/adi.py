@@ -31,6 +31,8 @@ jobs = response.get("jobPostings")
 
 for page in range(pages):
     for job in jobs:
+        if not job.get("externalPath"):
+            continue
         job_title = job.get("title")
         job_link = (
             "https://analogdevices.wd1.myworkdayjobs.com/en-US/External"
@@ -49,8 +51,8 @@ for page in range(pages):
                 "county": _counties.get_county(city),
             }
         )
-    data["offset"] = page * 20
-    jobs = scraper.post(apiUrl, data).json().get("jobPostings")
+    data["offset"] = (page + 1) * 20
+    jobs = scraper.post(apiUrl, json.dumps(data)).json().get("jobPostings")
 
 publish_or_update(finalJobs)
 
