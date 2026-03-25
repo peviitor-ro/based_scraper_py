@@ -39,6 +39,8 @@ for pages in range(0, pages):
                 country="Romania",
                 company=company,
                 remote=remote,
+                city="Bucuresti",
+                county="Bucuresti",
             )
         )
 
