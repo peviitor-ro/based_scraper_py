@@ -1,68 +1,80 @@
-from scraper.Scraper import Scraper
 from getCounty import GetCounty, remove_diacritics
-from utils import (
-    translate_city,
-    acurate_city_and_county,
-    publish_or_update,
-    publish_logo,
-    show_jobs,
-)
-from math import ceil
+from utils import translate_city, acurate_city_and_county, publish_or_update, publish_logo, show_jobs
+import requests
+from bs4 import BeautifulSoup
+
 
 _counties = GetCounty()
 
-scraper = Scraper()
-post_data = {
-    "query": "",
-    "location": [],
-    "department": [],
-    "worktype": [],
-    "remote": [],
-    "workplace": [],
-}
-url = "https://apply.workable.com/api/v3/accounts/decathlon-romania/jobs"
-result = scraper.post(url, post_data).json()
-
-jobs = result.get("results")
-acurate_city = acurate_city_and_county()
-
 company = {"company": "Decathlon"}
-finalJobs = list()
+base_url = (
+    "https://cariere.decathlon.ro/JobList?layoutId=Jobs-1&websiteUrl=https://cariere.decathlon.ro"
+    "&themeId=2&language=ro&subdomain=cariere-decathlonromania&page={page}&pageSize=80&contains="
+)
+headers = {
+    "X-Requested-With": "XMLHttpRequest",
+    "Referer": "https://cariere.decathlon.ro/",
+}
 
-pages = ceil(result.get("total") / 10)
+acurate_city = acurate_city_and_county(
+    Iasi={"city": "Iasi", "county": "Iasi"},
+    Piatra_Neamt={"city": "Piatra-Neamt", "county": "Neamt"},
+    Ramnicu_Valcea={"city": "Ramnicu Valcea", "county": "Valcea"},
+    Stefanestii_de_Jos={"city": "Stefanestii de Jos", "county": "Ilfov"},
+    Selimbar={"city": "Selimbar", "county": "Sibiu"},
+    Floresti={"city": "Floresti", "county": "Cluj"},
+    Varsatura={"city": "Varsatura", "county": "Braila"},
+    Blejoi={"city": "Blejoi", "county": "Prahova"},
+    Bistrita={"city": "Bistrita", "county": "Bistrita-Nasaud"},
+    Targoviste={"city": "Targoviste", "county": "Dambovita"},
+    Satu_Mare={"city": "Satu Mare", "county": "Satu Mare"},
+    Sector_1={"city": "Bucuresti", "county": "Bucuresti"},
+    Sector_2={"city": "Bucuresti", "county": "Bucuresti"},
+    Sector_3={"city": "Bucuresti", "county": "Bucuresti"},
+    Sector_4={"city": "Bucuresti", "county": "Bucuresti"},
+    Sector_6={"city": "Bucuresti", "county": "Bucuresti"},
+)
 
-for page in range(pages):
+finalJobs = []
+
+
+def normalize_location(location_text):
+    remote = ["Hybrid"] if "Hybrid" in location_text else []
+    location_text = (
+        location_text.replace(", România", "")
+        .replace(", Romania", "")
+        .replace("(Hybrid)", "")
+        .strip()
+    )
+    location_text = remove_diacritics(location_text)
+    location_text = " ".join(location_text.split())
+    city_key = location_text.replace("-", "_").replace(" ", "_")
+
+    if city_key in acurate_city:
+        city = acurate_city[city_key]["city"]
+        county = [acurate_city[city_key]["county"]]
+    else:
+        city = translate_city(location_text)
+        county = _counties.get_county(city) or []
+
+    return city, county, remote
+
+
+page = 1
+
+while True:
+    response = requests.get(base_url.format(page=page), headers=headers, timeout=20)
+    soup = BeautifulSoup(response.text, "html.parser")
+    jobs = soup.select("a.jobs__box")
+
+    if not jobs:
+        break
+
     for job in jobs:
-        job_title = job.get("title")
-        job_link = "https://apply.workable.com/decathlon-romania/j/" + job.get(
-            "shortcode"
-        )
-        cities = [
-            (
-                acurate_city.get(
-                    remove_diacritics(city.get("city").replace(" ", "_"))
-                ).get("city")
-                if acurate_city.get(
-                    remove_diacritics(city.get("city").replace(" ", "_"))
-                )
-                else translate_city(remove_diacritics(city.get("city")))
-            )
-            for city in job.get("locations")
-        ]
-
-        counties = []
-
-        for city in cities:
-            if acurate_city.get(remove_diacritics(city.replace(" ", "_"))):
-                counties.append(
-                    acurate_city.get(remove_diacritics(city.replace(" ", "_"))).get(
-                        "county"
-                    )
-                )
-            else:
-                counties.extend(_counties.get_county(city))
-
-        remote = job.get("workplace").replace("_", "-")
+        job_title = job.select_one("h3.jobs__box__heading").get_text(" ", strip=True)
+        job_link = job.get("href")
+        location_text = job.select_one("p.jobs__box__text").get_text(" ", strip=True)
+        city, county, remote = normalize_location(location_text)
 
         finalJobs.append(
             {
@@ -70,19 +82,18 @@ for page in range(pages):
                 "job_link": job_link,
                 "company": company.get("company"),
                 "country": "Romania",
-                "city": cities,
-                "county": counties,
+                "city": city,
+                "county": county,
                 "remote": remote,
             }
         )
-    post_data["token"] = result.get("nextPage")
-    result = scraper.post(url, post_data).json()
-    jobs = result.get("results")
+
+    page += 1
 
 
 publish_or_update(finalJobs)
 
-logoUrl = "https://workablehr.s3.amazonaws.com/uploads/account/logo/404273/logo"
+logoUrl = "https://adoptoprod.blob.core.windows.net/careers/bcab4933-05c3-45a0-9f93-3ee234531098.png"
 publish_logo(company.get("company"), logoUrl)
 
 show_jobs(finalJobs)

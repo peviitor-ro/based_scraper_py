@@ -1,4 +1,3 @@
-from scraper_peviitor import Scraper
 from utils import (
     translate_city,
     acurate_city_and_county,
@@ -8,6 +7,7 @@ from utils import (
     show_jobs,
 )
 from getCounty import GetCounty
+import requests
 
 _counties = GetCounty()
 url = "https://www.thoughtworks.com/rest/careers/jobs"
@@ -15,13 +15,7 @@ url = "https://www.thoughtworks.com/rest/careers/jobs"
 company = {"company": "ThoughtWorks"}
 finalJobs = list()
 
-scraper = Scraper(url)
-
-data = scraper.getJson()
-if not data or data.get("message") == "Internal server error":
-    jobs = []
-else:
-    jobs = data.get("jobs") or []
+jobs = requests.get(url, timeout=20).json().get("jobs") or []
 
 acurate_city = acurate_city_and_county(
     Cluj={"city": "Cluj-Napoca", "county": "Cluj"},
@@ -36,7 +30,7 @@ for job in jobs:
         job_link = "https://www.thoughtworks.com/careers/jobs/" + str(
             job.get("sourceSystemId")
         )
-        city = translate_city(job.get("location").split("-")[0].strip())
+        city = translate_city(job.get("location", "").split("-")[0].strip())
 
         job = create_job(
             job_title=job_title,
@@ -45,9 +39,10 @@ for job in jobs:
             country=country,
         )
 
-        if city in acurate_city.keys():
-            job["city"] = acurate_city.get(city).get("city")
-            job["county"] = acurate_city.get(city).get("county")
+        if city and city in acurate_city.keys():
+            city_data = acurate_city[city]
+            job["city"] = city_data["city"]
+            job["county"] = city_data["county"]
         else:
             job["city"] = city
             job["county"] = _counties.get_county(city)
