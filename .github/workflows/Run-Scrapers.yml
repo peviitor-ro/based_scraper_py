@@ -10,7 +10,7 @@ permissions:
 
 jobs:
   build:
-    if: github.repository == 'peviitor-ro/scrapers.js'
+    if: github.repository == 'peviitor-ro/based_scraper_py'
 
     runs-on: ubuntu-latest
         
