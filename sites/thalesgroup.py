@@ -35,11 +35,12 @@ for num in range(iteration):
     jobs = scraper.post(apiUrl, json.dumps(data)).json().get("jobPostings")
     for job in jobs:
         job_title = job.get("title")
-        job_link = "https://thales.wd3.myworkdayjobs.com/en-US/Careers" + job.get(
-            "externalPath"
-        )
-        city = translate_city(job.get("locationsText").split(",")[0])
+        job_link = "https://thales.wd3.myworkdayjobs.com/en-US/Careers" + (job.get("externalPath") or "")
+        city = translate_city((job.get("locationsText") or "").split(",")[0])
         county = _counties.get_county(city)
+
+        if not city:
+            continue
 
         finalJobs.append(
             {

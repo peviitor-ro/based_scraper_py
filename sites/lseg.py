@@ -82,7 +82,7 @@ jobs = response.get("jobPostings")
 for page in range(pages):
     for job in jobs:
         job_title = job.get("title")
-        job_link = "https://refinitiv.wd3.myworkdayjobs.com/en-US/Careers" + (job.get(
+        job_link = "https://lseg.wd3.myworkdayjobs.com/en-US/Careers" + (job.get(
             "externalPath") or "")
         cities, counties = None, None
 
@@ -96,7 +96,7 @@ for page in range(pages):
 
         if not counties:
             aditional_url = (
-                "https://lseg.wd3.myworkdayjobs.com//wday/cxs/refinitiv/Careers"
+                "https://lseg.wd3.myworkdayjobs.com/wday/cxs/lseg/Careers"
                 + (job.get("externalPath") or "")
             )
 
