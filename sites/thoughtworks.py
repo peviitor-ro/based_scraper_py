@@ -17,7 +17,11 @@ finalJobs = list()
 
 scraper = Scraper(url)
 
-jobs = scraper.getJson().get("jobs")
+data = scraper.getJson()
+if not data or data.get("message") == "Internal server error":
+    jobs = []
+else:
+    jobs = data.get("jobs") or []
 
 acurate_city = acurate_city_and_county(
     Cluj={"city": "Cluj-Napoca", "county": "Cluj"},
