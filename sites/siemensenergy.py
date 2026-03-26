@@ -1,9 +1,7 @@
 from scraper.Scraper import Scraper
-from utils import show_jobs, publish_or_update, publish_logo, translate_city
-from getCounty import GetCounty
+from utils import show_jobs, publish_or_update, publish_logo
 from math import ceil
 
-_counties = GetCounty()
 url = "https://jobs.siemens-energy.com/en_US/jobs/Jobs/?29454=964547&29454_format=11381&listFilterMode=1&folderRecordsPerPage=20&folderOffset=0"
 
 company = {"company": "SiemensEnergy"}
@@ -43,8 +41,8 @@ for page in range(pages):
             "job_link": job_link,
             "company": company.get("company"),
             "country": "Romania",
-            "city": "",
-            "county": "",
+            "city": "Bucuresti",
+            "county": "Bucuresti",
         }
 
         finalJobs.append(job)
