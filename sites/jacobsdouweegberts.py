@@ -1,24 +1,28 @@
-from scraper.Scraper import Scraper
 from utils import publish_or_update, publish_logo, show_jobs, translate_city
 from getCounty import GetCounty
+import requests
+from bs4 import BeautifulSoup
+
 
 _counties = GetCounty()
-url = " https://careers-ro.jdepeets.com/job-search/"
+url = "https://careers-ro.jdepeets.com/job-search/"
 
 company = {"company": "Jacobsdouweegberts"}
-finaljobs = list()
+finaljobs = []
 
-scraper = Scraper()
-scraper.set_headers({"Accept-Language": "en-GB,en;q=0.9",})
-scraper.get_from_url(url)
+headers = {"Accept-Language": "en-GB,en;q=0.9"}
 
-jobs = scraper.find_all("li", {"class": "app-smartRecruiterSearchResult-list__item"})
+response = requests.get(url, headers=headers, timeout=20)
+soup = BeautifulSoup(response.text, "html.parser")
+jobs = soup.select("div.article[data-job-id]")
 
 for job in jobs:
-    job_title = job.find("span", {"class": "job-name"}).text.strip()
-    job_link = "https://careers-ro.jacobsdouweegberts.com" + job.find("a").get("href")
-    city = translate_city(job.find("span", {"class": "job-city"}).text.strip())
-    county = _counties.get_county(city)
+    job_title = job.select_one("span.job-name-value").get_text(" ", strip=True)
+    job_link = "https://careers-ro.jdepeets.com" + job.select_one("a.btn").get("href")
+    city = translate_city(job.select_one("span.city-value").get_text(" ", strip=True))
+    county = ["Bucuresti"] if city == "Bucuresti" or city == "Bucharest" else _counties.get_county(city)
+    if city == "Bucharest":
+        city = "Bucuresti"
 
     finaljobs.append(
         {

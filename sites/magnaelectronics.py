@@ -1,58 +1,93 @@
-from scraper.Scraper import Scraper
+import requests
 from utils import publish_or_update, publish_logo, create_job, show_jobs, translate_city
-from getCounty import GetCounty, remove_diacritics
+from getCounty import GetCounty
+
 
 _counties = GetCounty()
 company = "MagnaElectronics"
-url = "https://magnaelectronicsromania.teamtailor.com/jobs?page="
+api_url = "https://wd3.myworkdaysite.com/wday/cxs/magna/Magna/jobs"
+detail_base_url = "https://wd3.myworkdaysite.com/wday/cxs/magna/Magna"
 
-scraper = Scraper()
+headers = {
+    "Accept": "application/json",
+    "Content-Type": "application/json",
+}
 
+payload = {
+    "appliedFacets": {"Country": ["f2e609fe92974a55a05fc1cdc2852122"]},
+    "limit": 20,
+    "offset": 0,
+    "searchText": "",
+}
+
+session = requests.Session()
 jobs = []
-page = 1
 
-while True:
-    scraper.get_from_url(url + str(page), "HTML")
 
-    jobsElements = scraper.find_all(
-        "li",
-        class_="transition-opacity duration-150 border rounded block-grid-item border-block-base-text border-opacity-15",
-    )
+def normalize_location(location_text):
+    if not location_text:
+        return None, []
 
-    if len(jobsElements) == 0:
-        break
+    city = translate_city(location_text.split(",")[0].strip())
+    if city == "Iasi":
+        county = ["Iasi"]
+    else:
+        county = _counties.get_county(city) or []
+    return city, county
 
-    for job in jobsElements:
-        job_title = job.find(
-            "span", class_="text-block-base-link company-link-style"
-        ).text.strip()
-        job_link = job.find("a").get("href")
-        try:
-            city = translate_city(
-                remove_diacritics(
-                    job.find("div", class_="mt-1 text-md")
-                    .find_all("span")[2]
-                    .text.split(",")[0]
-                    .strip()
-                )
-            )
-        except:
-            city = "Romania"
 
-        county = _counties.get_county(city)
+def get_job_locations(external_path):
+    response = session.get(
+        detail_base_url + external_path,
+        headers={"Accept": "application/json"},
+        timeout=20,
+    ).json()
+    info = response.get("jobPostingInfo") or {}
+
+    locations = []
+    for raw_location in [info.get("location")] + (info.get("additionalLocations") or []):
+        city, county = normalize_location(raw_location)
+        if city and county and city not in [item["city"] for item in locations]:
+            locations.append({"city": city, "county": county})
+
+    return locations
+
+
+response = session.post(api_url, json=payload, headers=headers, timeout=20).json()
+total_jobs = response.get("total") or 0
+
+while payload["offset"] < total_jobs:
+    for job in response.get("jobPostings") or []:
+        external_path = job.get("externalPath") or ""
+        locations = get_job_locations(external_path)
+
+        if not locations:
+            locations = [{"city": "Timisoara", "county": ["Timis"]}]
+
+        cities = [item["city"] for item in locations]
+        counties = []
+        for item in locations:
+            for county in item["county"]:
+                if county not in counties:
+                    counties.append(county)
 
         jobs.append(
             create_job(
-                job_title=job_title,
-                job_link=job_link,
-                city=city,
-                county=county,
+                job_title=job.get("title"),
+                job_link="https://wd3.myworkdaysite.com/en-US/recruiting/magna/Magna" + external_path,
+                city=cities,
+                county=counties,
                 country="Romania",
                 company=company,
+                remote=[],
             )
         )
 
-    page += 1
+    payload["offset"] += payload["limit"]
+    if payload["offset"] >= total_jobs:
+        break
+    response = session.post(api_url, json=payload, headers=headers, timeout=20).json()
+
 
 publish_or_update(jobs)
 

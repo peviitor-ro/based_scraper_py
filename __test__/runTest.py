@@ -24,7 +24,12 @@ Validation Rules:
      * {"remote": ["on-site", "hybrid"]}
      * {"remote": []}
 
-4. All other keys are rejected.
+4. Additional optional salary keys:
+   - salary_min: Minimum salary value
+   - salary_max: Maximum salary value
+   - salary_currency: Salary currency
+
+5. All other keys are rejected.
 
 The script runs all changed scraper files (in sites/ directory) and validates
 their JSON output against these rules.
@@ -56,7 +61,7 @@ for file in files:
 
         # Define required and optional keys
         required_keys = ['company', 'job_title', 'job_link']
-        optional_keys = ['city', 'county', 'remote', 'country']
+        optional_keys = ['city', 'county', 'remote', 'country', 'salary_min', 'salary_max', 'salary_currency']
         allowed_keys = required_keys + optional_keys
         
         # Define allowed remote values
@@ -83,13 +88,11 @@ for file in files:
                     # Remote must be a list
                     if not isinstance(value, list):
                         raise Exception(f"Key 'remote' must be a list, got {type(value).__name__}! \n {job}")
+
+                    job['remote'] = [remote_val.lower() for remote_val in value]
                     
                     # Check each value in the remote list
-                    for remote_val in value:
-                        # Must be lowercase
-                        if remote_val != remote_val.lower():
-                            raise Exception(f"Remote value '{remote_val}' must be lowercase! \n {job}")
-                        
+                    for remote_val in job['remote']:
                         # Must be in allowed values
                         if remote_val not in allowed_remote_values:
                             raise Exception(f"Remote value '{remote_val}' is not allowed! Allowed values are: {', '.join(allowed_remote_values)} \n {job}")
@@ -97,4 +100,3 @@ for file in files:
         print(f'✅ {file}')
     else:
         print(f'{file} is not a scraper file!')
-
