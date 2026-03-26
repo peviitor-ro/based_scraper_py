@@ -1,5 +1,5 @@
 from scraper.Scraper import Scraper
-from utils import show_jobs, publish_or_update, publish_logo
+from utils import show_jobs, publish_or_update, publish_logo, translate_city
 
 company = "mindera"
 url = "https://jobs.workable.com/api/v1/companies/kAFiuZuCGfsouMaZWJDxvE"
@@ -25,8 +25,8 @@ while scraper.markup.get("nextPageToken"):
                 "remote": remote,
                 "country": "Romania",
                 "company": company,
-                "city": job["location"]["city"] if job["location"]["city"] else [],
-                "county": job["location"]["subregion"].replace("County", "").strip() if job["location"]["subregion"] else [],            
+                "city": translate_city(job["location"]["city"]) if job["location"]["city"] else [],
+                "county": translate_city(job["location"]["subregion"].replace("County", "").strip()) if job["location"]["subregion"] else [],            
             }
         )
     scraper.get_from_url(url + "?pageToken=" + scraper.markup.get("nextPageToken"), "JSON")

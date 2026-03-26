@@ -1,45 +1,41 @@
-from scraper.Scraper import Scraper
-from utils import show_jobs, publish_or_update, publish_logo, translate_city
-from getCounty import GetCounty
+import requests
+from utils import show_jobs, publish_or_update, publish_logo, create_job
 
-_counties = GetCounty()
+
 company = "sapfioneer"
-url = "https://jobs.workable.com/api/v1/jobs?location=Romania&query=sap+fioneer"
+url = "https://apply.workable.com/api/v3/accounts/fioneer/jobs"
 
-scraper = Scraper()
-scraper.get_from_url(url, "JSON")
+payload = {
+    "query": "",
+    "department": [],
+    "location": [{"country": "Romania", "countryCode": "RO"}],
+    "workplace": [],
+    "worktype": [],
+}
 
-jobs = scraper.markup.get("jobs")
+response = requests.post(url, json=payload, timeout=20).json()
+jobs = response.get("results") or []
 final_jobs = []
 
-while scraper.markup.get("nextPageToken"):
+for job in jobs:
+    remote = []
+    workplace = (job.get("workplace") or "").replace("_", "-").lower()
 
-    for job in jobs:
-        job_title = job["title"]
-        job_link = job["url"]
-        remote = job["workplace"].replace("_", "-")
-        city = translate_city(job["location"]["city"])
+    if workplace:
+        remote.append(workplace)
 
-        if city:
-            county = _counties.get_county(city)
-        else:
-            county = []
-
-        final_jobs.append(
-            {
-                "job_title": job_title,
-                "job_link": job_link,
-                "remote": remote,
-                "country": "Romania",
-                "company": company,
-                "city": city,
-                "county": county,
-            }
+    final_jobs.append(
+        create_job(
+            job_title=job.get("title"),
+            job_link="https://apply.workable.com/fioneer/j/" + job.get("shortcode"),
+            remote=remote,
+            country="Romania",
+            company=company,
+            city=[],
+            county=[],
         )
-    scraper.get_from_url(
-        url + "&pageToken=" + scraper.markup.get("nextPageToken"), "JSON"
     )
-    jobs = scraper.markup.get("jobs")
+
 
 publish_or_update(final_jobs)
 
