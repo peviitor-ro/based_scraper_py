@@ -13,7 +13,7 @@ scraper.get_from_url(url, "JSON")
 jobs = []
 
 for job in scraper.markup["data"]["results"]:
-    if job["locations"]:
+    if job.get("locations"):
         job_title = job["title"]
         job_link = "https://biofarm.mingle.ro/ro/embed/apply/" + job["uid"]
         city = translate_city(job["locations"][0]["label"])

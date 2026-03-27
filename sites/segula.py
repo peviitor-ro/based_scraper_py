@@ -20,7 +20,7 @@ headers = {
     "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
 }
 
-response = requests.post(url, data=payload, headers=headers, timeout=10, verify=False)
+response = requests.post(url, data=payload, headers=headers, timeout=60, verify=False)
 
 for job in response.json()["data"]["jobs"]:
     city = translate_city(remove_diacritics(job["city"]))
