@@ -55,7 +55,7 @@ for page in range(0, paginate):
                 "company": company.get("company"),
             }
         )
-    url = f"https://jobs.molsoncoors.com/MolsonCoors_GBSRomania/search/?q=Romania&startrow={page + 1 * 25}"
+    url = f"https://jobs.molsoncoors.com/MolsonCoors_GBSRomania/search/?q=Romania&startrow={(page + 1) * 25}"
     scraper.get_from_url(url, verify=False)
     jobs = scraper.find("table", {"id": "searchresults"}).find(
         "tbody").find_all("tr")

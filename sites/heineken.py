@@ -7,9 +7,31 @@ from utils import (
     show_jobs,
 )
 from getCounty import GetCounty, remove_diacritics
+import time
 
 _counties = GetCounty()
 scraper = Scraper()
+
+headers = {
+    "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+    "Accept-Language": "en-US,en;q=0.5",
+    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+}
+
+def fetch_with_retry(scraper, url, max_retries=5, delay=10):
+    last_error = None
+    for attempt in range(max_retries):
+        try:
+            scraper.get_from_url(url, timeout=30, verify=False)
+            return True
+        except Exception as e:
+            last_error = e
+            if attempt < max_retries - 1:
+                print(f"Attempt {attempt + 1} failed for {url}, retrying in {delay}s...")
+                time.sleep(delay)
+                delay *= 2
+    if last_error:
+        raise last_error
 
 jobsFound = True
 startRow = 0
@@ -22,9 +44,11 @@ acurate_city = acurate_city_and_county(
     Ciuc={"city": "Miercurea Ciuc", "county": "Harghita"},
 )
 
+scraper.set_headers(headers)
+
 while jobsFound:
     url = f"https://careers.theheinekencompany.com/search/?createNewAlert=false&q=&locationsearch=Romania&startrow={startRow}"
-    scraper.get_from_url(url, verify=False)
+    fetch_with_retry(scraper, url)
     jobs = scraper.find_all("tr", {"class": "data-row"})
     for job in jobs:
         if (

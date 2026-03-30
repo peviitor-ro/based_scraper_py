@@ -9,7 +9,12 @@ company = "Acrom"
 url = "https://mingle.ro/api/boards/careers-page/jobs?company=acrom&page=0&pageSize=200&sort=id~ASC"
 
 scraper = Scraper()
-scraper.get_from_url(url, type="JSON")
+scraper.set_headers({
+    "Accept": "application/json",
+    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+    "Referer": "https://acrom.mingle.ro/en/careers",
+})
+scraper.get_from_url(url, type="JSON", verify=False)
 
 jobs_elements = scraper.markup.get("data").get("results")
 

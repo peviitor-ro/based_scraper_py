@@ -11,6 +11,7 @@ url = "https://linde.csod.com/ux/ats/careersite/20/home?c=linde&country=ro"
 apiUrl = "https://eu-fra.api.csod.com/rec-job-search/external/jobs"
 
 scraper = Scraper(url)
+scraper.set_headers({"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"})
 scraper.get_from_url(url)
 
 body = scraper.find("body")
