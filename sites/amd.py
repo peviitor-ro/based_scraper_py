@@ -29,13 +29,13 @@ jobs = [
         job_link="https://careers.amd.com/careers-home/jobs/"
         + str(job.get("data").get("slug")),
         country="Romania",
-        city=translate_city(job.get("data").get("city").title()),
+        city=translate_city(job.get("data").get("city", "").title()) if job.get("data").get("city") else None,
         county=(
             acurate_location.get(
-                translate_city(job.get("data").get("city").title())
+                translate_city(job.get("data").get("city", "").title())
             ).get("county")
-            if acurate_location.get(translate_city(job.get("data").get("city").title()))
-            else _counties.get_county(translate_city(job.get("data").get("city").title()))
+            if job.get("data").get("city") and acurate_location.get(translate_city(job.get("data").get("city", "").title()))
+            else _counties.get_county(translate_city(job.get("data").get("city", "").title())) if job.get("data").get("city") else None
         ),
     )
     for job in jobs_elements
