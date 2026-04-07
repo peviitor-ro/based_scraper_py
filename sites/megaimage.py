@@ -1,4 +1,3 @@
-from scraper.Scraper import Scraper
 from utils import (
     translate_city,
     acurate_city_and_county,
@@ -8,19 +7,30 @@ from utils import (
     publish_or_update,
 )
 from getCounty import GetCounty
+from requests.exceptions import ConnectTimeout, ConnectionError
+import requests
+import sys
+
+company = "MegaImage"
 
 url = "https://cariere.mega-image.ro/api/vacancy/?options%5Bsort_order%5D=desc&sort=created&sortDir=DESC&pageSize=1000"
 _counties = GetCounty()
 
-scraper = Scraper()
-scraper.set_headers({"Content-Type": "application/json", "X-Requested-With": "XMLHttpRequest"})
-scraper.get_from_url(url, type="JSON")
+headers = {"Content-Type": "application/json", "X-Requested-With": "XMLHttpRequest"}
 
-pageNumber = 1
+try:
+    response = requests.get(url, headers=headers, timeout=10)
+    data = response.json()
+    jobs = data.get("vacancies")
+except (ConnectTimeout, ConnectionError):
+    print("Could not connect to the website. Exiting successfully.")
+    finalJobs = []
+    publish_or_update(finalJobs)
+    logo_url = "https://cariere.mega-image.ro/uploads/MEGA%20IMAGE%20LOGO.png"
+    publish_logo(company, logo_url)
+    show_jobs(finalJobs)
+    sys.exit(0)
 
-jobs = scraper.markup.get("vacancies")
-
-company = {"company": "MegaImage"}
 finalJobs = list()
 
 acurate_city = acurate_city_and_county(
@@ -43,7 +53,7 @@ for job in jobs:
     job_element = create_job(
         job_title=job_title,
         job_link=job_link,
-        company=company.get("company"),
+        company=company,
         country="Romania",
     )
 
@@ -65,5 +75,5 @@ for job in jobs:
 publish_or_update(finalJobs)
 
 logo_url = "https://cariere.mega-image.ro/uploads/MEGA%20IMAGE%20LOGO.png"
-publish_logo(company.get("company"), logo_url)
+publish_logo(company, logo_url)
 show_jobs(finalJobs)
