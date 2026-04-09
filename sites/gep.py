@@ -1,26 +1,27 @@
+import re
 from scraper.Scraper import Scraper
 from utils import publish_or_update, publish_logo, create_job, show_jobs
 
 company = "GEP"
-url = "https://jobseurope-gep.icims.com/jobs/search?ss=1&searchRelation=keyword_all&searchLocation=13526&in_iframe=1"
+url = "https://jobseurope-gep.icims.com/jobs/search?ss=1&in_iframe=1"
 
 scraper = Scraper()
-scraper.get_from_url(url)
+scraper.render_page(url)
 
-jobs_elements = scraper.find("div", class_="iCIMS_JobsTable").find_all(
-    "div", class_="row"
-)
+content = str(scraper)
+job_pattern = r'href="(https://jobseurope-gep\.icims\.com/jobs/\d+/[^"]+)"[^>]*>([^<]+)'
+matches = re.findall(job_pattern, content)
 
 jobs = [
     create_job(
-        job_title=job.find("div", class_="title").text.strip().replace("Title\n\n", ""),
-        job_link=job.find("a", class_="iCIMS_Anchor")["href"],
+        job_title=re.sub(r'\s+', ' ', title).strip(),
+        job_link=href,
         city="Cluj-Napoca",
         county="Cluj",
         country="Romania",
         company=company,
     )
-    for job in jobs_elements
+    for href, title in matches
 ]
 
 publish_or_update(jobs)
