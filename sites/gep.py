@@ -9,7 +9,7 @@ scraper = Scraper()
 scraper.render_page(url)
 
 content = str(scraper)
-job_pattern = r'href="(https://jobseurope-gep\.icims\.com/jobs/\d+/[^"]+)"[^>]*>([^<]+)'
+job_pattern = r'href="(https://jobseurope-gep\.icims\.com/jobs/\d+/[^"]+)"[^>]*title="([^"]+)"'
 matches = re.findall(job_pattern, content)
 
 jobs = [
@@ -20,6 +20,7 @@ jobs = [
         county="Cluj",
         country="Romania",
         company=company,
+        remote=[],
     )
     for href, title in matches
 ]
