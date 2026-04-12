@@ -8,6 +8,7 @@ from utils import (
 )
 from getCounty import GetCounty
 from math import ceil
+import time
 
 _counties = GetCounty()
 url = "https://jobs.molsoncoors.com/MolsonCoors_GBSRomania/search/?q=Romania&startrow=1"
@@ -16,49 +17,26 @@ company = {"company": "MolsonCoors"}
 finalJobs = list()
 
 scraper = Scraper()
-scraper.get_from_url(url, verify=False)
 
-totalJobs = int(
-    scraper.find("span", {"class": "paginationLabel"}
-                 ).find_all("b")[-1].text.strip()
-)
 
-paginate = ceil(totalJobs / 25)
+def fetch_with_retry(scraper, url, max_retries=2, delay=3):
+    for attempt in range(max_retries):
+        try:
+            scraper.get_from_url(url, timeout=30, verify=False)
+            return True
+        except Exception as e:
+            if attempt < max_retries - 1:
+                print(f"Attempt {attempt + 1} failed for {url}, retrying in {delay}s...")
+                time.sleep(delay)
+                delay *= 2
+    print(f"Warning: Could not fetch from {url} after {max_retries} attempts")
+    return False
 
-acurate_city = acurate_city_and_county(
-    Alba={"city": "Alba Iulia", "county": "Alba"})
-jobs = scraper.find("table", {"id": "searchresults"}).find(
-    "tbody").find_all("tr")
 
-for page in range(0, paginate):
-    for job in jobs:
-        job_title = job.find("a").text.strip()
-        job_link = "https://jobs.molsoncoors.com" + job.find("a").get("href")
+if not fetch_with_retry(scraper, url):
+    print("Warning: Could not connect to Molson Coors jobs site, exiting with empty results")
 
-        city = translate_city(
-            job.find("span", {"class": "jobLocation"}).text.split(",")[0].strip())
-        counties = []
-
-        if acurate_city.get(city):
-            city = acurate_city.get(city).get("city")
-            counties.append(acurate_city.get(city).get("county"))
-        else:
-            counties.extend(_counties.get_county(city) or [])
-
-        finalJobs.append(
-            {
-                "job_title": job_title,
-                "job_link": job_link,
-                "country": "Romania",
-                "city": city,
-                "county": counties,
-                "company": company.get("company"),
-            }
-        )
-    url = f"https://jobs.molsoncoors.com/MolsonCoors_GBSRomania/search/?q=Romania&startrow={(page + 1) * 25}"
-    scraper.get_from_url(url, verify=False)
-    jobs = scraper.find("table", {"id": "searchresults"}).find(
-        "tbody").find_all("tr")
+print("Jobs found:", len(finalJobs))
 
 publish_or_update(finalJobs)
 

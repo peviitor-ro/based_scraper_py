@@ -1,11 +1,28 @@
 from scraper.Scraper import Scraper
 from utils import translate_city, publish_or_update, publish_logo, show_jobs
 from getCounty import GetCounty
+import time
 
 _counties = GetCounty()
 url = "https://erstegroup-careers.com/bcr/search/?createNewAlert=false&q=&locations"
 scraper = Scraper()
-scraper.get_from_url(url)
+
+def fetch_with_retry(scraper, url, max_retries=5, delay=10):
+    last_error = None
+    for attempt in range(max_retries):
+        try:
+            scraper.get_from_url(url, verify=False, timeout=30)
+            return True
+        except Exception as e:
+            last_error = e
+            if attempt < max_retries - 1:
+                print(f"Attempt {attempt + 1} failed for {url}, retrying in {delay}s...")
+                time.sleep(delay)
+                delay *= 2
+    if last_error:
+        raise last_error
+
+fetch_with_retry(scraper, url)
 
 elements = scraper.find_all("tr", {"class": "data-row"})
 

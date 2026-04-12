@@ -22,7 +22,7 @@ url = "https://www.librabank.ro/Cariere"
 
 _counties = GetCounty()
 scraper = Scraper()
-scraper.get_from_url(url)
+scraper.get_from_url(url, timeout=30, verify=False)
 
 jobContainer = scraper.find_all("div", {"class": "jobListing"})
 jobs = list(jobContainer)[0].find_all("div", {"class": "card-body"})

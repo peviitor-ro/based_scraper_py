@@ -47,14 +47,23 @@ acurate_city = acurate_city_and_county(
 scraper.set_headers(headers)
 
 while jobsFound:
-    url = f"https://careers.theheinekencompany.com/search/?createNewAlert=false&q=&locationsearch=Romania&startrow={startRow}"
+    url = f"https://careers.theheinekencompany.com/search/?createNewAlert=false&q=&optionsFacetsDD_country=RO&startrow={startRow}"
     fetch_with_retry(scraper, url)
     jobs = scraper.find_all("tr", {"class": "data-row"})
+    
+    if not jobs:
+        jobsFound = False
+        break
+        
     for job in jobs:
-        if (
-            job.find("span", {"class": "jobLocation"}).text.split(",")[1].strip()
-            != "RO"
-        ):
+        job_location_elem = job.find("span", {"class": "jobLocation"})
+        if not job_location_elem:
+            continue
+            
+        location_text = job_location_elem.text.strip()
+        location_parts = [part.strip() for part in location_text.split(",")]
+        
+        if len(location_parts) < 2 or location_parts[-1] != "RO":
             jobsFound = False
             break
 
@@ -62,11 +71,9 @@ while jobsFound:
         job_link = "https://careers.theheinekencompany.com" + job.find(
             "a", {"class": "jobTitle-link"}
         ).get("href")
-        city = translate_city(
-            remove_diacritics(
-                job.find("span", {"class": "jobLocation"}).text.split(",")[0].strip()
-            )
-        )
+        
+        city_raw = location_parts[0]
+        city = translate_city(remove_diacritics(city_raw))
 
         job = {
             "job_title": job_title,
