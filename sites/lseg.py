@@ -80,6 +80,9 @@ while data["offset"] < total_jobs:
 
     for job in jobs:
         job_title = job.get("title")
+        if not job_title:
+            continue
+
         external_path = job.get("externalPath") or ""
         job_link = "https://lseg.wd3.myworkdayjobs.com/en-US/Careers" + external_path
 

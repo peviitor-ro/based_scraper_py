@@ -26,9 +26,11 @@ for pages in range(0, pages):
         obj = scraper.post(url, json.dumps(post_data))
 
     for job in obj.json()["jobPostings"]:
-        job_title = job["title"]
+        job_title = job.get("title") or job.get("bulletFields", [""])[0] if job.get("bulletFields") else None
+        if not job_title:
+            continue
         job_link = "https://goodyear.wd1.myworkdayjobs.com/en-US/GoodyearCareers" + \
-            job["externalPath"]
+            job.get("externalPath", "")
         country = "Romania"
         remote = [job.get("remoteType")] if job.get("remoteType") else []
 
