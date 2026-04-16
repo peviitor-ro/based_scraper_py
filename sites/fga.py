@@ -6,7 +6,7 @@ url = "https://www.fgaromania.ro/category/cariere/"
 company = "fga"
 
 scraper = Scraper()
-scraper.get_from_url(url)
+scraper.get_from_url(url, verify=False)
 
 jobs_elements = scraper.find_all("article", class_="single-hentry")
 

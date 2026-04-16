@@ -10,7 +10,7 @@ embed_url = "https://ppc.jobful.io/jobs/embed?company%5B%5D=1"
 jobs_url = "https://ppc.jobful.io/jobs/load"
 
 session = requests.Session()
-embed_html = session.get(embed_url, timeout=20).text
+embed_html = session.get(embed_url, timeout=60).text
 csrf_token = re.search(r'<meta name="csrf-token" content="([^"]+)"', embed_html).group(1)
 
 headers = {
@@ -36,7 +36,7 @@ while page <= last_page:
         jobs_url,
         params={"company[]": "1", "embed": "1", "page": page},
         headers=headers,
-        timeout=20,
+        timeout=60,
     ).json()["data"]
 
     jobs = response.get("jobs") or []

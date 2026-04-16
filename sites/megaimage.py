@@ -43,6 +43,9 @@ acurate_city = acurate_city_and_county(
 
 for job in jobs:
     job_title = job.get("title")
+    if not job_title:
+        continue
+
     job_link = (
         "https://cariere.mega-image.ro/post-vacant/"
         + str(job.get("id"))
