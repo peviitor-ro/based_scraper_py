@@ -5,7 +5,8 @@ apiurl = "https://cariere.solo.ro/api/jobs/"
 company = "SOLO"
 logo = "https://cariere.solo.ro/assets/img/logo-black.svg"
 
-raw_jobs = requests.get(apiurl + "list/").json()
+response = requests.get(apiurl + "list/")
+raw_jobs = response.json() if response.content else []
 jobs = []
 
 for job in raw_jobs:
