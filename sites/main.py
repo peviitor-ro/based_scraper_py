@@ -8,6 +8,7 @@ from pathlib import Path
 EXCLUDE = {
     "__init__.py",
     "main.py",
+    "ats_common.py",
 }
 SITES_DIR = Path(__file__).resolve().parent
 REPO_ROOT = SITES_DIR.parent
