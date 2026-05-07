@@ -4,7 +4,7 @@ from getCounty import GetCounty
 
 _counties = GetCounty()
 
-url = "https://jobs.dell.com/search-jobs/results?ActiveFacetID=0&RecordsPerPage=1000&Distance=50&RadiusUnitType=0&ShowRadius=False&IsPagination=False&FacetTerm=798549&FacetType=2&FacetFilters%5B0%5D.ID=798549&FacetFilters%5B0%5D.FacetType=2&FacetFilters%5B0%5D.Count=25&FacetFilters%5B0%5D.Display=Romania&FacetFilters%5B0%5D.IsApplied=true&SearchResultsModuleName=Search+Results&SearchFiltersModuleName=Search+Filters&SortCriteria=0&SortDirection=0&SearchType=3&OrganizationIds=375&ResultsType=0"
+url = "https://iawmqy.fa.ocs.oraclecloud.com/hcmRestApi/resources/latest/recruitingCEJobRequisitions?onlyData=true&expand=requisitionList.secondaryLocations,flexFieldsFacet.values&finder=findReqs;siteNumber=CX_1001,facetsList=LOCATIONS%3BWORK_LOCATIONS%3BWORKPLACE_TYPES%3BTITLES%3BCATEGORIES%3BORGANIZATIONS%3BPOSTING_DATES%3BFLEX_FIELDS,limit=200,sortBy=POSTING_DATES_DESC,location=Romania"
 
 company = {"company": "Dell"}
 finaljobs = list()
@@ -13,17 +13,14 @@ scraper = Scraper()
 scraper.set_headers({"Accept": "application/json"})
 scraper.get_from_url(url, "JSON")
 
-html = scraper.markup.get("results")
-scraper.__init__(html, "html.parser")
-
-
-jobs = scraper.find_all("li")
+jobs = scraper.markup.get("items")[0].get("requisitionList")
 
 for job in jobs:
-    job_title = job.find("h2").text.strip()
-    job_link = "https://jobs.dell.com" + job.find("a").get("href")
+    job_title = job.get("Title")
+    job_link = f'https://iawmqy.fa.ocs.oraclecloud.com/hcmUI/CandidateExperience/en/sites/careers/job/{job.get("Id")}'
+
     city = translate_city(
-        job.find("span", {"class": "job-location"}).text.split(",")[0].strip()
+        job.get("PrimaryLocation").split(",")[0].strip()
     )
 
     job_element = {
