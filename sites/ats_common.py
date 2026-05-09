@@ -39,15 +39,19 @@ def html_to_text(value):
     return re.sub(r"\s+", " ", html.unescape(plain_text)).strip()
 
 
+def join_values(values):
+    return " ".join(normalize_text(value) for value in values if value)
+
+
 def has_romania_signal(*values):
-    text = " ".join(normalize_text(value) for value in values if value)
+    text = join_values(values)
     if "romania" in text:
         return True
     return any(alias in text for alias, _ in CITY_ALIASES)
 
 
 def infer_city(*values):
-    text = " ".join(normalize_text(value) for value in values if value)
+    text = join_values(values)
     for alias, city in CITY_ALIASES:
         if alias in text:
             return city
@@ -55,7 +59,7 @@ def infer_city(*values):
 
 
 def infer_remote(*values):
-    text = " ".join(normalize_text(value) for value in values if value)
+    text = join_values(values)
     if "hybrid" in text:
         return ["hybrid"]
     if "remote" in text or "telecommute" in text or "work from home" in text:
@@ -63,13 +67,13 @@ def infer_remote(*values):
     return []
 
 
-def build_job(company, title, link, *signals):
-    if not title or not link or not has_romania_signal(*signals):
+def build_job(company, title, link, location_signals, remote_signals=None):
+    if not title or not link or not has_romania_signal(*location_signals):
         return None
 
-    city = infer_city(*signals)
+    city = infer_city(*location_signals)
     county = _counties.get_county(city) or [] if city else []
-    remote = infer_remote(*signals)
+    remote = infer_remote(*(remote_signals or []))
 
     return create_job(
         job_title=title.strip(),
@@ -102,18 +106,19 @@ def run_greenhouse(company, board_token, logo_url):
             continue
 
         location_text = ((job.get("location") or {}).get("name") or "").strip()
+        metadata_location_values = [
+            item.get("value", "")
+            for item in (job.get("metadata") or [])
+            if "location" in normalize_text(item.get("name", "")) or "office" in normalize_text(item.get("name", ""))
+        ]
         content_text = html_to_text(job.get("content") or "")
-        metadata_text = " ".join(
-            f"{item.get('name', '')} {item.get('value', '')}" for item in (job.get("metadata") or [])
-        )
 
         job_data = build_job(
             company,
             job.get("title") or "",
             job_link,
-            location_text,
-            content_text,
-            metadata_text,
+            [location_text, *metadata_location_values],
+            [content_text],
         )
         if not job_data:
             continue
@@ -147,10 +152,8 @@ def run_lever(company, site_token, logo_url):
             company,
             job.get("text") or "",
             job_link,
-            location_text,
-            all_locations,
-            workplace_type,
-            description_text,
+            [location_text, all_locations],
+            [workplace_type, description_text],
         )
         if not job_data:
             continue
@@ -203,9 +206,8 @@ def run_workday(company, api_url, external_base_url, logo_url, search_text="Roma
                 company,
                 job.get("title") or "",
                 job_link,
-                location_text,
-                bullet_text,
-                remote_text,
+                [location_text],
+                [remote_text, bullet_text],
             )
             if not job_data:
                 continue
