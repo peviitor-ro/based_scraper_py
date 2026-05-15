@@ -35,9 +35,14 @@ for row in range(paginate):
             "company": company.get("company")
         })
 
-    page_url = url + f"&startrow={row * 50}"
+    if row == paginate - 1:
+        break
+    page_url = url + f"&startrow={(row + 1) * 50}"
     scraper.get_from_url(page_url)
-    jobs = scraper.find("table", {"id": "searchresults"}).find("tbody").find_all("tr")
+    table = scraper.find("table", {"id": "searchresults"})
+    if not table:
+        break
+    jobs = table.find("tbody").find_all("tr")
 
 publish_or_update(finalJobs)
 
