@@ -19,7 +19,7 @@ scraper.set_headers(additionalHeaders)
 scraper.get_from_url(url, "JSON", verify=False)
 scraper.__init__(scraper.markup.get("results"), "html.parser")
 
-jobs = scraper.find_all("ul")[1].find_all("li")
+jobs = scraper.find_all("ul")[0].find_all("li")
 final_jobs = []
 
 for job in jobs:
@@ -43,7 +43,7 @@ for job in jobs:
 
 publish_or_update(final_jobs)
 
-logoUrl = "hhttps://en.jobs.sanofi.com/search-jobs/results?ActiveFacetID=798549&CurrentPage=1&RecordsPerPage=100&Distance=50&RadiusUnitType=0&ShowRadius=False&IsPagination=False&FacetType=0&FacetFilters%5B0%5D.ID=798549&FacetFilters%5B0%5D.FacetType=2&FacetFilters%5B0%5D.Count=13&FacetFilters%5B0%5D.Display=Romania&FacetFilters%5B0%5D.IsApplied=true&SearchResultsModuleName=Search+Results&SearchFiltersModuleName=Search+Filters&SortCriteria=0&SortDirection=0&SearchType=5&ResultsType=0"
+logoUrl = "https://en.jobs.sanofi.com/search-jobs/results?ActiveFacetID=798549&CurrentPage=1&RecordsPerPage=100&Distance=50&RadiusUnitType=0&ShowRadius=False&IsPagination=False&FacetType=0&FacetFilters%5B0%5D.ID=798549&FacetFilters%5B0%5D.FacetType=2&FacetFilters%5B0%5D.Count=13&FacetFilters%5B0%5D.Display=Romania&FacetFilters%5B0%5D.IsApplied=true&SearchResultsModuleName=Search+Results&SearchFiltersModuleName=Search+Filters&SortCriteria=0&SortDirection=0&SearchType=5&ResultsType=0"
 publish_logo(company, logoUrl)
 
 show_jobs(final_jobs)
