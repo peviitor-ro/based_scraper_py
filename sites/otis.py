@@ -19,9 +19,13 @@ jobs = scraper.post(apiUrl, json.dumps(data)).json().get("jobPostings") or []
 finalJobs = []
 
 for job in jobs:
+    job_title = job.get("title")
+    if not job_title:
+        continue
+
     finalJobs.append(
         create_job(
-            job_title=job.get("title"),
+            job_title=job_title,
             job_link="https://otis.wd5.myworkdayjobs.com/en-US/REC_Ext_Gateway" + (job.get("externalPath") or ""),
             company=company,
             country="Romania",
