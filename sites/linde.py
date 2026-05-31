@@ -4,7 +4,7 @@ import json
 from utils import publish_or_update, publish_logo, show_jobs, translate_city
 from getCounty import GetCounty
 
-_counties = GetCounty() 
+_counties = GetCounty()
 regex = re.compile(r'"token":"(.*?)"')
 
 url = "https://linde.csod.com/ux/ats/careersite/20/home?c=linde&country=ro"
@@ -15,19 +15,23 @@ scraper.set_headers({"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) Ap
 scraper.get_from_url(url)
 
 body = scraper.find("body")
+match = regex.search(str(body))
 
-token = regex.search(str(body)).group(1)
-autorization = f"Bearer {token}"
+if match:
+    token = match.group(1)
+    authorization = f"Bearer {token}"
 
-headers = {
-    "Content-Type": "application/json",
-    "Authorization": autorization
-}
-scraper.set_headers(headers)
+    headers = {
+        "Content-Type": "application/json",
+        "Authorization": authorization
+    }
+    scraper.set_headers(headers)
 
-data = {"careerSiteId":20,"careerSitePageId":20,"pageNumber":1,"pageSize":100,"cultureId":1,"searchText":"","cultureName":"en-US","states":[],"countryCodes":["ro"],"cities":[],"placeID":"","radius":"","postingsWithinDays":"","customFieldCheckboxKeys":[],"customFieldDropdowns":[],"customFieldRadios":[]}
+    data = {"careerSiteId":20,"careerSitePageId":20,"pageNumber":1,"pageSize":100,"cultureId":1,"searchText":"","cultureName":"en-US","states":[],"countryCodes":["ro"],"cities":[],"placeID":"","radius":"","postingsWithinDays":"","customFieldCheckboxKeys":[],"customFieldDropdowns":[],"customFieldRadios":[]}
 
-jobs = scraper.post(apiUrl, json.dumps(data)).json().get("data").get("requisitions")
+    jobs = scraper.post(apiUrl, json.dumps(data)).json().get("data").get("requisitions")
+else:
+    jobs = []
 
 company = {"company": "Linde"}
 finalJobs = list()
