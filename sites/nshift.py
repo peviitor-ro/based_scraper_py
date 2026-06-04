@@ -43,7 +43,10 @@ for job_element in soup.select('a[href*="/jobs/"]'):
     if not title_elem:
         continue
 
-    detail_html = requests.get(job_link, timeout=20).text
+    try:
+        detail_html = requests.get(job_link, timeout=20).text
+    except requests.RequestException:
+        continue
     schema_match = re.search(r'<script type="application/ld\+json">(.*?)</script>', detail_html, re.DOTALL)
     if not schema_match:
         continue
