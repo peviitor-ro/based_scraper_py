@@ -25,7 +25,7 @@ for job in jobs:
 
     for city in cities:
         if city in acurate_city.keys():
-            counties = acurate_city[city]["county"]
+            counties = [acurate_city[city]["county"]]
         else:
             counties.extend(_counties.get_county(city) or [])
 
