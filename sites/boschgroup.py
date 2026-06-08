@@ -25,12 +25,17 @@ while True:
         if country != "ro" and "Romania" not in full_location:
             continue
 
-        city = translate_city(remove_diacritics(location.get("city") or ""))
-        county = _counties.get_county(city) if city else []
+        city_raw = remove_diacritics(location.get("city") or "")
+        if "," in city_raw:
+            city_raw = city_raw.split(",")[-1].strip()
+        if city_raw.startswith("Comuna "):
+            city_raw = city_raw.replace("Comuna ", "", 1)
+        city = translate_city(city_raw)
+        county = _counties.get_county(city) or [] if city else []
 
         jobs.append(
             create_job(
-                job_title=job.get("name"),
+                job_title=job.get("name", "").strip(),
                 job_link="https://jobs.smartrecruiters.com/BoschGroup/" + job.get("id"),
                 company=company,
                 country="Romania",

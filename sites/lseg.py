@@ -125,7 +125,10 @@ while data["offset"] < total_jobs:
     response = session.post(apiUrl, json=data, headers=headers, timeout=40).json()
 
 
-publish_or_update(finalJobs)
+try:
+    publish_or_update(finalJobs)
+except Exception as e:
+    print(f"Failed to publish jobs: {e}")
 publish_logo(
     company,
     "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT-Tp_lBl4hy9WFitdNzAtRw2tgxLYnxf1lyNrnXx8h&s",

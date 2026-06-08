@@ -25,7 +25,6 @@ for job in scraper.markup.get("jobs", []):
         remote.append("remote")
     else:
         city = romania_locations[0].split(",")[0].strip()
-        county = []
 
     jobs.append(
         create_job(
@@ -39,7 +38,11 @@ for job in scraper.markup.get("jobs", []):
         )
     )
 
-publish_or_update(jobs)
+try:
+    publish_or_update(jobs)
+except Exception as e:
+    print(f"Warning: {e}")
+
 publish_logo(
     company,
     "https://upload.wikimedia.org/wikipedia/commons/thumb/7/70/Pure_Storage_logo.svg/512px-Pure_Storage_logo.svg.png",

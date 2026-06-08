@@ -87,7 +87,10 @@ def build_job(company, title, link, location_signals, remote_signals=None):
 
 
 def finalize_jobs(company, logo_url, jobs):
-    publish_or_update(jobs)
+    try:
+        publish_or_update(jobs)
+    except Exception as e:
+        print(f"Warning: {e}")
     publish_logo(company, logo_url)
     show_jobs(jobs)
 

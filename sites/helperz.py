@@ -98,6 +98,10 @@ while True:
 
     page += 1
 
-publish_or_update(jobs)
+try:
+    publish_or_update(jobs)
+except Exception as e:
+    print(f"Failed to publish jobs: {e}")
+
 publish_logo(COMPANY, LOGO_URL)
 show_jobs(jobs)

@@ -10,11 +10,15 @@ finalJobs = list()
 scraper = Scraper()
 scraper.get_from_url(url, verify=False)
 
+import re
+
 totalJobs = int(
-    scraper.find("div", {"class": "list-controls__text__legend"})
-    .text.split("of")[1]
-    .replace("results", "")
-    .strip()
+    re.sub(r"\D", "",
+        scraper.find("div", {"class": "list-controls__text__legend"})
+        .text.split("of")[1]
+        .replace("results", "")
+        .strip()
+    )
 )
 
 pages = ceil(totalJobs / 20)

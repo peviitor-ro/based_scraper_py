@@ -51,7 +51,11 @@ for num in range(iteration):
             }
         )
 
-publish_or_update(finaljobs)
+try:
+    publish_or_update(finaljobs)
+except Exception as e:
+    print(f"Failed to publish jobs: {e}")
+
 publish_logo(
     company.get("company"),
     "https://upload.wikimedia.org/wikipedia/commons/thumb/8/85/NXP_logo.svg/512px-NXP_logo.svg.png",

@@ -38,7 +38,7 @@ finalJobs = [
         "job_title": job.find("h4").text.strip(),
         "job_link": "https://www.ionos-group.com" + job["href"],
         "city": "Bucuresti",
-        "county": "Bucuresti",
+        "county": ["Bucuresti"],
         "remote": get_jobtype(job.find("h4").text.strip()),
         "company": company.get("company"),
         "country": "Romania",
@@ -46,7 +46,10 @@ finalJobs = [
     for job in jobs_elements
 ]
 
-publish_or_update(finalJobs)
+try:
+    publish_or_update(finalJobs)
+except Exception as e:
+    print(f"Failed to publish jobs: {e}")
 
 logoUrl = "https://www.ionos-group.com/_assets/debf05b51933fca5f1c347f2aabc0cf0/Media/ionos-group.svg"
 publish_logo(company.get("company"), logoUrl)

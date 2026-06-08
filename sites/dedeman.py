@@ -46,7 +46,10 @@ for job in jobs:
     )
 
 
-publish_or_update(final_jobs)
+try:
+    publish_or_update(final_jobs)
+except Exception as e:
+    print(f"Failed to publish jobs: {e}")
 
 publish_logo(company, "https://i.dedeman.ro/dedereact/design/images/logo.svg")
 

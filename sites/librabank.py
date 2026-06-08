@@ -81,7 +81,10 @@ for job in jobs:
         "salary_currency": salary_currency,
     })
 
-publish_or_update(finalJobs)
+try:
+    publish_or_update(finalJobs)
+except Exception as e:
+    print(f"Failed to publish jobs: {e}")
 
 logo_url = "https://www.librabank.ro/imagini/logo-libra.svg"
 publish_logo(company.get("company"), logo_url)

@@ -53,7 +53,10 @@ for num in range(iteration):
             }
         )
 
-publish_or_update(finalJobs)
+try:
+    publish_or_update(finalJobs)
+except Exception as e:
+    print(f"Warning: {e}")
 
 logoUrl = "https://upload.wikimedia.org/wikipedia/commons/thumb/2/21/Thales_Logo.svg/484px-Thales_Logo.svg.png?20210518101610"
 publish_logo(company.get("company"), logoUrl)

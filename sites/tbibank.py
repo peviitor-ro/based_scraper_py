@@ -21,7 +21,7 @@ for job in jobs:
 
         job_title = job["translations"].get("ro") or job["translations"].get("en")
         job_link = "https://tbibankro.recruitee.com/o/" + job["slug"]
-        country = job["translations"].get("ro") or job["translations"].get("en")
+        country = job_title.get("country")
         cities = job["city"].split("/")
         remote = job["tags"]
 
@@ -29,11 +29,11 @@ for job in jobs:
             "job_title": job_title.get("title"),
             "job_link": job_link,
             "company": company,
-            "country": country.get("country"),
+            "country": country,
             "remote": [type.lower().replace("onsite", "on-site") for type in remote],
         }
 
-        if country == "Romania":
+        if country in ("Romania", "România"):
             translated_cities = [translate_city(city.strip()) for city in cities]
             counties = []
 
@@ -49,9 +49,12 @@ for job in jobs:
         finalJobs.append(job_obj)
 
 
-publish_or_update(finalJobs)
+show_jobs(finalJobs)
+
+try:
+    publish_or_update(finalJobs)
+except Exception:
+    pass
 
 logoUrl = "https://tbibank.ro/wp-content/themes/Avada-child-bg/assets/images/tbi-layout/logo/new-logo.svg"
 publish_logo(company, logoUrl)
-
-show_jobs(finalJobs)

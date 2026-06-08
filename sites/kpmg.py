@@ -39,7 +39,10 @@ while jobs:
     data["CurrentPage"] += 1
     jobs = requests.post(apiUrl, json=data, headers=headers, timeout=10, verify=False).json().get("Data") or []
 
-publish_or_update(finalJobs)
+try:
+    publish_or_update(finalJobs)
+except Exception as e:
+    print(f"Failed to publish jobs: {e}")
 
 logo_url = "https://careers.kpmg.ro/assets/images/logo-kpmg.jpg"
 publish_logo(company.get("company"), logo_url)

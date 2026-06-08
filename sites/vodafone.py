@@ -43,7 +43,10 @@ for page in range(0, pages):
     url = f"https://jobs.vodafone.com/api/pcsx/search?domain=vodafone.com&query=&location=Romania&start={ (page + 1) * step }&"
     scraper.get_from_url(url, "JSON")
 
-publish_or_update(jobs)
+try:
+    publish_or_update(jobs)
+except Exception as e:
+    print(f"Warning: {e}")
 
 publish_logo(
     company,

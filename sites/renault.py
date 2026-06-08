@@ -51,7 +51,10 @@ for num in range(iteration):
         except Exception:
             continue
 
-publish_or_update(finaljobs)
+try:
+    publish_or_update(finaljobs)
+except Exception as e:
+    print(f"Warning: Failed to publish jobs: {e}")
 
 logo_url = "https://logos-world.net/wp-content/uploads/2021/04/Renault-Logo-700x394.png"
 publish_logo(company.get("company"), logo_url)

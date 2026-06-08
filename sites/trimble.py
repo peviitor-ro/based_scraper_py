@@ -22,26 +22,32 @@ for job in jobs:
     locations_text = job.get("locationsText") or ""
     if "Brasov" in locations_text:
         city = "Brasov"
-        county = "Brasov"
+        county = ["Brasov"]
         remote = []
     else:
         city = None
         county = None
         remote = ["remote"]
 
-    finalJobs.append(
-        create_job(
-            job_title=job.get("title"),
-            job_link="https://trimble.wd1.myworkdayjobs.com/en-US/TrimbleCareers" + (job.get("externalPath") or ""),
-            company=company,
-            country="Romania",
-            city=city,
-            county=county,
-            remote=remote,
-        )
+    job_data = create_job(
+        job_title=job.get("title"),
+        job_link="https://trimble.wd1.myworkdayjobs.com/en-US/TrimbleCareers" + (job.get("externalPath") or ""),
+        company=company,
+        country="Romania",
+        remote=remote,
     )
 
-publish_or_update(finalJobs)
+    if city:
+        job_data["city"] = city
+        job_data["county"] = county
+
+    finalJobs.append(job_data)
+
+try:
+    publish_or_update(finalJobs)
+except Exception as e:
+    print(f"Warning: {e}")
+
 publish_logo(
     company,
     "https://upload.wikimedia.org/wikipedia/commons/thumb/6/60/Trimble_logo.svg/512px-Trimble_logo.svg.png",

@@ -33,7 +33,10 @@ for job in jobs_elements:
 
     jobs.append(jobObj)
 
-publish_or_update(jobs)
+try:
+    publish_or_update(jobs)
+except Exception as e:
+    print(f"Warning: Failed to publish jobs: {e}")
 
 publish_logo(company, "https://img.veeam.com/careers/logo/veeam/veeam_logo_bg.svg")
 show_jobs(jobs)

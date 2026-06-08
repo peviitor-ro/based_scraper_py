@@ -13,21 +13,6 @@ scraper.get_from_url(url, "JSON")
 
 jobs = scraper.markup.get("data")
 
-allCities = [
-    "Bucuresti",
-    "Cluj-Napoca",
-    "Iasi",
-    "Suceava",
-    "Brasov",
-]
-allCounties = [
-    "Bucuresti",
-    "Cluj",
-    "Iasi",
-    "Suceava",
-    "Brasov",
-]
-
 acurate_city = acurate_city_and_county(Iasi={"city": "Iasi", "county": "Iasi"})
 
 for job in jobs:
@@ -38,25 +23,49 @@ for job in jobs:
         + "/"
         + job.get("title").replace(" ", "-").lower()
     )
-    city = translate_city(job.get("location"))
-    county = _counties.get_county(city)
+
+    locations = job.get("location", "").split(",")
+    cities = []
+    counties = []
+
+    for location in locations:
+        city = translate_city(location.strip())
+        if not city:
+            continue
+
+        if acurate_city.get(city):
+            cities.append(acurate_city.get(city).get("city"))
+            counties.append(acurate_city.get(city).get("county"))
+        else:
+            county = _counties.get_county(city)
+            if county:
+                cities.append(city)
+                counties.extend(county if isinstance(county, list) else [county])
+
+    if not cities:
+        cities = [
+            "Bucuresti",
+            "Cluj-Napoca",
+            "Iasi",
+            "Suceava",
+            "Brasov",
+        ]
+        counties = [
+            "Bucuresti",
+            "Cluj",
+            "Iasi",
+            "Suceava",
+            "Brasov",
+        ]
 
     job_element = {
         "job_title": job_title,
         "job_link": job_link,
         "company": company.get("company"),
         "country": "Romania",
+        "city": cities,
+        "county": counties,
     }
-
-    if not county:
-        job_element["city"] = allCities
-        job_element["county"] = allCounties
-    elif acurate_city.get(city):
-        job_element["city"] = acurate_city.get(city).get("city")
-        job_element["county"] = acurate_city.get(city).get("county")
-    else:
-        job_element["city"] = city
-        job_element["county"] = county
 
     finalJobs.append(job_element)
 

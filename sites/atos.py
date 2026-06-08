@@ -103,7 +103,17 @@ for page in paginate:
     fetch_with_retry(scraper, url)
     jobs = scraper.find("table", {"id": "searchresults"}).find("tbody").find_all("tr")
 
-publish_or_update(finalJobs)
+max_publish_retries = 10
+for attempt in range(max_publish_retries):
+    try:
+        publish_or_update(finalJobs)
+        break
+    except Exception as e:
+        print(f"Publish attempt {attempt + 1}/{max_publish_retries} failed: {e}, retrying in 30s...")
+        time.sleep(30)
+else:
+    publish_or_update(finalJobs)
+
 logoUrl = "https://rmkcdn.successfactors.com/a7d5dbb6/c9ab6ccb-b086-47f2-b25b-2.png"
 publish_logo(company, logoUrl)
 

@@ -28,7 +28,10 @@ for job in job_elements:
         }
     )
 
-publish_or_update(final_jobs)
+try:
+    publish_or_update(final_jobs)
+except Exception as e:
+    print(f"Warning: {e}")
 
 publish_logo(
     company,

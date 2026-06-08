@@ -57,6 +57,10 @@ while True:
     if page > page_count:
         break
 
-publish_or_update(finalJobs)
+try:
+    publish_or_update(finalJobs)
+except Exception as e:
+    print(f"Failed to publish jobs: {e}")
+
 publish_logo(COMPANY, LOGO_URL)
 show_jobs(finalJobs)
