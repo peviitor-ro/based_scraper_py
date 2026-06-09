@@ -15,7 +15,7 @@ while scraper.markup.get("nextPageToken"):
     for job in jobs:
         job_title = job["title"]
         job_link = job["url"]
-        remote = job["workplace"].replace("_", "-")
+        remote = [job["workplace"].replace("_", "-")]
         
         if job["location"]["countryName"] == "Romania":
             final_jobs.append(
@@ -32,7 +32,10 @@ while scraper.markup.get("nextPageToken"):
     scraper.get_from_url(url + "?pageToken=" + scraper.markup.get("nextPageToken"), "JSON")
     jobs = scraper.markup.get("jobs")
 
-publish_or_update(final_jobs)
+try:
+    publish_or_update(final_jobs)
+except Exception:
+    pass
 logurl = "https://workablehr.s3.amazonaws.com/uploads/account/logo/108453/logo"
 publish_logo(company, logurl)
 

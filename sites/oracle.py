@@ -24,7 +24,7 @@ for page in range(pages):
 
         if not county:
             city = "All"
-            county = "All"
+            county = ["All"]
 
         jobs.append(
             create_job(
@@ -41,7 +41,10 @@ for page in range(pages):
     scraper.get_from_url(url, "JSON")
     total_jobs = scraper.markup.get("items")[0]
 
-publish_or_update(jobs)
+try:
+    publish_or_update(jobs)
+except Exception as e:
+    print(e)
 
 publish_logo(
     company,

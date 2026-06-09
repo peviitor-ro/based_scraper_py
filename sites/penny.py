@@ -58,7 +58,10 @@ while category <= 3:
 
 
 
-publish_or_update(finalJobs)
+try:
+    publish_or_update(finalJobs)
+except Exception as e:
+    print(f"API error: {e}")
 
 logo_url = "https://cariere.penny.ro/wp-content/themes/penny_cariere/img/logo.jpg"
 publish_logo(company.get("company"), logo_url)

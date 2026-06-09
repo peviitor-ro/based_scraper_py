@@ -38,9 +38,17 @@ while True:
 
     offset += 100
 
-publish_or_update(jobs)
-publish_logo(
-    company,
-    "https://upload.wikimedia.org/wikipedia/commons/thumb/9/92/Delivery_Hero_Logo.svg/512px-Delivery_Hero_Logo.svg.png",
-)
+try:
+    publish_or_update(jobs)
+except Exception as e:
+    print(f"Warning: Failed to publish jobs: {e}")
+
+try:
+    publish_logo(
+        company,
+        "https://upload.wikimedia.org/wikipedia/commons/thumb/9/92/Delivery_Hero_Logo.svg/512px-Delivery_Hero_Logo.svg.png",
+    )
+except Exception as e:
+    print(f"Warning: Failed to publish logo: {e}")
+
 show_jobs(jobs)

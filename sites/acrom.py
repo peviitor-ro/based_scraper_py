@@ -36,7 +36,10 @@ jobs = [
     for job in jobs_elements
 ]
 
-publish_or_update(jobs)
+try:
+    publish_or_update(jobs)
+except Exception as e:
+    print(f"API warning: {e}")
 publish_logo(
     company, "https://www.acrom.ro/wp-content/uploads/2022/05/1-Acrom-logo-main.png"
 )

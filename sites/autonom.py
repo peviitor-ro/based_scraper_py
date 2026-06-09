@@ -21,24 +21,24 @@ for job in jobs:
 
     locations = job.find_all("span", {"class": "locatie-job"})
     cities = [remove_diacritics(city.text) for city in locations]
-    counties = []
 
     for city in cities:
         if city in acurate_city.keys():
-            counties = [acurate_city[city]["county"]]
+            county = acurate_city[city]["county"]
         else:
-            counties.extend(_counties.get_county(city) or [])
+            county_result = _counties.get_county(city)
+            county = county_result[0] if county_result else None
 
-    finalJobs.append(
-        {
-            "job_title": job_title,
-            "job_link": job_link,
-            "company": company.get("company"),
-            "country": "Romania",
-            "city": cities,
-            "county": counties,
-        }
-    )
+        finalJobs.append(
+            {
+                "job_title": job_title,
+                "job_link": job_link,
+                "company": company.get("company"),
+                "country": "Romania",
+                "city": city,
+                "county": county,
+            }
+        )
 
 publish_or_update(finalJobs)
 

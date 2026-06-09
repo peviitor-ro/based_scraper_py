@@ -1,6 +1,7 @@
 from scraper.Scraper import Scraper
 from utils import publish_or_update, publish_logo, create_job, show_jobs, translate_city
 from getCounty import GetCounty, remove_diacritics, abreviate_counties
+import json
 import re
 
 _counties = GetCounty()
@@ -38,7 +39,7 @@ for job in jobs_elements:
             city = ""
 
         if abreviate_counties.get(city.lower().strip()):
-            county = abr_counties.get(city.lower().strip()).get("county")
+            county = [abr_counties.get(city.lower().strip()).get("county")]
             city = abreviate_counties.get(city.lower().strip()).get("city")
         else:
             city = translate_city(remove_diacritics(city.strip()))
@@ -57,6 +58,7 @@ for job in jobs_elements:
         )
     )
 
+print(json.dumps(jobs, indent=4))
 publish_or_update(jobs)
 
 publish_logo(company, "https://www.irum.ro/wp-content/uploads/2020/03/logo_IRUM.png")

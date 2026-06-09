@@ -32,8 +32,15 @@ for num in range(iteration):
 
         job_title = job.get("title")
         job_link = "https://pfizer.wd1.myworkdayjobs.com/en-US/PfizerCareers" + job.get("externalPath")
-        city = translate_city(job.get("locationsText").split("-")[-1].strip())
+        locationsText = job.get("locationsText")
+
+        if "Romania" not in locationsText:
+            continue
+
+        city = translate_city(locationsText.split("-")[-1].strip())
         county = _counties.get_county(city)
+        if isinstance(county, list):
+            county = county[0] if county else None
 
         finaljobs.append({
             "job_title": job_title,
@@ -44,7 +51,10 @@ for num in range(iteration):
             "county": county
         })
 
-publish_or_update(finaljobs)
+try:
+    publish_or_update(finaljobs)
+except Exception as e:
+    print(f"Failed to publish jobs: {e}")
 
 logo_url = (
     "https://helix-core-components.digitalpfizer.com/static/logo/pfizer-logo-color.svg"

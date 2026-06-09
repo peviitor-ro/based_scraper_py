@@ -69,7 +69,10 @@ for job in jobs:
 
     finalJobs.append(job_element)
 
-publish_or_update(finalJobs)
+try:
+    publish_or_update(finalJobs)
+except Exception as e:
+    pass
 
 logoUrl = "https://prod.ucwe.capgemini.com/ro-en/wp-content/themes/capgemini2020/assets/images/logo.svg"
 publish_logo(company.get("company"), logoUrl)

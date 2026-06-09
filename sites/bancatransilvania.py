@@ -57,7 +57,11 @@ for job in response:
         )
     )
 
-publish_or_update(jobs)
+try:
+    publish_or_update(jobs)
+except Exception as e:
+    print(f"Warning: Failed to publish jobs: {e}")
+
 publish_logo(
     company,
     "https://www.bancatransilvania.ro/themes/bancatransilvania/assets/images/logos/bt-cariere.svg",

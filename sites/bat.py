@@ -14,16 +14,21 @@ html = scraper.markup.get("results")
 
 scraper.__init__(html, "html.parser")
 
+section = scraper.find("section", {"class": "search-results"})
+total_pages = int(section.get("data-total-pages", 1)) if section else 1
+
 jobs = scraper.find("ul", {"class": "search-results-job-list"}).find_all("li")
 
 company = {"company": "BAT"}
 finalJobs = list()
+seen_links = set()
 while jobs:
     for job in jobs:
-        
         job_title = job.find("h3").text
         job_link = "https://careers.bat.com" + job.find("a").get("href")
-        location = job.find("span", {"class": "search-results-job-location"}).text.split(",")
+        if job_link in seen_links:
+            continue
+        seen_links.add(job_link)
         city = translate_city(
             remove_diacritics(
                 job.find(
@@ -43,15 +48,20 @@ while jobs:
                     "county": county,
                 }
             )
-    
+
     page += 1
+    if page > total_pages:
+        break
     url = f"https://careers.bat.com/search-jobs/results?ActiveFacetID=32003584&CurrentPage={page}&RecordsPerPage=10&TotalContentResults=&Distance=50&RadiusUnitType=0&Keywords=&Location=&ShowRadius=False&IsPagination=False&CustomFacetName=&FacetTerm=&FacetType=0&FacetFilters%5B0%5D.ID=798549&FacetFilters%5B0%5D.FacetType=2&FacetFilters%5B0%5D.Count=50&FacetFilters%5B0%5D.Display=Romania&FacetFilters%5B0%5D.IsApplied=true&FacetFilters%5B0%5D.FieldName=&SearchResultsModuleName=Search+Results&SearchFiltersModuleName=Search+Filters&SortCriteria=0&SortDirection=0&SearchType=6&PostalCode=&ResultsType=0&fc=&fl=&fcf=&afc=&afl=&afcf=&TotalContentPages=NaN"
     scraper.get_from_url(url, "JSON")
     html = scraper.markup.get("results")
     scraper.__init__(html, "html.parser")
     jobs = scraper.find("ul", {"class": "search-results-job-list"}).find_all("li")
 
-publish_or_update(finalJobs)
+try:
+    publish_or_update(finalJobs)
+except Exception as e:
+    print(f"Warning: Failed to publish jobs: {e}")
 
 logoUrl = "https://cdn.radancy.eu/company/1045/v2_0/img/temporary/shared/bat-logo.svg"
 publish_logo(company.get("company"), logoUrl)

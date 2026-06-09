@@ -54,39 +54,35 @@ for job in jobs:
     job_title = title_node.get_text(strip=True)
     job_link = "https://jobs.parexel.com" + href
     locations = extract_romanian_locations(job)
-    cities = []
-    counties = []
-    remote = []
 
     for location in locations:
-        if location.lower() == "remote":
+        city = location
+        remote = []
+
+        if city.lower() == "remote":
+            city = ""
             remote.append("remote")
-            continue
 
-        city = translate_city(location)
-        if city not in cities:
-            cities.append(city)
+        job_element = {
+            "job_title": job_title,
+            "job_link": job_link,
+            "country": "Romania",
+            "company": company.get("company"),
+            "city": city,
+            "remote": remote,
+        }
 
-        county = _counties.get_county(city) or []
-        for county_name in county:
-            if county_name not in counties:
-                counties.append(county_name)
+        if city:
+            city = translate_city(city)
+            county = _counties.get_county(city)
+            job_element.update({"city": city, "county": county})
 
-    job_data = {
-        "job_title": job_title,
-        "job_link": job_link,
-        "country": "Romania",
-        "company": company.get("company"),
-        "remote": remote,
-    }
+        finalJobs.append(job_element)
 
-    if cities:
-        job_data["city"] = cities
-        job_data["county"] = counties
-
-    finalJobs.append(job_data)
-
-publish_or_update(finalJobs)
+try:
+    publish_or_update(finalJobs)
+except Exception as e:
+    print(e)
     
 logoUrl = "https://www.parexel.com/packages/parexel/themes/parexel/img/logo.svg"
 publish_logo(company.get("company"), logoUrl)
