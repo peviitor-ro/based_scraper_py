@@ -10,7 +10,7 @@ from getCounty import GetCounty
 _counties = GetCounty()
 
 BASE_URL = "https://cariere.kaufland.ro"
-API_URL = f"{BASE_URL}/search_api/jobsearch"
+API_URL = f"{BASE_URL}/api/v1/search"
 LOGO_URL = f"{BASE_URL}/content/download/13399/icon/kaufland-logo.svg"
 COMPANY = "Kaufland"
 
@@ -21,21 +21,19 @@ page = 1
 
 while True:
     params = {
-        "page": page,
-        "filter": '{"contract_type":[],"employment_area":[],"entry_level":[]}',
-        "with_event": "true",
+        "general": f'{{"page":{page},"results_per_page":100,"sort_field":"","sort_order":"asc"}}',
     }
 
     scraper.get_from_url(API_URL, "JSON", params=params)
     data = scraper.markup
 
-    hits = data.get("result", {}).get("hits", [])
-    if not hits:
+    jobs = data.get("jobs", [])
+    if not jobs:
         break
 
-    for job in hits:
+    for job in jobs:
         job_title = job.get("title")
-        job_link = BASE_URL + job.get("url", "")
+        job_link = BASE_URL + job.get("jobDetailUrl", "")
 
         location = job.get("location", {})
         city = translate_city(location.get("city", ""))
@@ -52,7 +50,10 @@ while True:
             "county": counties,
         })
 
-    page_count = data.get("result", {}).get("pageCount", 0)
+    meta = data.get("meta", {})
+    total_count = meta.get("totalCount", 0)
+    results_per_page = meta.get("resultsPerPage", 100)
+    page_count = (total_count + results_per_page - 1) // results_per_page
     page += 1
     if page > page_count:
         break
