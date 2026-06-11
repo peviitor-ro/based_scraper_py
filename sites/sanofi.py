@@ -1,11 +1,11 @@
 from scraper.Scraper import Scraper
 from utils import show_jobs, publish_or_update, publish_logo, translate_city
 from getCounty import GetCounty
+from bs4 import BeautifulSoup
 
 _counties = GetCounty()
 
 company = "sanofi"
-url = "https://jobs.sanofi.com/en/search-jobs/results?ActiveFacetID=798549&CurrentPage=1&RecordsPerPage=15&TotalContentResults=&Distance=50&RadiusUnitType=0&Keywords=&Location=&ShowRadius=False&IsPagination=False&CustomFacetName=&FacetTerm=&FacetType=0&FacetFilters%5B0%5D.ID=798549&FacetFilters%5B0%5D.FacetType=2&FacetFilters%5B0%5D.Count=5&FacetFilters%5B0%5D.Display=Romania&FacetFilters%5B0%5D.IsApplied=true&FacetFilters%5B0%5D.FieldName=&SearchResultsModuleName=Search+Results&SearchFiltersModuleName=Search+Filters&SortCriteria=0&SortDirection=0&SearchType=5&PostalCode=&ResultsType=0&fc=&fl=&fcf=&afc=&afl=&afcf=&TotalContentPages=NaN"
 
 additionalHeaders = {
     "Content-Type": "application/json",
@@ -13,27 +13,36 @@ additionalHeaders = {
 }
 
 scraper = Scraper()
-
 scraper.set_headers(additionalHeaders)
 
+url = "https://jobs.sanofi.com/en/search-jobs/results?CurrentPage=1&RecordsPerPage=100&Distance=50&RadiusUnitType=0&Keywords=&Location=&ShowRadius=False&IsPagination=False&FacetType=0&SearchResultsModuleName=Search+Results&SearchFiltersModuleName=Search+Filters&SortCriteria=0&SortDirection=0&SearchType=2&ResultsType=0"
 scraper.get_from_url(url, "JSON", verify=False)
-scraper.__init__(scraper.markup.get("results"), "html.parser")
 
-jobs = scraper.find_all("ul")[0].find_all("li")
+soup = BeautifulSoup(scraper.markup.get("results"), "html.parser")
+
+jobs = soup.find_all("li")
 final_jobs = []
 
 for job in jobs:
-    job_title = job.find("h2").text.strip()
-    job_link = "https://jobs.sanofi.com" + job.find("a")["href"]
-    location = job.find("span", {"class": "job-location"}).text.split(",")[
-        0].strip().replace("Location: ", "")
+    location_span = job.find("span", {"class": "job-location"})
+    if location_span is None:
+        continue
+    location = location_span.text.split(",")[0].strip().replace("Location: ", "")
+    if "Romania" not in location and "romania" not in location:
+        continue
+
+    job_title = job.find("h2")
+    job_link = job.find("a")
+    if job_title is None or job_link is None:
+        continue
+
     city = translate_city(location)
     county = _counties.get_county(city)
 
     final_jobs.append(
         {
-            "job_title": job_title,
-            "job_link": job_link,
+            "job_title": job_title.text.strip(),
+            "job_link": "https://jobs.sanofi.com" + job_link.get("href"),
             "country": "Romania",
             "company": company,
             "city": city,
@@ -43,7 +52,7 @@ for job in jobs:
 
 publish_or_update(final_jobs)
 
-logoUrl = "https://en.jobs.sanofi.com/search-jobs/results?ActiveFacetID=798549&CurrentPage=1&RecordsPerPage=100&Distance=50&RadiusUnitType=0&ShowRadius=False&IsPagination=False&FacetType=0&FacetFilters%5B0%5D.ID=798549&FacetFilters%5B0%5D.FacetType=2&FacetFilters%5B0%5D.Count=13&FacetFilters%5B0%5D.Display=Romania&FacetFilters%5B0%5D.IsApplied=true&SearchResultsModuleName=Search+Results&SearchFiltersModuleName=Search+Filters&SortCriteria=0&SortDirection=0&SearchType=5&ResultsType=0"
+logoUrl = "https://en.jobs.sanofi.com/search-jobs/results?CurrentPage=1&RecordsPerPage=100&Distance=50&RadiusUnitType=0&ShowRadius=False&IsPagination=False&FacetType=0&SearchResultsModuleName=Search+Results&SearchFiltersModuleName=Search+Filters&SortCriteria=0&SortDirection=0&SearchType=2&ResultsType=0"
 publish_logo(company, logoUrl)
 
 show_jobs(final_jobs)
