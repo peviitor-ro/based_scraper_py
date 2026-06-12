@@ -122,7 +122,10 @@ while data["offset"] < total_jobs:
     if data["offset"] >= total_jobs:
         break
 
-    response = session.post(apiUrl, json=data, headers=headers, timeout=40).json()
+    try:
+        response = session.post(apiUrl, json=data, headers=headers, timeout=40).json()
+    except Exception:
+        break
 
 
 try:
