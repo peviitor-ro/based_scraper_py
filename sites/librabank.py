@@ -21,11 +21,6 @@ acurate_city = acurate_city_and_county(
 url = "https://www.librabank.ro/Cariere"
 
 _counties = GetCounty()
-scraper = Scraper()
-scraper.get_from_url(url, timeout=30, verify=False)
-
-jobContainer = scraper.find_all("div", {"class": "jobListing"})
-jobs = list(jobContainer)[0].find_all("div", {"class": "card-body"})
 
 company = {"company": "LibraBank"}
 finalJobs = list()
@@ -46,40 +41,50 @@ def get_salary(job_link):
     salary_max = int(match.group(2).replace(".", ""))
     return salary_min, salary_max, "RON"
 
-for job in jobs:
-    job_title = job.find("a").text.strip()
-    job_link = "https://www.librabank.ro" + job.find("a").get("href")
-    salary_min, salary_max, salary_currency = get_salary(job_link)
 
-    location = remove_words(
-        job_title.split(" - ")[-1].strip(), ["Sucursala", "Sucursale"]
-    ).strip()
-    city = ""
-    county = ""
-    accurate_location = acurate_city.get(location)
+try:
+    scraper = Scraper()
+    scraper.get_from_url(url, timeout=30, verify=False)
 
-    if accurate_location:
-        city = accurate_location["city"]
-        county = accurate_location["county"]
-    else:
-        city = translate_city(location)
-        county = _counties.get_county(city)
+    jobContainer = scraper.find_all("div", {"class": "jobListing"})
+    jobs = list(jobContainer)[0].find_all("div", {"class": "card-body"})
 
-        if not county:
-            city = "Bucuresti"
-            county = "Bucuresti"
+    for job in jobs:
+        job_title = job.find("a").text.strip()
+        job_link = "https://www.librabank.ro" + job.find("a").get("href")
+        salary_min, salary_max, salary_currency = get_salary(job_link)
 
-    finalJobs.append({
-        "job_title": job_title,
-        "job_link": job_link,
-        "company": company.get("company"),
-        "country": "Romania",
-        "city": city,
-        "county": county,
-        "salary_min": salary_min,
-        "salary_max": salary_max,
-        "salary_currency": salary_currency,
-    })
+        location = remove_words(
+            job_title.split(" - ")[-1].strip(), ["Sucursala", "Sucursale"]
+        ).strip()
+        city = ""
+        county = ""
+        accurate_location = acurate_city.get(location)
+
+        if accurate_location:
+            city = accurate_location["city"]
+            county = accurate_location["county"]
+        else:
+            city = translate_city(location)
+            county = _counties.get_county(city)
+
+            if not county:
+                city = "Bucuresti"
+                county = "Bucuresti"
+
+        finalJobs.append({
+            "job_title": job_title,
+            "job_link": job_link,
+            "company": company.get("company"),
+            "country": "Romania",
+            "city": city,
+            "county": county,
+            "salary_min": salary_min,
+            "salary_max": salary_max,
+            "salary_currency": salary_currency,
+        })
+except Exception as e:
+    print(f"Failed to scrape jobs: {e}")
 
 try:
     publish_or_update(finalJobs)
