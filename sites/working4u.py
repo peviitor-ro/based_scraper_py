@@ -1,4 +1,5 @@
 import sys
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
 
 import requests
@@ -12,6 +13,8 @@ from utils import create_job, publish_logo, publish_or_update, show_jobs, transl
 
 BASE_URL = "https://www.working4u.ro"
 LIST_URL = f"{BASE_URL}/locuri-de-munca/"
+SITEMAP_URL = f"{BASE_URL}/wp-sitemap-posts-awsm_job_openings-1.xml"
+WAYBACK_PREFIX = "https://web.archive.org/web/2/"
 LOGO_URL = "https://www.working4u.ro/wp-content/uploads/2023/02/logowhite.svg"
 COMPANY = "Working4U"
 HEADERS = {
@@ -67,11 +70,20 @@ def get_city_and_county(token):
     return city, None
 
 
-def extract_locations(job_link):
-    response = session.get(job_link, timeout=30)
-    response.raise_for_status()
-    soup = BeautifulSoup(response.text, "html.parser")
+def fetch_page_safe(url):
+    try:
+        resp = session.get(url, timeout=30)
+        if resp.status_code == 200:
+            return resp.text
+    except requests.RequestException:
+        pass
+    wayback_url = f"{WAYBACK_PREFIX}{url}"
+    resp = session.get(wayback_url, timeout=30)
+    resp.raise_for_status()
+    return resp.text
 
+
+def extract_locations_from_soup(soup):
     location_terms = []
     for spec in soup.select(".awsm-job-specification-item"):
         label = spec.select_one(".awsm-job-specification-label")
@@ -108,39 +120,39 @@ def extract_locations(job_link):
     return cities, counties or None
 
 
-page = 1
-while True:
-    page_url = LIST_URL if page == 1 else f"{LIST_URL}?paged={page}"
-    response = session.get(page_url, timeout=30)
-    response.raise_for_status()
-    soup = BeautifulSoup(response.text, "html.parser")
+sitemap_resp = session.get(SITEMAP_URL, timeout=30)
+sitemap_resp.raise_for_status()
+sitemap_soup = BeautifulSoup(sitemap_resp.text, "xml")
+job_urls = [url_node.text for url_node in sitemap_soup.select("url loc")]
 
-    page_jobs = 0
-    for heading in soup.select('h2 a[href*="/jobs/"]'):
-        job_title = heading.get_text(" ", strip=True)
-        job_link = heading.get("href")
 
-        if not job_link or job_link in seen_links:
-            continue
+def process_job(job_link):
+    try:
+        page_text = fetch_page_safe(job_link)
+    except Exception:
+        return None
+    page_soup = BeautifulSoup(page_text, "html.parser")
+    title_el = page_soup.select_one(".entry-title")
+    if not title_el:
+        return None
+    job_title = title_el.get_text(" ", strip=True)
+    city, county = extract_locations_from_soup(page_soup)
+    return create_job(
+        job_title=job_title,
+        job_link=job_link,
+        company=COMPANY,
+        country="Romania",
+        city=city,
+        county=county,
+    )
 
-        city, county = extract_locations(job_link)
-        jobs.append(
-            create_job(
-                job_title=job_title,
-                job_link=job_link,
-                company=COMPANY,
-                country="Romania",
-                city=city,
-                county=county,
-            )
-        )
-        seen_links.add(job_link)
-        page_jobs += 1
 
-    if page_jobs == 0:
-        break
-
-    page += 1
+with ThreadPoolExecutor(max_workers=10) as executor:
+    futures = {executor.submit(process_job, link): link for link in job_urls}
+    for future in as_completed(futures):
+        result = future.result()
+        if result is not None:
+            jobs.append(result)
 
 
 publish_or_update(jobs)
