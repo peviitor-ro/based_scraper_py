@@ -1,7 +1,7 @@
 import sys
 from pathlib import Path
 
-import requests
+import cloudscraper
 from bs4 import BeautifulSoup
 
 sys.path.append(str(Path(__file__).resolve().parent.parent))
@@ -28,7 +28,8 @@ HEADERS = {
 
 _counties = GetCounty()
 
-response = requests.get(BASE_URL, headers=HEADERS, timeout=30)
+scraper = cloudscraper.create_scraper()
+response = scraper.get(BASE_URL, headers=HEADERS, timeout=30)
 response.raise_for_status()
 soup = BeautifulSoup(response.text, "html.parser")
 
