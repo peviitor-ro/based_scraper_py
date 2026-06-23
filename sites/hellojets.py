@@ -9,16 +9,9 @@ sys.path.append(str(Path(__file__).resolve().parent.parent))
 from getCounty import GetCounty
 from utils import create_job, publish_or_update, publish_logo, show_jobs
 
-BASE_URL = "https://hellojets.com/ro/cariere/"
+JINA_PROXY = "https://r.jina.ai/http://hellojets.com/ro/cariere/"
 LOGO_URL = "https://hellojets.com/wp-content/uploads/2024/11/art.png"
 COMPANY = "HelloJets"
-HEADERS = {
-    "User-Agent": (
-        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
-        "AppleWebKit/537.36 (KHTML, like Gecko) "
-        "Chrome/124.0.0.0 Safari/537.36"
-    )
-}
 
 _counties = GetCounty()
 
@@ -26,13 +19,17 @@ _counties = GetCounty()
 CITY = "București"
 COUNTY = _counties.get_county(CITY)
 
-response = requests.get(BASE_URL, headers=HEADERS, timeout=30)
+response = requests.get(
+    JINA_PROXY,
+    headers={"Accept": "text/html,application/xhtml+xml", "X-Return-Format": "html"},
+    timeout=30,
+)
 response.raise_for_status()
 soup = BeautifulSoup(response.text, "html.parser")
 
 jobs = []
 
-for link in soup.select("a"):
+for link in soup.select("a.btn-style1"):
     if link.get_text(strip=True) != "Detalii job":
         continue
 
@@ -40,8 +37,7 @@ for link in soup.select("a"):
     if not job_link:
         continue
 
-    wrapper = link.parent.parent
-    title_el = wrapper.select_one("h3")
+    title_el = link.find_previous("h3")
     if not title_el:
         continue
 
