@@ -9,7 +9,7 @@ row = 0
 url = "https://careers.qualitestgroup.com/search/?q=&locationsearch=Romania&searchby=location&d=10&startrow=0"
 
 scraper = Scraper()
-scraper.get_from_url(url)
+scraper.get_from_url(url, verify=False)
 
 jobs = scraper.find("table", {"id": "searchresults"}).find("tbody").find_all("tr")
   
@@ -42,7 +42,7 @@ while len(jobs) > 0:
     
     row += 25
     url = "https://careers.qualitestgroup.com/search/?q=&locationsearch=Romania&searchby=location&d=10&startrow=" + str(row)
-    scraper.get_from_url(url)
+    scraper.get_from_url(url, verify=False)
     jobs = scraper.find("table", {"id": "searchresults"}).find("tbody").find_all("tr")
 
 publish_or_update(final_jobs)

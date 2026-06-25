@@ -1,16 +1,16 @@
 from scraper.Scraper import Scraper
 import json
+import html
 from utils import (
     translate_city,
     publish_or_update,
     publish_logo,
     show_jobs,
-    translate_city,
 )
 from getCounty import GetCounty
 
 _counties = GetCounty()
-url = " https://www.mazarscareers.com/ro/wp-admin/admin-ajax.php?action=get_job_listing_html&searchTerm=&form=contract%3D%26location%3D%26service%3D&amount=-1&location="
+url = "https://careers-ro.forvismazars.com/wp-json/wp/v2/job-offer"
 
 company = {"company": "Mazars"}
 finalJobs = list()
@@ -18,21 +18,16 @@ finalJobs = list()
 scraper = Scraper()
 scraper.get_from_url(url, "JSON")
 
-html = scraper.markup.get("html")
-scraper.__init__(html, "html.parser")
-
-jobs = scraper.find_all("article", {"class": "JobResult"})
+jobs = scraper.markup
 
 for job in jobs:
-    job_title = job.find("h3").text.strip()
-    job_link = job.find("h3").find("a").get("href")
-    city = [
-        translate_city(
-            job.find("p", {"class": "job-listing__location"})
-            .text.split(":")[-1]
-            .strip()
-        )
-    ]
+    job_title = html.unescape(job["title"]["rendered"])
+    job_link = job["link"]
+
+    loc_class = [c for c in job["class_list"] if c.startswith("location-")]
+    city_name = loc_class[0].replace("location-", "") if loc_class else ""
+    city_name = city_name.replace("-", " ").title()
+    city = [translate_city(city_name)]
 
     if not city[0]:
         city = ["Bucuresti", "Cluj-Napoca"]
