@@ -12,10 +12,18 @@ finalJobs = list()
 scraper = Scraper()
 scraper.get_from_url(url)
 
-totalJobs = int(scraper.find("span", {"class": "paginationLabel"}).find_all("b")[-1].text.strip())
-paginate = ceil(totalJobs / 50)
+pagination_label = scraper.find("span", {"class": "paginationLabel"})
+if pagination_label:
+    totalJobs = int(pagination_label.find_all("b")[-1].text.strip())
+    paginate = ceil(totalJobs / 50)
+else:
+    paginate = 1
 
-jobs = scraper.find("table", {"id": "searchresults"}).find("tbody").find_all("tr")
+table = scraper.find("table", {"id": "searchresults"})
+if table:
+    jobs = table.find("tbody").find_all("tr")
+else:
+    jobs = []
 
 for row in range(paginate):
 
