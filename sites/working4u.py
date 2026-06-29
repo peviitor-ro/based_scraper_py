@@ -146,8 +146,8 @@ def process_job(job_link):
         job_link=job_link,
         company=COMPANY,
         country="Romania",
-        city=city,
-        county=county,
+        city=[city] if isinstance(city, str) else (city or []),
+        county=county or [],
     )
 
 
