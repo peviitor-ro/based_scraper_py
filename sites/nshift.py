@@ -51,7 +51,7 @@ for job_element in soup.select('a[href*="/jobs/"]'):
     if not schema_match:
         continue
 
-    schema = json.loads(schema_match.group(1))
+    schema = json.loads(re.sub(r'[\x00-\x1f]', '', schema_match.group(1)))
     locations = schema.get("jobLocation") or []
     if isinstance(locations, dict):
         locations = [locations]
