@@ -1,38 +1,54 @@
 from scraper.Scraper import Scraper
-from utils import show_jobs, publish_or_update, publish_logo, translate_city
-from getCounty import GetCounty
+from utils import show_jobs, publish_or_update, publish_logo, create_job
 from math import ceil
+import json
 
-_counties = GetCounty()
-url = "https://ptc.eightfold.ai/api/pcsx/search?domain=ptc.com&query=&location=Bucharest,%20Romania&start=0&sort_by=distance&filter_distance=80&filter_include_remote=1"
+url = "https://ptc.wd1.myworkdayjobs.com/wday/cxs/ptc/PTC/jobs"
 
-company = {"company": "PTC"}
+company = "PTC"
 finalJobs = list()
 
+post_data = {"appliedFacets": {}, "limit": 20, "offset": 0, "searchText": "Romania"}
+
+headers = {"Content-Type": "application/json"}
 scraper = Scraper()
+scraper.set_headers(headers)
+obj = scraper.post(url, json.dumps(post_data))
 
-scraper.get_from_url(url, "JSON")
-
-pages = ceil(scraper.markup.get("data").get("count") / 10)
+step = 20
+total_jobs = obj.json()["total"]
+pages = ceil(total_jobs / step)
 
 for page in range(pages):
-    scraper.get_from_url(url.replace("start=0", "start=" + str(page * 10)), "JSON")
-    jobs = scraper.markup.get("data").get("positions")
-    for job in jobs:
-        job_title = job.get("name")
-        job_link = "https://ptc.eightfold.ai/careers?pid=" + str(job.get("id")) + "&domain=ptc.com&sort_by=relevance"
+    if page > 0:
+        post_data["offset"] = page * step
+        obj = scraper.post(url, json.dumps(post_data))
 
-        finalJobs.append({
-            "job_title": job_title,
-            "job_link": job_link,
-            "country": "Romania",
-            "city": "Bucuresti",
-            "county": "Bucuresti",
-            "company": company.get("company")
-        })
+    for job in obj.json()["jobPostings"]:
+        locations_text = job.get("locationsText", "")
+        if "Bucharest" not in locations_text and "Bucuresti" not in locations_text and "ROM-" not in job.get("externalPath", ""):
+            continue
+
+        job_title = job.get("title")
+        if not job_title:
+            continue
+
+        job_link = "https://ptc.wd1.myworkdayjobs.com/en-US/PTC" + job.get("externalPath", "")
+
+        finalJobs.append(
+            create_job(
+                job_title=job_title,
+                job_link=job_link,
+                country="Romania",
+                city="Bucuresti",
+                county="Bucuresti",
+                company=company,
+            )
+        )
+
 publish_or_update(finalJobs)
 
-logoUrl = "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1d/PTC_logo.svg/1280px-PTC_logo.svg.png"
-publish_logo(company.get("company"), logoUrl)
+logoUrl = "https://ptc.wd1.myworkdayjobs.com/PTC/assets/logo"
+publish_logo(company, logoUrl)
 
 show_jobs(finalJobs)
