@@ -6,7 +6,7 @@ _counties = GetCounty()
 company = "qualitest"
 # url = "https://jobs.workable.com/api/v1/jobs?location=Romania&query=qualitest"
 row = 0
-url = "https://careers.qualitestgroup.com/search/?q=&locationsearch=Romania&searchby=location&d=10&startrow=0"
+url = "https://careers.quality-ai.com/search/?q=&locationsearch=Romania&searchby=location&d=10&startrow=0"
 
 scraper = Scraper()
 scraper.get_from_url(url, verify=False)
@@ -18,7 +18,7 @@ final_jobs = []
 while len(jobs) > 0:
     for job in jobs:
         job_title = job.find("a", {"class": "jobTitle-link"}).text
-        job_link = "https://careers.qualitestgroup.com/" + \
+        job_link = "https://careers.quality-ai.com/" + \
             job.find("a", {"class": "jobTitle-link"}).get("href")
         remote = get_jobtype(job_title.lower())
         city = translate_city(job.find("span", {"class": "jobLocation"}).text.split(",")[0].strip())
@@ -41,7 +41,7 @@ while len(jobs) > 0:
         )
     
     row += 25
-    url = "https://careers.qualitestgroup.com/search/?q=&locationsearch=Romania&searchby=location&d=10&startrow=" + str(row)
+    url = "https://careers.quality-ai.com/search/?q=&locationsearch=Romania&searchby=location&d=10&startrow=" + str(row)
     scraper.get_from_url(url, verify=False)
     jobs = scraper.find("table", {"id": "searchresults"}).find("tbody").find_all("tr")
 

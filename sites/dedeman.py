@@ -14,9 +14,17 @@ _counties = GetCounty()
 url = "https://recrutare.dedeman.ro/api/sinapsi/jobs"
 company = "DEDEMAN"
 
+headers = {
+    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+    "Referer": "https://recrutare.dedeman.ro/",
+    "Origin": "https://recrutare.dedeman.ro",
+    "Accept": "application/json, text/plain, */*",
+    "Accept-Language": "en-US,en;q=0.9",
+}
+
 data = {"request": {"FilterByCity": ""}}
 
-response = requests.post(url, json=data).json()
+response = requests.post(url, json=data, headers=headers).json()
 jobs = response["d"]["JobAnnounces"]
 
 final_jobs = []
