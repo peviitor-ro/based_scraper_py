@@ -1,37 +1,24 @@
 from scraper.Scraper import Scraper
 from utils import publish_or_update, publish_logo, show_jobs
 from getCounty import GetCounty, remove_diacritics
-import json
 
 _counties = GetCounty()
-data = {"locations": ["cou:ro"], "workAreas": [],
-        "contractType": [], "fulltext": "", "order_by": "", "page": 1}
 
-url = "https://career.hm.com/wp-json/hm/v1/sr/jobs/search?_locale=user"
-
-headers = {
-    "Content-Type": "application/json",
-    "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.0 Safari/605.1.15",
-    "Accept": "application/json",
-    "Accept-Language": "en-US,en;q=0.9",
-    "Origin": "https://career.hm.com",
-    "Referer": "https://career.hm.com/",
-    "Sec-Fetch-Dest": "empty",
-    "Sec-Fetch-Mode": "cors",
-    "Sec-Fetch-Site": "same-origin"
-}
+url = "https://api.smartrecruiters.com/v1/companies/HMGroup/postings"
+params = {"country": "ro", "limit": 100, "offset": 0}
 
 scraper = Scraper()
-scraper.set_headers(headers)
-jobs = scraper.post(url, data=json.dumps(data)).json()
+scraper.get_from_url(url + "?country=ro&limit=100&offset=0", type="JSON")
 
 company = {"company": "HM"}
 finalJobs = list()
-while jobs.get("jobs"):
-    for job in jobs.get("jobs"):
-        job_title = job.get("title")
-        job_link = job.get("permalink")
-        city = remove_diacritics(job.get("city"))
+
+jobs = scraper.markup
+while jobs.get("content"):
+    for job in jobs.get("content"):
+        job_title = job.get("name")
+        job_link = f"https://jobs.smartrecruiters.com/HMGroup/{job.get('id')}"
+        city = remove_diacritics(job.get("location", {}).get("city", ""))
         county = _counties.get_county(city)
 
         finalJobs.append(
@@ -45,8 +32,14 @@ while jobs.get("jobs"):
             }
         )
 
-    data["page"] += 1
-    jobs = scraper.post(url, data=json.dumps(data)).json()
+    params["offset"] += params["limit"]
+    if params["offset"] >= jobs.get("totalFound", 0):
+        break
+    scraper.get_from_url(
+        f"{url}?country=ro&limit={params['limit']}&offset={params['offset']}",
+        type="JSON",
+    )
+    jobs = scraper.markup
 
 publish_or_update(finalJobs)
 
