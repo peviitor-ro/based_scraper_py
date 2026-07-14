@@ -9,37 +9,39 @@ from getCounty import GetCounty
 
 _counties = GetCounty()
 
+import json as _json
+
 BASE_URL = "https://cariere.lidl.ro"
-API_URL = f"{BASE_URL}/search_api/jobsearch"
-LOGO_URL = f"{BASE_URL}/assets/esa/images/Lidl-Logo.svg"
+API_URL = f"{BASE_URL}/api/v1/search"
+LOGO_URL = f"{BASE_URL}/assets-lica/logo.svg"
 COMPANY = "Lidl"
 
 scraper = Scraper()
 
 finalJobs = []
 page = 1
+page_size = 20
 
 while True:
-    params = {
-        "page": page,
-        "filter": '{"contract_type":[],"employment_area":[],"entry_level":[]}',
-        "with_event": "true",
-    }
+    general = _json.dumps({"page": page, "resultsPerPage": page_size})
+    params = {"general": general}
 
     scraper.get_from_url(API_URL, "JSON", params=params)
     data = scraper.markup
 
-    hits = data.get("result", {}).get("hits", [])
-    if not hits:
+    jobs = data.get("jobs", [])
+    if not jobs:
         break
 
-    for job in hits:
+    meta = data.get("meta", {})
+    total_count = meta.get("totalCount", 0)
+
+    for job in jobs:
         job_title = job.get("title")
-        job_link = BASE_URL + job.get("url", "")
+        job_link = job.get("jobDetailUrl") or (BASE_URL + job.get("url", ""))
 
         location = job.get("location", {})
         city = translate_city(location.get("city", ""))
-        country = location.get("country", "Romania")
 
         counties = _counties.get_county(city) or []
 
@@ -52,9 +54,8 @@ while True:
             "county": counties,
         })
 
-    page_count = data.get("result", {}).get("pageCount", 0)
     page += 1
-    if page > page_count:
+    if (page - 1) * page_size >= total_count:
         break
 
 try:
