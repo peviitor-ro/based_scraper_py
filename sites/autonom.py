@@ -6,7 +6,7 @@ _counties = GetCounty()
 url = "https://www.autonom.ro/cariere"
 
 scraper = Scraper()
-scraper.get_from_url(url)
+scraper.get_from_url(url, verify=False)
 
 jobs = scraper.find_all("a", {"class": "box-listing-job"})
 
