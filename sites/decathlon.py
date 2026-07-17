@@ -51,11 +51,11 @@ def normalize_location(location_text):
     city_key = location_text.replace("-", "_").replace(" ", "_")
 
     if city_key in acurate_city:
-        city = acurate_city[city_key]["city"]
+        city = [acurate_city[city_key]["city"]]
         county = [acurate_city[city_key]["county"]]
     else:
-        city = translate_city(location_text)
-        county = _counties.get_county(city) or []
+        city = [translate_city(location_text)]
+        county = _counties.get_county(translate_city(location_text)) or []
 
     return city, county, remote
 

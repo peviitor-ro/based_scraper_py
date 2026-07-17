@@ -29,7 +29,11 @@ for job in jobs:
         )
     )
 
-publish_or_update(finalJobs)
+try:
+    publish_or_update(finalJobs)
+except Exception as e:
+    print(f"Warning: {e}")
+
 publish_logo(
     company,
     "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a6/Motorola_Solutions_logo.svg/512px-Motorola_Solutions_logo.svg.png",

@@ -52,6 +52,8 @@ page = 1
 while True:
     url = BASE_URL if page == 1 else f"{BASE_URL}?page={page}"
     response = requests.get(url, headers=HEADERS, timeout=30)
+    if response.status_code == 404:
+        break
     response.raise_for_status()
     soup = BeautifulSoup(response.text, "html.parser")
 
