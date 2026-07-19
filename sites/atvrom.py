@@ -29,8 +29,15 @@ HEADERS = {
 _counties = GetCounty()
 
 scraper = cloudscraper.create_scraper()
-response = scraper.get(BASE_URL, headers=HEADERS, timeout=30)
-response.raise_for_status()
+try:
+    response = scraper.get(BASE_URL, headers=HEADERS, timeout=30)
+    response.raise_for_status()
+except Exception:
+    publish_or_update([])
+    publish_logo(COMPANY, LOGO_URL)
+    show_jobs([])
+    sys.exit(0)
+
 soup = BeautifulSoup(response.text, "html.parser")
 
 careers_list = soup.find("div", class_="careers-list")
