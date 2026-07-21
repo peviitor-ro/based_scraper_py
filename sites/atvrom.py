@@ -1,7 +1,7 @@
 import sys
 from pathlib import Path
 
-import cloudscraper
+import requests
 from bs4 import BeautifulSoup
 
 sys.path.append(str(Path(__file__).resolve().parent.parent))
@@ -28,9 +28,8 @@ HEADERS = {
 
 _counties = GetCounty()
 
-scraper = cloudscraper.create_scraper()
 try:
-    response = scraper.get(BASE_URL, headers=HEADERS, timeout=30)
+    response = requests.get(BASE_URL, headers=HEADERS, timeout=30)
     response.raise_for_status()
 except Exception:
     publish_or_update([])
