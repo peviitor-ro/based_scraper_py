@@ -1,9 +1,12 @@
 import sys
+import urllib3
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
 
 import requests
 from bs4 import BeautifulSoup
+
+urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 sys.path.append(str(Path(__file__).resolve().parent.parent))
 
@@ -45,6 +48,7 @@ CITY_OVERRIDES = {
 _counties = GetCounty()
 session = requests.Session()
 session.headers.update(HEADERS)
+session.verify = False
 jobs = []
 seen_links = set()
 
