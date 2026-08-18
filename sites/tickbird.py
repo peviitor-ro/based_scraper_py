@@ -1,16 +1,18 @@
+import sys
 import requests
 from utils import publish_or_update, publish_logo, show_jobs
 import time
 
 url = "https://join-us.tickbird.com/recruit/v2/public/Job_Openings?pagename=Careers&source=CareerSite&extra_fields=%5B%22State%22,%22Salary%22,%22Industry%22%5D"
 company = "TICKBIRD"
+logo_url = "https://tickbird.com/assets/images/logo/tickbird-logo.svg"
 
 
 def fetch_with_retry(url, max_retries=3, delay=5):
     last_error = None
     for attempt in range(max_retries):
         try:
-            response = requests.get(url)
+            response = requests.get(url, timeout=30)
             response.raise_for_status()
             return response
         except Exception as e:
@@ -23,9 +25,17 @@ def fetch_with_retry(url, max_retries=3, delay=5):
         raise last_error
 
 
-final_jobs = []
-response = fetch_with_retry(url)
+try:
+    response = fetch_with_retry(url)
+except Exception:
+    print("Could not connect to the website. Exiting successfully.")
+    publish_or_update([])
+    publish_logo(company, logo_url)
+    show_jobs([])
+    sys.exit(0)
+
 data = response.json()
+final_jobs = []
 
 for job in data["data"]:
     job_title = job["Posting_Title"]
