@@ -6,7 +6,7 @@ company = "GEP"
 url = "https://jobseurope-gep.icims.com/jobs/search?ss=1&in_iframe=1"
 
 scraper = Scraper()
-scraper.render_page(url)
+scraper.get_from_url(url)
 
 content = str(scraper)
 job_pattern = r'href="(https://jobseurope-gep\.icims\.com/jobs/\d+/[^"]+)"[^>]*title="([^"]+)"'

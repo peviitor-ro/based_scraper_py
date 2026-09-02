@@ -13,9 +13,7 @@ scraper.set_headers({
     "Accept-Language": "en-GB,en;q=0.9",
 })
 
-scraper.get_from_url(url, "JSON")
-results_html = scraper.markup.get("results") if isinstance(scraper.markup, dict) else None
-scraper.__init__(results_html or "", "html.parser")
+scraper.get_from_url(url, "HTML")
 
 jobs_container = scraper.find("ul", {"id": "search-results-jobs"})
 jobs = jobs_container.find_all("li", recursive=False) if jobs_container else []
