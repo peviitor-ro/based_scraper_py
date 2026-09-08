@@ -1,8 +1,6 @@
-import requests
+import cloudscraper
 import re
 import time
-from requests.adapters import HTTPAdapter
-from urllib3.util.retry import Retry
 from utils import publish_or_update, publish_logo, show_jobs, translate_city, create_job
 from getCounty import GetCounty
 
@@ -12,15 +10,7 @@ company = {"company": "PPCEnergy"}
 embed_url = "https://ppc.jobful.io/jobs/embed?company%5B%5D=1"
 jobs_url = "https://ppc.jobful.io/jobs/load"
 
-session = requests.Session()
-retry_strategy = Retry(
-    total=3,
-    backoff_factor=2,
-    status_forcelist=[429, 500, 502, 503, 504],
-)
-adapter = HTTPAdapter(max_retries=retry_strategy)
-session.mount("https://", adapter)
-session.mount("http://", adapter)
+session = cloudscraper.create_scraper()
 embed_html = session.get(embed_url, timeout=60).text
 csrf_token = re.search(r'<meta name="csrf-token" content="([^"]+)"', embed_html).group(1)
 

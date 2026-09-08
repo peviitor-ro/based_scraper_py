@@ -3,6 +3,8 @@ import sys
 from pathlib import Path
 
 import requests
+from requests.adapters import HTTPAdapter
+from urllib3.util.retry import Retry
 from bs4 import BeautifulSoup
 
 sys.path.append(str(Path(__file__).resolve().parent.parent))
@@ -23,6 +25,16 @@ HEADERS = {
 }
 
 _counties = GetCounty()
+
+session = requests.Session()
+retry_strategy = Retry(
+    total=3,
+    backoff_factor=1,
+    status_forcelist=[429, 500, 502, 503, 504],
+)
+adapter = HTTPAdapter(max_retries=retry_strategy)
+session.mount("https://", adapter)
+session.mount("http://", adapter)
 
 
 def parse_salary(text):
@@ -51,7 +63,7 @@ page = 1
 
 while True:
     url = BASE_URL if page == 1 else f"{BASE_URL}?page={page}"
-    response = requests.get(url, headers=HEADERS, timeout=30)
+    response = session.get(url, headers=HEADERS, timeout=30)
     if response.status_code == 404:
         break
     response.raise_for_status()
