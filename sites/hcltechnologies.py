@@ -1,5 +1,6 @@
 from utils import show_jobs, publish_or_update, publish_logo
 import requests
+import time
 
 
 company = "hcltechnologies"
@@ -34,7 +35,20 @@ headers = {
     "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.0 Safari/605.1.15",
 }
 
-jobs = requests.post(url, json=post_data, headers=headers, timeout=20).json()
+
+def fetch_jobs(payload):
+    for attempt in range(3):
+        try:
+            resp = requests.post(url, json=payload, headers=headers, timeout=20)
+            return resp.json()
+        except (requests.exceptions.JSONDecodeError, ValueError):
+            if attempt < 2:
+                time.sleep(2)
+            else:
+                return {}
+
+
+jobs = fetch_jobs(post_data)
 
 total_jobs = jobs.get("totalJobs", 0)
 pages = (total_jobs // 10) + 1
@@ -56,7 +70,7 @@ while pageNumber < pages:
 
     pageNumber += 1
     post_data["pageNumber"] = pageNumber
-    jobs = requests.post(url, json=post_data, headers=headers, timeout=20).json()
+    jobs = fetch_jobs(post_data)
 
 
 publish_or_update(finalJobs)
