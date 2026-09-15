@@ -1,6 +1,5 @@
-import cloudscraper
 import re
-import time
+import requests
 from utils import publish_or_update, publish_logo, show_jobs, translate_city, create_job
 from getCounty import GetCounty
 
@@ -10,7 +9,7 @@ company = {"company": "PPCEnergy"}
 embed_url = "https://ppc.jobful.io/jobs/embed?company%5B%5D=1"
 jobs_url = "https://ppc.jobful.io/jobs/load"
 
-session = cloudscraper.create_scraper()
+session = requests.Session()
 embed_html = session.get(embed_url, timeout=60).text
 csrf_token = re.search(r'<meta name="csrf-token" content="([^"]+)"', embed_html).group(1)
 
