@@ -26,7 +26,7 @@ for job in jobs:
 
     cities = [
         translate_city(remove_diacritics(city.strip()))
-        for city in job.find("div", {"class": "mt-4 text-md"})
+        for city in job.find("div", {"class": "text-md mt-4"})
         .find_all("span")[2]
         .text.split(",")
     ]
