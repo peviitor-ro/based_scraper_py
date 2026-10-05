@@ -13,7 +13,7 @@ from getCounty import GetCounty
 _counties = GetCounty()
 url = "https://cariere.romstal.ro/search/?createNewAlert=false&q=&locationsearch=&optionsFacetsDD_location=&optionsFacetsDD_department="
 scraper = Scraper()
-scraper.get_from_url(url)
+scraper.get_from_url(url, verify=False)
 
 jobs = scraper.find_all("li", {"class": "job-tile"})
 

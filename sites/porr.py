@@ -35,17 +35,17 @@ while True:
     response.raise_for_status()
     soup = BeautifulSoup(response.text, "html.parser")
 
-    cards = soup.select("div.rounded-porr.bg-lightgray")
+    cards = soup.select('div[data-vacancy-results] > a[data-vacancy-card]')
     if not cards:
         break
 
     for card in cards:
-        title_el = card.select_one("h2.headline-3xl a")
+        title_el = card.select_one("h3")
         if not title_el:
             continue
 
         job_title = title_el.get_text(" ", strip=True)
-        job_link = title_el.get("href")
+        job_link = card.get("href") or card.get("data-vacancy-url")
         if not job_link or job_link in seen_links:
             continue
 
