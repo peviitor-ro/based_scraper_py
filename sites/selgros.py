@@ -1,3 +1,5 @@
+import time
+
 from scraper.Scraper import Scraper
 from utils import publish_or_update, publish_logo, create_job, show_jobs
 from getCounty import GetCounty
@@ -50,7 +52,14 @@ for job in scraper.markup["data"]["results"]:
     except Exception as e:
         pass
 
-publish_or_update(jobs)
+for attempt in range(3):
+    try:
+        publish_or_update(jobs)
+        break
+    except Exception:
+        if attempt == 2:
+            raise
+        time.sleep(5)
 
 publish_logo(
     company,

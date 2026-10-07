@@ -1,50 +1,87 @@
-from scraper.Scraper import Scraper
 from utils import publish_or_update, publish_logo, create_job, show_jobs, translate_city
 from getCounty import GetCounty
 from math import ceil
+import re
+import requests
 
 _counties = GetCounty()
 company = "SiemensHealthineers"
-url = "https://jobs.siemens-healthineers.com/en_US/searchjobs/SearchJobs/?42449=%5B812022%5D&42449_format=17593&listFilterMode=1&folderRecordsPerPage=6&"
+url = "https://careers.siemens-healthineers.com/widgets"
 
-scraper = Scraper()
-scraper.get_from_url(url, verify=False)
+payload = {
+    "lang": "en_global",
+    "deviceType": "desktop",
+    "country": "us",
+    "pageName": "search-results",
+    "ddoKey": "refineSearch",
+    "sortBy": "",
+    "subsearch": "",
+    "from": 0,
+    "irs": False,
+    "jobs": True,
+    "counts": True,
+    "all_fields": ["remote", "country", "state", "city", "category", "employmentType"],
+    "size": 10,
+    "clearAll": False,
+    "jdsource": "facets",
+    "isSliderEnable": False,
+    "pageId": "page22-ds",
+    "siteType": "external",
+    "keywords": "",
+    "global": True,
+    "selected_fields": {"country": ["Romania"]},
+    "locationData": {},
+}
+
+headers = {"Content-Type": "application/json"}
+
 jobs = []
 
-step = 6
-total_jobs = int(scraper.find(
-    "div", class_="list-controls__text__legend").text.strip().split(" ")[0]
-)
 
-pages = ceil(total_jobs / step)
+def get_jobs(offset):
+    request_payload = payload.copy()
+    request_payload["from"] = offset
+    response = requests.post(
+        url, json=request_payload, headers=headers, timeout=10, verify=False
+    )
+    response = response.json().get("refineSearch", {})
+    return response.get("totalHits", 0), response.get("data", {}).get("jobs", [])
+
+
+total_jobs, jobs_elements = get_jobs(0)
+
+pages = ceil(total_jobs / payload["size"])
 
 for page in range(pages):
-    jobs_elements = scraper.find_all("article", class_="article")
+    if page:
+        _, jobs_elements = get_jobs(page * payload["size"])
+
     for job in jobs_elements:
-        try:
-            city = translate_city(
-                job.find("span", class_="list-item-jobCity").text.strip()
-            )
-        except Exception as e:
-            city = ""
+        city = translate_city(job.get("city") or "")
         counties = []
 
-        county = _counties.get_county(city) or []
-        counties.extend(county)
+        if city:
+            county = _counties.get_county(city) or []
+            counties.extend(county)
+
+        slug = re.sub(r"[^a-z0-9]+", "-", (job.get("title") or "").lower()).strip("-")
+        job_link = (
+            "https://careers.siemens-healthineers.com/global/en/job/"
+            + (job.get("jobSeqNo") or "")
+            + "/"
+            + slug
+        )
 
         jobs.append(
             create_job(
-                job_title=job.find("a", class_="link").text.strip(),
-                job_link=job.find("a", class_="link")["href"],
+                job_title=job.get("title"),
+                job_link=job_link,
                 city=city,
                 county=counties,
                 country="Romania",
                 company=company
             )
         )
-        
-    url = f"https://jobs.siemens-healthineers.com/en_US/searchjobs/SearchJobs/?42449=%5B812022%5D&42449_format=17593&listFilterMode=1&folderRecordsPerPage=6&folderOffset={step * (page + 1)}"
-    scraper.get_from_url(url, verify=False)
 
 
 publish_or_update(jobs)
