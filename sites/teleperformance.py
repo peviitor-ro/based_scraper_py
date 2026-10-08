@@ -3,7 +3,7 @@ from utils import publish_or_update, publish_logo, show_jobs, translate_city
 from getCounty import GetCounty
 
 _counties = GetCounty()
-apiUrl = "https://www.teleperformance.com/Umbraco/Api/Careers/GetCareersBase?node=13761&country=Romania&pageSize=100"
+apiUrl = "https://www.tp.com/Umbraco/Api/Careers/GetCareersBase?node=1780&country=Romania&pageSize=100"
 
 company = {"company": "Teleperformance"}
 
