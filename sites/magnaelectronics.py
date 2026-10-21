@@ -59,6 +59,11 @@ total_jobs = response.get("total") or 0
 while payload["offset"] < total_jobs:
     for job in response.get("jobPostings") or []:
         external_path = job.get("externalPath") or ""
+        title = job.get("title")
+
+        if not title or not external_path:
+            continue
+
         locations = get_job_locations(external_path)
 
         if not locations:
@@ -73,7 +78,7 @@ while payload["offset"] < total_jobs:
 
         jobs.append(
             create_job(
-                job_title=job.get("title"),
+                job_title=title,
                 job_link="https://wd3.myworkdaysite.com/en-US/recruiting/magna/Magna" + external_path,
                 city=cities,
                 county=counties,

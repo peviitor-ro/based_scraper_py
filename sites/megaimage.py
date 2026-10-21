@@ -7,22 +7,56 @@ from utils import (
     publish_or_update,
 )
 from getCounty import GetCounty
-from requests.exceptions import ConnectTimeout, ConnectionError
+from requests.exceptions import ConnectTimeout, ConnectionError, RequestException
 import requests
 import sys
+import time
 
 company = "MegaImage"
 
 url = "https://cariere.mega-image.ro/api/vacancy/?options%5Bsort_order%5D=desc&sort=created&sortDir=DESC&pageSize=1000"
 _counties = GetCounty()
 
-headers = {"Content-Type": "application/json", "X-Requested-With": "XMLHttpRequest"}
+headers = {
+    "Content-Type": "application/json",
+    "X-Requested-With": "XMLHttpRequest",
+    "Accept": "application/json",
+    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+}
+
+MAX_ATTEMPTS = 3
+RETRY_DELAY = 5
+
+
+def fetch_jobs():
+    last_error = None
+
+    for attempt in range(MAX_ATTEMPTS):
+        try:
+            response = requests.get(url, headers=headers, timeout=10)
+
+            if response.status_code != 200:
+                raise RequestException(
+                    f"Unexpected status code: {response.status_code}"
+                )
+
+            data = response.json()
+            return data.get("vacancies") or []
+        except (RequestException, ValueError) as error:
+            last_error = error
+            if attempt < MAX_ATTEMPTS - 1:
+                print(
+                    f"Attempt {attempt + 1} failed ({error}). "
+                    f"Retrying in {RETRY_DELAY}s..."
+                )
+                time.sleep(RETRY_DELAY)
+
+    raise last_error
+
 
 try:
-    response = requests.get(url, headers=headers, timeout=10)
-    data = response.json()
-    jobs = data.get("vacancies")
-except (ConnectTimeout, ConnectionError):
+    jobs = fetch_jobs()
+except (ConnectTimeout, ConnectionError, RequestException, ValueError):
     print("Could not connect to the website. Exiting successfully.")
     finalJobs = []
     publish_or_update(finalJobs)
@@ -60,7 +94,7 @@ for job in jobs:
         country="Romania",
     )
 
-    city = translate_city(job.get("city").title())
+    city = translate_city((job.get("city") or "").title())
 
     if acurate_city.get(city.replace(" ", "_").replace("-", "_").lower()):
         job_element["city"] = acurate_city.get(
