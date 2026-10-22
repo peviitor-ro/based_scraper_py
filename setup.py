@@ -9,6 +9,8 @@ setup(
     
     packages=find_packages(),
 
+    py_modules=['utils', 'getCounty'],
+
     install_requires=[
         'peviitor_pyscraper',
         'python-dotenv',

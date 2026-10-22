@@ -52,10 +52,24 @@ for file in files:
         directory = os.path.abspath(file).rsplit('/', 1)[0].replace('__test__/', '')
         file_name = file.rsplit('/', 1)[1]
 
-        run_file = subprocess.run(["python3", directory + "/" + file_name], capture_output=True).stdout.decode('utf-8')
+        action = subprocess.run(["python3", directory + "/" + file_name], capture_output=True)
+        run_file = action.stdout.decode('utf-8')
+        run_error = action.stderr.decode('utf-8')
+
+        if action.returncode != 0:
+            raise Exception(
+                f"Scraper {file} failed with exit code {action.returncode}.\n"
+                f"STDOUT:\n{run_file}\nSTDERR:\n{run_error}"
+            )
 
         pattern = re.compile(r"(\[.*\])", re.DOTALL)
         matches = pattern.findall(run_file)
+
+        if not matches:
+            raise Exception(
+                f"Could not find JSON array in scraper output for {file}.\n"
+                f"STDOUT:\n{run_file}\nSTDERR:\n{run_error}"
+            )
 
         scraper_obj = json.loads(matches[0])
 
