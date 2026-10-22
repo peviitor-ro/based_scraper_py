@@ -30,10 +30,23 @@ jobs:
         python3 setup.py develop
         npm i peviitor_jsscraper
         npm i -g opencode-ai@latest
+    - name: Restore empty-jobs repair state
+      uses: actions/cache/restore@v4
+      with:
+        path: .cache
+        key: empty-jobs-${{ runner.os }}-${{ github.run_id }}
+        restore-keys: |
+          empty-jobs-${{ runner.os }}-
     - name: Runing Scrapers
       run: |
         source access_token.sh
         python3 sites/main.py
+    - name: Save empty-jobs repair state
+      uses: actions/cache/save@v4
+      if: always()
+      with:
+        path: .cache
+        key: empty-jobs-${{ runner.os }}-${{ github.run_id }}
     - name: Push repaired scrapers
       run: |
         if git diff --quiet -- sites; then

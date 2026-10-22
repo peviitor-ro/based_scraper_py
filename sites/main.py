@@ -5,6 +5,15 @@ import sys
 import tempfile
 from pathlib import Path
 
+from utils import (
+    EMPTY_REPAIR_COOLDOWN_DAYS,
+    EMPTY_REPAIR_STATE_PATH,
+    get_empty_jobs_repair_cooldown_until,
+    load_empty_jobs_repair_state,
+    parse_timestamp,
+    utc_now,
+)
+
 EXCLUDE = {
     "__init__.py",
     "main.py",
@@ -14,6 +23,10 @@ SITES_DIR = Path(__file__).resolve().parent
 REPO_ROOT = SITES_DIR.parent
 REPAIR_TIMEOUT_SECONDS = int(os.getenv("OPENCODE_REPAIR_TIMEOUT", "900"))
 MAX_LOG_LENGTH = 4000
+
+
+def log(message):
+    print(message, flush=True)
 
 
 def snapshot_sibling_files(script_path):
@@ -34,7 +47,7 @@ def cleanup_created_sibling_files(script_path, existing_files):
             continue
 
         created_file.unlink(missing_ok=True)
-        print(f"Deleted extra file {created_file.name}")
+        log(f"Deleted extra file {created_file.name}")
 
 
 def truncate_output(content, limit=MAX_LOG_LENGTH):
@@ -46,6 +59,89 @@ def truncate_output(content, limit=MAX_LOG_LENGTH):
         return content
 
     return content[:limit] + "\n...[truncated]"
+
+
+NO_JOBS_MARKER = "No jobs Available"
+
+
+def format_remaining(delta):
+    total_seconds = int(delta.total_seconds())
+    if total_seconds <= 0:
+        return "expired"
+
+    days, remainder = divmod(total_seconds, 86400)
+    hours, remainder = divmod(remainder, 3600)
+    minutes = remainder // 60
+
+    if days:
+        return f"{days}d {hours}h left"
+    if hours:
+        return f"{hours}h {minutes}m left"
+    return f"{minutes}m left"
+
+
+def log_empty_jobs_cache():
+    state = load_empty_jobs_repair_state()
+    cache_path = EMPTY_REPAIR_STATE_PATH
+
+    try:
+        cache_display = cache_path.relative_to(REPO_ROOT)
+    except ValueError:
+        cache_display = cache_path
+
+    if not state:
+        log(f"Empty-jobs cache: no entries ({cache_display} missing or empty).")
+        log("  Auto-repair will run for every scraper returning 0 jobs, with no cooldown.")
+        return
+
+    now = utc_now()
+    on_cooldown = []
+    cooldown_expired = []
+
+    for state_key, entry in sorted(state.items()):
+        if not isinstance(entry, dict):
+            continue
+
+        company = entry.get("company") or state_key
+        cooldown_until = get_empty_jobs_repair_cooldown_until(REPO_ROOT / state_key)
+
+        if cooldown_until and now < cooldown_until:
+            on_cooldown.append((state_key, company, cooldown_until))
+        else:
+            cooldown_expired.append(
+                (state_key, company, parse_timestamp(entry.get("last_confirmed_empty_at")))
+            )
+
+    log(f"Empty-jobs cache: {len(state)} scraper(s) known to return 0 jobs ({cache_display}).")
+    log(f"  Cooldown lasts {EMPTY_REPAIR_COOLDOWN_DAYS} days after a confirmed empty result.")
+
+    for state_key, company, cooldown_until in on_cooldown:
+        log(f"  [on cooldown] {state_key} | {company} | {format_remaining(cooldown_until - now)}")
+
+    for state_key, company, confirmed_at in cooldown_expired:
+        confirmed = confirmed_at.strftime("%Y-%m-%d %H:%M UTC") if confirmed_at else "unknown"
+        log(f"  [cooldown over] {state_key} | {company} | confirmed empty {confirmed}")
+
+    if not on_cooldown:
+        log("  No scraper is currently on cooldown.")
+
+
+def log_scraper_empty_result(script_path, action):
+    stdout = action.stdout or ""
+    stderr = action.stderr or ""
+
+    if NO_JOBS_MARKER not in stdout and NO_JOBS_MARKER not in stderr:
+        return
+
+    cooldown_until = get_empty_jobs_repair_cooldown_until(script_path)
+
+    if cooldown_until and utc_now() < cooldown_until:
+        log(
+            f"Empty result for {script_path.name} | on cooldown | "
+            f"{format_remaining(cooldown_until - utc_now())} (OpenCode skipped)"
+        )
+    else:
+        log(f"Empty result for {script_path.name} | OpenCode verification will run")
 
 
 def run_scraper(script_path):
@@ -72,7 +168,7 @@ def get_script_path(scraper_name):
 
 def repair_scraper_with_opencode(script_path, failed_action):
     if shutil.which("opencode") is None:
-        print(f"OpenCode is not installed. Skipping auto-repair for {script_path.name}.")
+        log(f"OpenCode is not installed. Skipping auto-repair for {script_path.name}.")
         return False
 
     stderr_output = truncate_output(failed_action.stderr)
@@ -105,7 +201,7 @@ Captured stdout:
 """.strip()
 
     try:
-        print(f"Starting OpenCode repair for {script_path.name}...")
+        log(f"Starting OpenCode repair for {script_path.name}...")
 
         with tempfile.NamedTemporaryFile(
             mode="w",
@@ -135,7 +231,7 @@ Captured stdout:
             timeout=REPAIR_TIMEOUT_SECONDS,
         )
     except subprocess.TimeoutExpired:
-        print(f"OpenCode repair timed out for {script_path.name}.")
+        log(f"OpenCode repair timed out for {script_path.name}.")
         return False
     finally:
         if context_file_path and os.path.exists(context_file_path):
@@ -143,11 +239,11 @@ Captured stdout:
 
     if action.returncode != 0:
         opencode_error = truncate_output(action.stderr or action.stdout)
-        print(f"OpenCode could not repair {script_path.name}.")
-        print(opencode_error)
+        log(f"OpenCode could not repair {script_path.name}.")
+        log(opencode_error)
         return False
 
-    print(f"OpenCode repair finished for {script_path.name}.")
+    log(f"OpenCode repair finished for {script_path.name}.")
     return True
 
 
@@ -155,65 +251,73 @@ def test_scraper_repair(scraper_name):
     try:
         script_path = get_script_path(scraper_name)
     except (FileNotFoundError, ValueError) as error:
-        print(error)
+        log(error)
         return False
 
     existing_files = snapshot_sibling_files(script_path)
+    log(f"Starting scraper {script_path.name}...")
     action = run_scraper(script_path)
     cleanup_created_sibling_files(script_path, existing_files)
 
     if action.returncode == 0:
-        print(f"Scraper {script_path.name} already works.")
+        log(f"Scraper {script_path.name} already works.")
         return True
 
-    print(f"Error scraping {script_path.name}")
-    print(truncate_output(action.stderr))
+    log(f"Error scraping {script_path.name}")
+    log(truncate_output(action.stderr))
 
     if not repair_scraper_with_opencode(script_path, action):
         return False
 
     existing_files = snapshot_sibling_files(script_path)
+    log(f"Re-running scraper after auto-repair {script_path.name}...")
     repaired_action = run_scraper(script_path)
     cleanup_created_sibling_files(script_path, existing_files)
 
     if repaired_action.returncode == 0:
-        print(f"Success scraping after auto-repair {script_path.name}")
+        log(f"Success scraping after auto-repair {script_path.name}")
         return True
 
-    print(f"Auto-repair did not fix {script_path.name}")
-    print(truncate_output(repaired_action.stderr))
+    log(f"Auto-repair did not fix {script_path.name}")
+    log(truncate_output(repaired_action.stderr))
     return False
 
 
 def main():
+    log_empty_jobs_cache()
+    log("")
+
     for site in sorted(os.listdir(SITES_DIR)):
         if not site.endswith(".py") or site in EXCLUDE:
             continue
-
+        
         script_path = SITES_DIR / site
         existing_files = snapshot_sibling_files(script_path)
+        log(f"Starting scraper {site}...")
         action = run_scraper(script_path)
         cleanup_created_sibling_files(script_path, existing_files)
 
         if action.returncode == 0:
-            print("Success scraping " + site)
+            log("Success scraping " + site)
+            log_scraper_empty_result(script_path, action)
             continue
 
-        print("Error scraping " + site)
-        print(truncate_output(action.stderr))
+        log("Error scraping " + site)
+        log(truncate_output(action.stderr))
 
         if not repair_scraper_with_opencode(script_path, action):
             continue
 
         existing_files = snapshot_sibling_files(script_path)
+        log(f"Re-running scraper after auto-repair {site}...")
         repaired_action = run_scraper(script_path)
         cleanup_created_sibling_files(script_path, existing_files)
 
         if repaired_action.returncode == 0:
-            print("Success scraping after auto-repair " + site)
+            log("Success scraping after auto-repair " + site)
         else:
-            print("Auto-repair did not fix " + site)
-            print(truncate_output(repaired_action.stderr))
+            log("Auto-repair did not fix " + site)
+            log(truncate_output(repaired_action.stderr))
 
 
 if __name__ == "__main__":
