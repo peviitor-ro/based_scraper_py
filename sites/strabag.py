@@ -9,32 +9,61 @@ from utils import (
 from getCounty import GetCounty
 import re
 
-url = "https://jobboerse.strabag.at/inc/jobsuche_2025_v1.php"
+url = "https://jobboerse.strabag.at/inc/jobsuche_2026_v3.php"
 
 company = "Strabag"
 jobs = []
 _counties = GetCounty()
+seen_links = set()
 
 data = {
-    "MIME Type": "application/x-www-form-urlencoded; charset=UTF-8",
     "morejobs": 1,
     "search": "Romania",
-    "radius": 50,
+    "taetigkeitsbereich": "",
+    "arbeitsbereich": "",
+    "beschaeftigungsart": "",
+    "jobfamilie": "",
+    "adrese": "",
+    "radius": 15,
+    "latPost": "",
+    "lngPost": "",
     "language": "RO",
+    "divisionID": "",
+    "konzernfirma": "",
     "status": 1,
+    "campaign": "",
+    "source": "karriereXXXstrabagXXXcom",
+    "referer": "karriere.strabag.com",
+    "countryCodes_get": "",
+    "letsprogress": "",
+    "country_search": "",
+}
+
+headers = {
+    "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
+    "Accept": "*/*",
+    "Origin": "https://jobboerse.strabag.at",
+    "Referer": "https://jobboerse.strabag.at/jobs-overview.php?language=RO",
+    "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.0 Safari/605.1.15",
 }
 
 while True:
 
     scraper = Scraper()
+    scraper.set_headers(headers)
     response = scraper.post(url, data=data).text
     scraper.__init__(response, "html.parser")
 
     jobs_containers = scraper.find_all("div", class_="search-entry__container")
 
+    if not jobs_containers:
+        break
+
     no_jobs = scraper.find("div", class_="no-result__actions")
     if no_jobs:
         break
+
+    new_links_on_page = 0
 
     for job_container in jobs_containers:
         try:
@@ -43,6 +72,11 @@ while True:
                 .text.strip()
             )
             job_link = job_container.find("a")["href"]
+
+            if job_link in seen_links:
+                continue
+            seen_links.add(job_link)
+            new_links_on_page += 1
 
             location_text = ""
             for span in job_container.find_all(
@@ -172,6 +206,9 @@ while True:
             continue
 
     data["morejobs"] += 1
+
+    if new_links_on_page == 0:
+        break
 
 
 try:
