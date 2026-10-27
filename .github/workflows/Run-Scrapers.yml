@@ -37,7 +37,9 @@ jobs:
         key: empty-jobs-${{ runner.os }}-${{ github.run_id }}
         restore-keys: |
           empty-jobs-${{ runner.os }}-
-    - name: Runing Scrapers
+    - name: Runing Scrapers (detect only - empty jobs are queued for the repair workflow)
+      env:
+        OPENCODE_EMPTY_JOBS_REPAIR_DISABLED: '1'
       run: |
         source access_token.sh
         python3 sites/main.py

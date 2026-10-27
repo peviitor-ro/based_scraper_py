@@ -1,0 +1,61 @@
+name: Repair scrapers with no jobs
+
+on:
+  schedule:
+    - cron: '00 23 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    if: github.repository == 'peviitor-ro/based_scraper_py'
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+    - name: Set up Python 3.10
+      uses: actions/setup-python@v3
+      with:
+        python-version: "3.10"
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: "20"
+    - name: Install dependencies
+      run: |
+        python3 -m pip install --upgrade pip
+        python3 setup.py develop
+        npm i peviitor_jsscraper
+        npm i -g opencode-ai@latest
+    - name: Restore empty-jobs repair state
+      uses: actions/cache/restore@v4
+      with:
+        path: .cache
+        key: empty-jobs-${{ runner.os }}-${{ github.run_id }}
+        restore-keys: |
+          empty-jobs-${{ runner.os }}-
+    - name: Repairing queued scrapers (at most the daily budget)
+      run: |
+        source access_token.sh
+        python3 sites/main.py --repair-backlog
+    - name: Save empty-jobs repair state
+      uses: actions/cache/save@v4
+      if: always()
+      with:
+        path: .cache
+        key: empty-jobs-${{ runner.os }}-${{ github.run_id }}
+    - name: Push repaired scrapers
+      run: |
+        if git diff --quiet -- sites; then
+          echo "No repaired scrapers to push."
+          exit 0
+        fi
+
+        git config user.name "github-actions[bot]"
+        git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+        git add sites
+        git commit -m "fix auto-repaired scrapers"
+        git push
