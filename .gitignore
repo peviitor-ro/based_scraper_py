@@ -139,3 +139,7 @@ exclude/
 Delete.py
 .vscode
 .idea
+
+# Kilo / Kilocode
+.kilo/
+.kilocode/
