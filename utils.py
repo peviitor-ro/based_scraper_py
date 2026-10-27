@@ -1,7 +1,9 @@
 import requests
 import os
 import json
+import calendar
 import inspect
+import math
 import shutil
 import subprocess
 import sys
@@ -20,6 +22,12 @@ EMPTY_REPAIR_ATTEMPT_ENV = "OPENCODE_EMPTY_JOBS_REPAIR_ATTEMPTED"
 EMPTY_REPAIR_DISABLED_ENV = "OPENCODE_EMPTY_JOBS_REPAIR_DISABLED"
 EMPTY_REPAIR_COOLDOWN_DAYS = int(os.getenv("OPENCODE_EMPTY_JOBS_REPAIR_COOLDOWN_DAYS", "7"))
 EMPTY_REPAIR_STATE_PATH = REPO_ROOT / ".cache" / "empty_jobs_repair_state.json"
+EMPTY_REPAIR_BUDGET_PATH = REPO_ROOT / ".cache" / "repair_daily_budget.json"
+# cel mult atatea reparari pe zi; daca toate scrapeerele nu incap intr-o luna
+# la acest ritm, bugetul creste automat ca sa fie acoperite
+EMPTY_REPAIR_BASE_DAILY_BUDGET = int(os.getenv("OPENCODE_EMPTY_JOBS_REPAIR_DAILY_BUDGET", "10"))
+# fisierele din sites/ care nu sunt scrapeere (aceeasi lista ca EXCLUDE din sites/main.py)
+NON_SCRAPER_FILES = {"__init__.py", "main.py", "ats_common.py"}
 
 
 def get_token():
@@ -134,6 +142,118 @@ def get_empty_jobs_repair_cooldown_until(script_path):
         return None
 
     return confirmed_empty_at + timedelta(days=EMPTY_REPAIR_COOLDOWN_DAYS)
+
+
+def count_scrapers():
+    """
+    Totalul de scrapeere care ruleaza prin sites/main.py
+    """
+    sites_dir = REPO_ROOT / "sites"
+    return len([
+        path for path in sites_dir.glob("*.py") if path.name not in NON_SCRAPER_FILES
+    ])
+
+
+def get_empty_jobs_repair_daily_budget():
+    """
+    Cate reparari pot fi facute intr-o zi.
+
+    De regula EMPTY_REPAIR_BASE_DAILY_BUDGET. Daca toate scrapeerele nu incap in
+    luna curenta la acest ritm, bugetul creste automat ca sa fie acoperite.
+    """
+    total = count_scrapers()
+    today = utc_now()
+    days_in_month = calendar.monthrange(today.year, today.month)[1]
+
+    if total <= EMPTY_REPAIR_BASE_DAILY_BUDGET * days_in_month:
+        return EMPTY_REPAIR_BASE_DAILY_BUDGET
+
+    return math.ceil(total / days_in_month)
+
+
+def load_empty_jobs_repair_budget():
+    """
+    Bugetul zilei curente; se reseteaza automat la schimbarea datei (UTC)
+    """
+    today_key = utc_now().strftime("%Y-%m-%d")
+
+    if not EMPTY_REPAIR_BUDGET_PATH.exists():
+        return {"date": today_key, "used": 0}
+
+    try:
+        with EMPTY_REPAIR_BUDGET_PATH.open("r", encoding="utf-8") as budget_file:
+            budget = json.load(budget_file)
+    except (OSError, json.JSONDecodeError):
+        budget = {}
+
+    if not isinstance(budget, dict) or budget.get("date") != today_key:
+        return {"date": today_key, "used": 0}
+
+    try:
+        used = int(budget.get("used", 0))
+    except (TypeError, ValueError):
+        used = 0
+
+    return {"date": today_key, "used": max(used, 0)}
+
+
+def save_empty_jobs_repair_budget(budget):
+    EMPTY_REPAIR_BUDGET_PATH.parent.mkdir(parents=True, exist_ok=True)
+    with EMPTY_REPAIR_BUDGET_PATH.open("w", encoding="utf-8") as budget_file:
+        json.dump(budget, budget_file, indent=2, sort_keys=True)
+
+
+def consume_empty_jobs_repair_budget():
+    """
+    Rezerva un loc in bugetul zilei; False daca bugetul s-a epuizat
+    """
+    budget = load_empty_jobs_repair_budget()
+    if budget["used"] >= get_empty_jobs_repair_daily_budget():
+        return False
+
+    budget["used"] += 1
+    save_empty_jobs_repair_budget(budget)
+    return True
+
+
+def get_remaining_empty_jobs_repair_budget():
+    budget = load_empty_jobs_repair_budget()
+    return max(get_empty_jobs_repair_daily_budget() - budget["used"], 0)
+
+
+def get_empty_jobs_repair_backlog(limit=None):
+    """
+    Scrapeerele din cache care asteapta reparare: au returnat lista goala si
+    cooldown-ul le-a expirat (sau nu au apucat sa fie reparate deloc).
+
+    Ordine: cele mai vechi primele, ca sa nu ramana vreunul uitat.
+    """
+    state = load_empty_jobs_repair_state()
+    due = []
+
+    for state_key, entry in sorted(state.items()):
+        if not isinstance(entry, dict):
+            continue
+
+        script_path = REPO_ROOT / state_key
+        if not script_path.is_file():
+            continue
+
+        cooldown_until = get_empty_jobs_repair_cooldown_until(script_path)
+        if cooldown_until and utc_now() < cooldown_until:
+            continue
+
+        due.append((state_key, entry, script_path))
+
+    due.sort(key=lambda item: str(item[1].get("last_empty_at") or ""))
+
+    if limit is not None:
+        due = due[:limit]
+
+    return [
+        (state_key, entry.get("company") or state_key, script_path)
+        for state_key, entry, script_path in due
+    ]
 
 
 def snapshot_sibling_files(script_path):
@@ -317,9 +437,6 @@ def rerun_repaired_scraper(script_path):
 
 
 def maybe_repair_empty_jobs_output():
-    if os.getenv(EMPTY_REPAIR_DISABLED_ENV) == "1":
-        return False
-
     if os.getenv(EMPTY_REPAIR_ATTEMPT_ENV) == "1":
         print("Empty-jobs auto-repair already attempted for this run.", flush=True)
         return False
@@ -327,6 +444,21 @@ def maybe_repair_empty_jobs_output():
     script_path, company = get_calling_scraper_context()
     if not script_path or not company:
         print("Could not detect scraper context for empty-jobs verification.", flush=True)
+        return False
+
+    # rularea zilnica doar depisteaza: scraperul e scris in cache, iar repararea
+    # se face de workflow-ul repair_empty_jobs.yml, in bugetul zilei
+    if os.getenv(EMPTY_REPAIR_DISABLED_ENV) == "1":
+        update_empty_jobs_repair_state(
+            script_path,
+            company,
+            last_empty_at=format_timestamp(utc_now()),
+        )
+        print(
+            f"No jobs returned for {company}. {script_path.name} recorded in the "
+            "empty-jobs cache; repair is disabled for this run.",
+            flush=True,
+        )
         return False
 
     cooldown_until = get_empty_jobs_repair_cooldown_until(script_path)
@@ -339,6 +471,20 @@ def maybe_repair_empty_jobs_output():
         print(
             f"No jobs returned for {company}. Empty-jobs auto-repair is on cooldown for "
             f"{script_path.name} until {format_timestamp(cooldown_until)}.",
+            flush=True,
+        )
+        return False
+
+    if not consume_empty_jobs_repair_budget():
+        update_empty_jobs_repair_state(
+            script_path,
+            company,
+            last_empty_at=format_timestamp(utc_now()),
+        )
+        print(
+            f"No jobs returned for {company}. Daily repair budget reached "
+            f"({get_empty_jobs_repair_daily_budget()}/day); {script_path.name} stays "
+            "queued for the next repair run.",
             flush=True,
         )
         return False

@@ -7,8 +7,12 @@ from pathlib import Path
 
 from utils import (
     EMPTY_REPAIR_COOLDOWN_DAYS,
+    EMPTY_REPAIR_DISABLED_ENV,
     EMPTY_REPAIR_STATE_PATH,
+    get_empty_jobs_repair_backlog,
     get_empty_jobs_repair_cooldown_until,
+    get_empty_jobs_repair_daily_budget,
+    get_remaining_empty_jobs_repair_budget,
     load_empty_jobs_repair_state,
     parse_timestamp,
     utc_now,
@@ -133,6 +137,13 @@ def log_scraper_empty_result(script_path, action):
     if NO_JOBS_MARKER not in stdout and NO_JOBS_MARKER not in stderr:
         return
 
+    if os.getenv(EMPTY_REPAIR_DISABLED_ENV) == "1":
+        log(
+            f"Empty result for {script_path.name} | recorded for the repair workflow "
+            "(repair disabled in this run)"
+        )
+        return
+
     cooldown_until = get_empty_jobs_repair_cooldown_until(script_path)
 
     if cooldown_until and utc_now() < cooldown_until:
@@ -247,6 +258,60 @@ Captured stdout:
     return True
 
 
+def log_repair_backlog(backlog):
+    if not backlog:
+        log("Repair queue is empty: no scraper in the empty-jobs cache is due.")
+        return
+
+    log(f"Repair queue: {len(backlog)} scraper(s) due for repair.")
+    for state_key, company, _script_path in backlog:
+        log(f"  {state_key} | {company}")
+
+
+def run_repair_backlog(limit=None):
+    """
+    Ruleaza doar scrapeerele din cache care asteapta reparare, cel mult cate
+    permite bugetul zilei. Repararea propriu-zisa ramane in procesul scraperului.
+    """
+    remaining = get_remaining_empty_jobs_repair_budget()
+    if limit is None:
+        limit = remaining
+
+    if limit <= 0:
+        log(
+            f"Daily repair budget already spent today "
+            f"({get_empty_jobs_repair_daily_budget()}/day)."
+        )
+        return False
+
+    backlog = get_empty_jobs_repair_backlog(limit)
+    log_repair_backlog(backlog)
+    log("")
+
+    if not backlog:
+        return False
+
+    succeeded = 0
+
+    for _state_key, _company, script_path in backlog:
+        existing_files = snapshot_sibling_files(script_path)
+        log(f"Repairing {script_path.name}...")
+        action = run_scraper(script_path)
+        cleanup_created_sibling_files(script_path, existing_files)
+
+        if action.returncode == 0:
+            succeeded += 1
+            log(f"Processed {script_path.name} (exit 0)")
+            continue
+
+        log(f"Error scraping {script_path.name}")
+        log(truncate_output(action.stderr))
+
+    log(f"Repair queue: {succeeded}/{len(backlog)} scraper(s) exited successfully.")
+    log(f"Remaining daily repair budget: {get_remaining_empty_jobs_repair_budget()}.")
+    return True
+
+
 def test_scraper_repair(scraper_name):
     try:
         script_path = get_script_path(scraper_name)
@@ -322,6 +387,10 @@ def main():
 
 if __name__ == "__main__":
     if len(sys.argv) > 1:
-        test_scraper_repair(sys.argv[1])
+        if sys.argv[1] == "--repair-backlog":
+            limit = int(sys.argv[2]) if len(sys.argv) > 2 else None
+            run_repair_backlog(limit)
+        else:
+            test_scraper_repair(sys.argv[1])
     else:
         main()
