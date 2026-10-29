@@ -10,15 +10,15 @@ careers_url = base_url + '/careers/'
 scraper = Scraper()
 soup = scraper.get_from_url(careers_url)
 
-jobs = scraper.find_all('a', class_='job')
+jobs = scraper.find_all('a', class_='careers-jobs__row')
 
 final_jobs = []
 
 for job in jobs:
     try:
         job_link = job['href']
-        job_title = job.find('h4').get_text(strip=True)
-        location_slpit = job.find('div', class_='job__description--location').find('h5').get_text(strip=True).split(',')
+        job_title = job.find('h3', class_='careers-jobs__row-title').get_text(strip=True)
+        location_slpit = job.find('span', class_='careers-jobs__row-location').get_text(strip=True).split(',')
         location_city = location_slpit[0]
         location_country = location_slpit[1].split('|')[0].strip()
 
@@ -26,7 +26,7 @@ for job in jobs:
         county = _counties.get_county(city)
         remote = location_slpit[1].split('|')[1].strip()
 
-        full_job_link = base_url + "/" + job_link
+        full_job_link = base_url + job_link
 
         final_jobs.append({
             'job_link': full_job_link,

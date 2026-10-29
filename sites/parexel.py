@@ -13,23 +13,18 @@ scraper.set_headers({
     "Accept-Language": "en-GB,en;q=0.9",
 })
 
-scraper.get_from_url(url, "HTML")
+scraper.get_from_url(url, "JSON")
+scraper.__init__(scraper.markup.get("results"), "html.parser")
 
 jobs_container = scraper.find("ul", {"id": "search-results-jobs"})
 jobs = jobs_container.find_all("li", recursive=False) if jobs_container else []
 
 
 def extract_romanian_locations(job):
-    location_nodes = [
-        job.find("span", {"class": "job-location primary-locations"}),
-        job.find("span", {"class": "job-location additional-locations"}),
-    ]
+    location_nodes = job.find_all("span", {"class": "job-location"})
     romanian_locations = []
 
     for node in location_nodes:
-        if not node:
-            continue
-
         raw_locations = node.get_text(" ", strip=True).split(";")
         for location in raw_locations:
             parts = [part.strip() for part in location.split(",") if part.strip()]
