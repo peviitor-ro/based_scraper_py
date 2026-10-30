@@ -11,8 +11,11 @@ url = "https://cariere.auchan.ro/joburi"
 ALGOLIA_URL = "https://UM59DWRPA1-dsn.algolia.net/1/indexes/*/queries"
 ALGOLIA_HEADERS = {
     "x-algolia-application-id": "UM59DWRPA1",
-    "x-algolia-api-key": "33719eb8d9f28725f375583b7e78dbab",
+    "x-algolia-api-key": "f371b7fed5396b9d94793f7abc68b903",
     "Content-Type": "application/json",
+    "Origin": "https://cariere.auchan.ro",
+    "Referer": "https://cariere.auchan.ro/joburi",
+    "User-Agent": "Mozilla/5.0",
 }
 ALGOLIA_PAYLOAD = {
     "requests": [
