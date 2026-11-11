@@ -128,9 +128,8 @@ def extract_locations_from_soup(soup):
     return cities, counties or None
 
 
-sitemap_resp = session.get(SITEMAP_URL, timeout=30)
-sitemap_resp.raise_for_status()
-sitemap_soup = BeautifulSoup(sitemap_resp.text, "xml")
+sitemap_text = fetch_page_safe(SITEMAP_URL)
+sitemap_soup = BeautifulSoup(sitemap_text, "xml")
 job_urls = [url_node.text for url_node in sitemap_soup.select("url loc")]
 
 
@@ -162,6 +161,16 @@ with ThreadPoolExecutor(max_workers=10) as executor:
         if result is not None:
             jobs.append(result)
 
+
+_original_post = requests.post
+
+
+def _post_with_timeout(*args, **kwargs):
+    kwargs.setdefault("timeout", 30)
+    return _original_post(*args, **kwargs)
+
+
+requests.post = _post_with_timeout
 
 publish_or_update(jobs)
 publish_logo(COMPANY, LOGO_URL)
