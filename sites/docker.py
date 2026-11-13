@@ -17,7 +17,7 @@ scraper.set_headers(
 data = {
     "operationName": "ApiJobBoardWithTeams",
     "variables": {"organizationHostedJobsPageName": "docker"},
-    "query": "query ApiJobBoardWithTeams($organizationHostedJobsPageName: String!) {\n  jobBoard: jobBoardWithTeams(\n    organizationHostedJobsPageName: $organizationHostedJobsPageName\n  ) {\n    teams {\n      id\n      name\n      parentTeamId\n      __typename\n    }\n    jobPostings {\n      id\n      title\n      teamId\n      locationId\n      locationName\n      employmentType\n      secondaryLocations {\n        ...JobPostingSecondaryLocationParts\n        __typename\n      }\n      compensationTierSummary\n      __typename\n    }\n    __typename\n  }\n}\n\nfragment JobPostingSecondaryLocationParts on JobPostingSecondaryLocation {\n  locationId\n  locationName\n  __typename\n}",
+    "query": "query ApiJobBoardWithTeams($organizationHostedJobsPageName: String!) {\n  jobBoard: jobBoardWithTeams(\n    organizationHostedJobsPageName: $organizationHostedJobsPageName\n  ) {\n    teams {\n      id\n      name\n      parentTeamId\n      __typename\n    }\n    jobPostings {\n      id\n      title\n      teamId\n      locationId\n      locationName\n      employmentType\n      workplaceType\n      secondaryLocations {\n        ...JobPostingSecondaryLocationParts\n        __typename\n      }\n      compensationTierSummary\n      __typename\n    }\n    __typename\n  }\n}\n\nfragment JobPostingSecondaryLocationParts on JobPostingSecondaryLocation {\n  locationId\n  locationName\n  __typename\n}",
 }
 
 jobs = (
@@ -31,20 +31,20 @@ jobs = (
 for job in jobs:
     job_title = job.get("title")
     job_link = "https://www.docker.com/career-openings/?ashby_jid=" + job.get("id")
-    countrys = job.get("secondaryLocations")
+    workplace_type = (job.get("workplaceType") or "Remote").lower()
 
-    for country in countrys:
-        city = country.get("locationName")
-        if city == "Romania":
-            finalJobs.append(
-                {
-                    "job_title": job_title,
-                    "job_link": job_link,
-                    "company": company.get("company"),
-                    "country": "Romania",
-                    "remote": "Remote",
-                }
-            )
+    if workplace_type not in ("remote", "on-site", "hybrid"):
+        workplace_type = "remote"
+
+    finalJobs.append(
+        {
+            "job_title": job_title,
+            "job_link": job_link,
+            "company": company.get("company"),
+            "country": "Romania",
+            "remote": [workplace_type],
+        }
+    )
 
 publish_or_update(finalJobs)  
 

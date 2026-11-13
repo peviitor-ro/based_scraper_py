@@ -1,29 +1,39 @@
-from scraper.Scraper import Scraper
+import re
+
+import requests
 from utils import publish_or_update, publish_logo, create_job, show_jobs
 
-url = "https://www.fgaromania.ro/category/cariere/"
+url = "https://r.jina.ai/https://www.fgaromania.ro/categorie/cariera/"
 
 company = "fga"
 
-scraper = Scraper()
-scraper.get_from_url(url, verify=False)
+response = requests.get(url, timeout=30)
+response.raise_for_status()
+content = response.text
 
-jobs_elements = scraper.find_all("article", class_="single-hentry")
+pattern = re.compile(
+    r"##### \[(.+?)\]\((https://www\.fgaromania\.ro/anunt-[^)]+)\)"
+)
 
-jobs = [
-    create_job(
-        job_title=job.find("h2", class_="entry-title").text.strip(),
-        job_link=job.find("h2", class_="entry-title").a["href"],
-        company=company,
-        country="Romania",
-        city="Bucuresti",
-        county="Bucuresti",
+jobs = []
+seen_links = set()
+for title, link in pattern.findall(content):
+    if link in seen_links:
+        continue
+    seen_links.add(link)
+    job_title = title.strip()
+    if not job_title or job_title == "Nu sunt poziții deschise în acest moment":
+        continue
+    jobs.append(
+        create_job(
+            job_title=job_title,
+            job_link=link,
+            company=company,
+            country="Romania",
+            city="Bucuresti",
+            county="Bucuresti",
+        )
     )
-    for job in jobs_elements
-    if job.find("h2", class_="entry-title").text.strip()
-    != "Nu sunt poziții deschise în acest moment"
-]
-
 
 publish_or_update(jobs)
 
