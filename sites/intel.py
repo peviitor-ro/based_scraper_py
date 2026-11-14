@@ -35,14 +35,17 @@ finalJobs = list()
 
 post_data = {"appliedFacets": {"locations": [
     "1e4a4eb3adf101fc3983e778bf8131d1"]}, "limit": 20, "offset": 0, "searchText": ""}
-headers = {"Content-Type": "application/json"}
+headers = {"Content-Type": "application/json", "Accept": "application/json"}
 
 scraper = Scraper()
 scraper.set_headers(headers)
 
-scraper.post(url, json.dumps(post_data))
+response = scraper.post(url, json.dumps(post_data))
 
-jobs = scraper.post(url, json.dumps(post_data)).json().get("jobPostings")
+try:
+    jobs = response.json().get("jobPostings") or []
+except ValueError:
+    jobs = []
 
 for job in jobs:
     job_title = job.get("title")

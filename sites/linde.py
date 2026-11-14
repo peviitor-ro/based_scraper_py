@@ -12,7 +12,7 @@ apiUrl = "https://eu-fra.api.csod.com/rec-job-search/external/jobs"
 
 scraper = Scraper(url)
 scraper.set_headers({"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"})
-scraper.get_from_url(url)
+scraper.get_from_url(url, verify=False)
 
 body = scraper.find("body")
 match = regex.search(str(body))
@@ -29,7 +29,7 @@ if match:
 
     data = {"careerSiteId":20,"careerSitePageId":20,"pageNumber":1,"pageSize":100,"cultureId":1,"searchText":"","cultureName":"en-US","states":[],"countryCodes":["ro"],"cities":[],"placeID":"","radius":"","postingsWithinDays":"","customFieldCheckboxKeys":[],"customFieldDropdowns":[],"customFieldRadios":[]}
 
-    jobs = scraper.post(apiUrl, json.dumps(data)).json().get("data").get("requisitions")
+    jobs = scraper.post(apiUrl, json.dumps(data), verify=False).json().get("data").get("requisitions")
 else:
     jobs = []
 

@@ -5,7 +5,7 @@ import json
 from math import ceil
 
 _counties = GetCounty()
-apiUrl = "https://nxp.wd3.myworkdayjobs.com/wday/cxs/nxp/careers/jobs"
+apiUrl = "https://nxp.wd116.myworkdayjobs.com/wday/cxs/nxp/careers/jobs"
 scraper = Scraper()
 
 headers = {
@@ -43,7 +43,7 @@ for num in range(iteration):
         finaljobs.append(
             {
                 "job_title": job.get("title"),
-                "job_link": "https://nxp.wd3.myworkdayjobs.com/en-US/careers" + external_path,
+                "job_link": "https://nxp.wd116.myworkdayjobs.com/en-US/careers" + external_path,
                 "company": company.get("company"),
                 "country": "Romania",
                 "city": city,
