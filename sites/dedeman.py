@@ -24,8 +24,16 @@ headers = {
 
 data = {"request": {"FilterByCity": ""}}
 
-response = requests.post(url, json=data, headers=headers).json()
-jobs = response["d"]["JobAnnounces"]
+jobs = []
+try:
+    response = requests.post(url, json=data, headers=headers, timeout=20)
+    if response.ok:
+        payload = response.json()
+        jobs = payload.get("d", {}).get("JobAnnounces", [])
+    else:
+        print(f"Dedeman jobs request failed with status {response.status_code}")
+except Exception as e:
+    print(f"Failed to fetch Dedeman jobs: {e}")
 
 final_jobs = []
 

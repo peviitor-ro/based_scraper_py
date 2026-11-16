@@ -3,7 +3,7 @@ from utils import show_jobs, publish_or_update, publish_logo, translate_city
 from getCounty import GetCounty
 
 _counties = GetCounty()
-url = "https://careers.primark.com/ro/search-jobs/results?ActiveFacetID=0&CurrentPage=1&RecordsPerPage=10&TotalContentResults=&Distance=50&RadiusUnitType=0&Keywords=&Location=&ShowRadius=False&IsPagination=False&CustomFacetName=&FacetTerm=798549&FacetType=2&FacetFilters%5B0%5D.ID=798549&FacetFilters%5B0%5D.FacetType=2&FacetFilters%5B0%5D.Count=3&FacetFilters%5B0%5D.Display=Rom%C3%A2nia&FacetFilters%5B0%5D.IsApplied=true&FacetFilters%5B0%5D.FieldName=&SearchResultsModuleName=Search+Results&SearchFiltersModuleName=Search+Results+Filters&SortCriteria=0&SortDirection=0&SearchType=3&OrganizationIds=8171&PostalCode=&ResultsType=0&fc=&fl=&fcf=&afc=&afl=&afcf=&TotalContentPages=NaN"
+url = "https://careers.primark.com/search-jobs/results?ActiveFacetID=0&CurrentPage=1&RecordsPerPage=10&TotalContentResults=&Distance=50&RadiusUnitType=0&Keywords=&Location=&ShowRadius=False&IsPagination=False&CustomFacetName=&FacetTerm=798549&FacetType=2&FacetFilters%5B0%5D.ID=798549&FacetFilters%5B0%5D.FacetType=2&FacetFilters%5B0%5D.Count=3&FacetFilters%5B0%5D.Display=Rom%C3%A2nia&FacetFilters%5B0%5D.IsApplied=true&FacetFilters%5B0%5D.FieldName=&SearchResultsModuleName=Search+Results&SearchFiltersModuleName=Search+Results+Filters&SortCriteria=0&SortDirection=0&SearchType=3&OrganizationIds=8171&PostalCode=&ResultsType=0&fc=&fl=&fcf=&afc=&afl=&afcf=&TotalContentPages=NaN"
 
 company = {"company": "Primark"}
 finalJobs = list()
