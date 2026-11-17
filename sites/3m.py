@@ -45,7 +45,7 @@ company = "3M"
 url = "https://3m.wd1.myworkdayjobs.com/wday/cxs/3m/Search/jobs"
 
 post_data = {
-    "appliedFacets": {"Location_Country": ["f2e609fe92974a55a05fc1cdc2852122"]},
+    "appliedFacets": {},
     "limit": 20,
     "offset": 0,
     "searchText": "",
@@ -62,9 +62,9 @@ step = 20
 total_jobs = obj.json()["total"]
 pages = ceil(total_jobs / step)
 
-for pages in range(0, pages):
-    if pages > 1:
-        post_data["offset"] = pages * step
+for page in range(0, pages):
+    if page > 0:
+        post_data["offset"] = page * step
         obj = scraper.post(url, json.dumps(post_data))
 
     for job in obj.json()["jobPostings"]:
@@ -75,14 +75,16 @@ for pages in range(0, pages):
 
         cities, counties = None, None
 
-        if "," in job.get("locationsText"):
-            cities = translate_city(job.get("locationsText").split(",")[0])
+        locations_text = job.get("locationsText") or ""
+
+        if "," in locations_text:
+            cities = translate_city(locations_text.split(",")[0])
         else:
-            cities = translate_city(job.get("locationsText").split(" ")[0])
+            cities = translate_city(locations_text.split(" ")[0])
 
         counties = _counties.get_county(cities)
 
-        if not counties:
+        if not counties and "Locations" in locations_text:
             aditional_url = (
                 "https://3m.wd1.myworkdayjobs.com/wday/cxs/3m/Search"
                 + job.get("externalPath")

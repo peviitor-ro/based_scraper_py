@@ -5,7 +5,7 @@ import json
 from math import ceil
 
 _counties = GetCounty()
-apiUrl = "https://msd.wd1.myworkdayjobs.com/wday/cxs/msd/MSDExternal/jobs"
+apiUrl = "https://msd.wd5.myworkdayjobs.com/wday/cxs/msd/SearchJobs/jobs"
 scraper = Scraper()
 
 headers = {
@@ -14,7 +14,7 @@ headers = {
     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
 }
 
-data = {"appliedFacets":{},"limit":20,"offset":0,"searchText":"Romania"}
+data = {"appliedFacets":{"locations":["175e45027fe70148b1b5991701013774"]},"limit":20,"offset":0,"searchText":""}
 
 scraper.set_headers(headers)
 
@@ -37,9 +37,9 @@ try:
             
             for job in jobs:
                 job_title = job.get("title")
-                job_link = "https://msd.wd1.myworkdayjobs.com/en-US/MSDExternal" + job.get("externalPath")
+                job_link = "https://msd.wd5.myworkdayjobs.com/en-US/SearchJobs" + job.get("externalPath")
                 locations_text = job.get("locationsText", "")
-                city = translate_city(locations_text.split("-")[-1].strip()) if locations_text else ""
+                city = translate_city(locations_text.split("-")[1].strip()) if locations_text else ""
                 county = _counties.get_county(city)
                 
                 job_element = {
