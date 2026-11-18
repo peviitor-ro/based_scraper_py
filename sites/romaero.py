@@ -21,19 +21,27 @@ except (ConnectTimeout, ConnectionError):
 
 jobs = []
 
-jobs_elements = scraper.find("table", {"id": "myTable"}).find("tbody").find_all("tr")
-
-for job in range(1, len(jobs_elements)):
-    jobs.append(
-        create_job(
-            job_title=jobs_elements[job].find_all("td")[0].text.strip(),
-            job_link=jobs_elements[job].find_all("td")[-1].find("a")["href"],
-            city="Bucuresti",
-            county="Bucuresti",
-            country="Romania",
-            company=company,
+table = scraper.find("table", {"id": "myTable"})
+if table:
+    tbody = table.find("tbody")
+    jobs_elements = tbody.find_all("tr") if tbody else table.find_all("tr")
+    for job in jobs_elements[1:]:
+        cells = job.find_all("td")
+        if len(cells) < 2:
+            continue
+        link_tag = cells[-1].find("a")
+        if not link_tag or not link_tag.get("href"):
+            continue
+        jobs.append(
+            create_job(
+                job_title=cells[0].text.strip(),
+                job_link=link_tag["href"],
+                city="Bucuresti",
+                county="Bucuresti",
+                country="Romania",
+                company=company,
+            )
         )
-    )
 
 publish_or_update(jobs)
 
