@@ -43,15 +43,11 @@ def get_aditional_city(url):
 scraper = Scraper()
 scraper.get_from_url(url)
 
-jobs_elements = scraper.find_all(
-    "li", class_="opening-job job column wide-1of2 medium-1of2"
-)
+jobs_elements = scraper.find_all("li", class_="opening-job")
 final_jobs = []
 
 for job in jobs_elements:
-    job_title = job.find(
-        "h4", class_="details-title job-title link--block-target"
-    ).text.strip()
+    job_title = job.find("h4", class_="job-title").text.strip()
     job_url = job.find("a")["href"]
 
     city, county, remote, country = get_aditional_city(job_url).values()

@@ -1,30 +1,56 @@
+from urllib.parse import urljoin
+
 from scraper.Scraper import Scraper
 from utils import translate_city, publish_or_update, publish_logo, show_jobs, get_jobtype
 from getCounty import GetCounty
 
 _counties = GetCounty()
-url = "https://www.nestle.ro/jobs/search-jobs?keyword=Romania&country=&location=&career_area=All"
+url = "https://jobdetails.nestle.com/search/jobs?q=Romania"
 scraper = Scraper()
+job_scraper = Scraper()
 scraper.get_from_url(url)
 
 company = {"company": "Nestle"}
 finalJobs = list()
 
+elements = scraper.find_all("tr", {"class": "data-row"})
+pagination_label = scraper.find("span", {"class": "paginationLabel"})
+total_jobs = len(elements)
+if pagination_label:
+    try:
+        total_jobs = int(
+            pagination_label.find_all("b")[-1].get_text(strip=True).replace(",", "")
+        )
+    except (AttributeError, IndexError, ValueError):
+        pass
+
+startrow = 0
+
 while True:
-    elements = scraper.find_all("div", {"class": "jobs-card"})
+    elements = scraper.find_all("tr", {"class": "data-row"})
+
+    if not elements:
+        break
 
     for element in elements:
-        job_title = (
-            element.find("a")
-            .text.replace("\t", "")
-            .replace("\r", "")
-            .replace("\n", "")
-            .replace("  ", "")
+        link = element.find("a", {"class": "jobTitle-link"})
+        job_title = link.text.strip()
+        job_link = urljoin("https://jobdetails.nestle.com", link["href"])
+
+        job_scraper.get_from_url(job_link)
+        description = job_scraper.find("span", {"itemprop": "description"})
+        description_text = (
+            description.get_text(" ", strip=True).lower() if description else ""
         )
-        job_link = element.find("a")["href"]
-        remote = get_jobtype(element.find("div", {"class": "jobs-type"}).text)
+        description_text = description_text.replace("hibridă", "hybrid").replace(
+            "hibrida", "hybrid"
+        )
+        remote = get_jobtype(description_text)
+        if not remote and "work from home" in description_text:
+            remote = ["remote"]
+
         city = translate_city(
-            element.find("div", {"class": "jobs-location"}).text.split(",")[0]
+            element.find("span", {"class": "jobLocation"}).text.split(",")[0].strip()
         )
         county = _counties.get_county(city)
 
@@ -40,13 +66,10 @@ while True:
             }
         )
 
-    domain = "https://www.nestle.ro/jobs/search-jobs"
-    try:
-        nextPage = scraper.find("div", {"class": "pager__item--next"})
-        nextPageLink = nextPage.find("a")["href"]
-        scraper.get_from_url(domain + nextPageLink)
-    except:
+    startrow += 10
+    if startrow >= total_jobs:
         break
+    scraper.get_from_url(f"{url}&startrow={startrow}")
 
 show_jobs(finalJobs)
 

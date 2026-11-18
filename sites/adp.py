@@ -1,38 +1,30 @@
-from scraper.Scraper import Scraper
+import requests
+from bs4 import BeautifulSoup
 from utils import translate_city, publish_or_update, publish_logo, show_jobs
 from getCounty import GetCounty, remove_diacritics
-import json
-import re
 
 _counties = GetCounty()
 
-url = "https://jobsapi-google.m-cloud.io/api/job/search?callback=jobsCallback&pageSize=100&companyName=companies%2Fc3f83ef5-c5b8-4d56-9c79-66f4052c4c4a&languageCode%5B%5D=en&customAttributeFilter=country%3D%22RO%22&orderBy=relevance%20desc"
+url = "https://jobs.adp.com/en/jobs/xml/?rss=true"
 
 company = {"company": "ADP"}
 finalJobs = list()
 
-headers = {"Content-Type": "application/json"}
+response = requests.get(url, timeout=60)
+response.raise_for_status()
+soup = BeautifulSoup(response.text, "xml")
 
-scraper = Scraper()
-scraper.set_headers(headers)
+for job in soup.find_all("job"):
+    country = job.find("country")
+    if not country or country.get_text(strip=True) != "Romania":
+        continue
 
-scraper.get_from_url(url, "HTML")
-pattern = re.compile(r"jobsCallback\({(.*?)}\)", re.DOTALL)
-
-data = re.search(pattern, scraper.text).group(1)
-jobs = json.loads("{" + data + "}").get("searchResults")
-
-# show_jobs(jobs)
-
-for job in jobs:
-    job_title = job.get("job").get("title")
-    job_link = "https://jobs.adp.com/en/jobs/" + job.get("job").get("ref")
-    locations = job.get("job").get("google_locations")
-
+    job_title = job.find("title").get_text(strip=True)
+    job_link = job.find("url").get_text(strip=True)
     cities = [
-        translate_city(remove_diacritics(location.get("city")))
-        for location in locations
-        if location.get("country") == "RO"
+        translate_city(remove_diacritics(location.get_text(strip=True)))
+        for location in job.find_all("city")
+        if location.get_text(strip=True)
     ]
     counties = []
 
