@@ -1,73 +1,98 @@
-from scraper.Scraper import Scraper
-from utils import publish_or_update, publish_logo, create_job, show_jobs
-from math import ceil
+import requests
+
 from getCounty import GetCounty
+from utils import publish_or_update, publish_logo, create_job, show_jobs
 from utils import translate_city, acurate_city_and_county
 
-_counties = GetCounty()
-url = "https://bayer.eightfold.ai/api/apply/v2/jobs?domain=bayer.com&start=10&num=1000&exclude_pid=562949957688629&pid=562949957688629&domain=bayer.com&sort_by=relevance"
-
-
 company = "Bayern"
-jobs = []
+logo_url = "https://static.vscdn.net/images/careers/demo/bayer/1677751915::logo-bayer.svg"
+api_url = "https://jobs.bayer.com/api/get-jobs"
+headers = {
+    "Accept": "application/json",
+    "Content-Type": "application/json",
+    "User-Agent": "Mozilla/5.0",
+    "Origin": "https://jobs.bayer.com",
+    "Referer": "https://jobs.bayer.com/jobs",
+}
 
-scraper = Scraper(url)
-scraper.get_from_url(url, "JSON")
-
-total_jobs = scraper.markup["count"]
-step = 10
-pages = ceil(total_jobs / step)
-
+_counties = GetCounty()
 acurate_city = acurate_city_and_county(
     Sinesti={"city": "Sinesti", "county": "Ialomita"}
 )
 
-for page in range(0, pages):
-    url = f"https://bayer.eightfold.ai/api/apply/v2/jobs?domain=bayer.com&start={page * step}&num={step}&exclude_pid=562949957688629&pid=562949957688629&domain=bayer.com&sort_by=relevance"
-    scraper.get_from_url(url, "JSON")
-    for job in scraper.markup["positions"]:
-        locations = job["location"].split(",")
-        country = locations[-1].strip()
-        job_title = job["name"]
+session = requests.Session()
+session.get("https://jobs.bayer.com/", headers=headers, timeout=30)
 
-        if country == "Romania" and job_title != "Jobs in Romania":
-            city = locations[0].strip()
+jobs = []
+seen_links = set()
+page = 1
+step = 10
 
-            job_element = create_job(
-                job_title=job["name"],
-                job_link=job["canonicalPositionUrl"],
-                city=[city],
-                country=country,
+while True:
+    response = session.post(
+        api_url,
+        params={"page_number": page, "page_size": step},
+        json={
+            "disable_switch_search_mode": False,
+            "site_available_languages": ["en"],
+        },
+        headers=headers,
+        timeout=30,
+    )
+    response.raise_for_status()
+    data = response.json()
+
+    positions = data.get("jobs") or []
+    if not positions:
+        break
+
+    for job in positions:
+        locations = [
+            location
+            for location in job.get("locations") or []
+            if (location.get("country") or "").strip() == "Romania"
+        ]
+        if not locations:
+            continue
+
+        original_url = job.get("originalURL")
+        job_link = (
+            f"https://jobs.bayer.com/{original_url}"
+            if original_url
+            else job.get("applyURL")
+        )
+        if not job_link or job_link in seen_links:
+            continue
+
+        cities = []
+        counties = []
+        for location in locations:
+            name = (location.get("city") or "").strip()
+            accurate = acurate_city.get(name)
+            if accurate:
+                cities.append(accurate["city"])
+                counties.append(accurate["county"])
+            else:
+                cities.append(translate_city(name))
+                counties.append(_counties.get_county(name))
+
+        jobs.append(
+            create_job(
+                job_title=job.get("title") or "",
+                job_link=job_link,
+                city=cities,
+                county=counties,
+                country="Romania",
                 company=company,
             )
+        )
+        seen_links.add(job_link)
 
-            if country == "Romania" and job.get("locations"):
-                counties = []
-                cities = []
+    if len(seen_links) >= data.get("totalJob", 0):
+        break
 
-                for city in job["locations"]:
-                    if acurate_city.get(city.split(",")[0]):
-                        counties.append(acurate_city.get(city.split(",")[0])["county"])
-                        cities.append(acurate_city.get(city.split(",")[0])["city"])
-                    else:
-                        counties.append(_counties.get_county(city.split(",")[0]))
-                        cities.append(translate_city(city.split(",")[0]))
-
-                job_element["county"] = counties
-                job_element["city"] = cities
-
-            elif country == "Romania" and job.get("location"):
-                city = job["location"].split(",")[0].strip()
-                county = _counties.get_county(city)
-                job_element["county"] = county
-
-            jobs.append(job_element)
-
+    page += 1
 
 publish_or_update(jobs)
-publish_logo(
-    company,
-    "https://static.vscdn.net/images/careers/demo/bayer/1677751915::logo-bayer.svg",
-)
-
+publish_logo(company, logo_url)
 show_jobs(jobs)
