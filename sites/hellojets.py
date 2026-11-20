@@ -2,6 +2,8 @@ import sys
 from pathlib import Path
 
 import requests
+from requests.adapters import HTTPAdapter
+from urllib3.util.retry import Retry
 from bs4 import BeautifulSoup
 
 sys.path.append(str(Path(__file__).resolve().parent.parent))
@@ -19,7 +21,17 @@ _counties = GetCounty()
 CITY = "București"
 COUNTY = _counties.get_county(CITY)
 
-response = requests.get(
+session = requests.Session()
+retry_strategy = Retry(
+    total=3,
+    backoff_factor=1,
+    status_forcelist=[422, 429, 500, 502, 503, 504],
+)
+adapter = HTTPAdapter(max_retries=retry_strategy)
+session.mount("https://", adapter)
+session.mount("http://", adapter)
+
+response = session.get(
     JINA_PROXY,
     headers={"Accept": "text/html,application/xhtml+xml", "X-Return-Format": "html"},
     timeout=30,
