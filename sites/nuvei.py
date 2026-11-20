@@ -24,14 +24,15 @@ final_jobs = [
     create_job(
         job_title=job["title"],
         company=company,
-        country=job["location"]["country"],
-        city=translate_city(job["location"]["city"]),
-        county=translate_city(job["location"]["region"].replace("County", "").strip()),
+        country=location["country"],
+        city=translate_city(location["city"]),
+        county=translate_city(location["region"].replace("County", "").strip()),
         job_link="https://apply.workable.com/nuvei/j/" + job["shortcode"],
         remote=job["workplace"].replace("_", "-"),
     )
     for job in response
-    if job["location"]["country"] == "Romania"
+    for location in job.get("locations") or [job["location"]]
+    if location["country"] == "Romania"
 ]
 
 publish_or_update(final_jobs)

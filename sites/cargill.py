@@ -23,7 +23,7 @@ def get_aditional_city(url):
     return cities, counties
 
 
-url = "https://careers.cargill.com/en/search-jobs/Romania/23251/2/798549/46/25/50/2"
+url = "https://careers.cargill.com/ro/search-jobs/Romania/23251/2/798549/46/25/50/2"
 
 company = {"company": "Cargill"}
 finalJobs = list()
