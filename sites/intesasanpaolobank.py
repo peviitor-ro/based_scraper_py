@@ -9,7 +9,7 @@ company = {"company": "IntesaSanpaoloBank"}
 finalJobs = list()
 
 scraper = Scraper()
-scraper.get_from_url(url)
+scraper.get_from_url(url, verify=False)
 
 
 jobs = scraper.find_all("article", {"class": "careersItem"})
