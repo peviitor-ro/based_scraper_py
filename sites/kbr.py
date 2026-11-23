@@ -23,6 +23,11 @@ seen_links = set()
 response = scraper.post(apiUrl, json.dumps(data)).json()
 total_jobs = response.get("total") or 0
 
+if not total_jobs:
+    data["searchText"] = ""
+    response = scraper.post(apiUrl, json.dumps(data)).json()
+    total_jobs = response.get("total") or 0
+
 while data["offset"] < total_jobs:
     jobs = response.get("jobPostings") or []
 
@@ -44,11 +49,10 @@ while data["offset"] < total_jobs:
             city = "All"
             county = "All"
         else:
-            city = translate_city(city_text)
+            city = translate_city(city_text) if city_text else "All"
             county = _counties.get_county(city)
-
-        if not county:
-            continue
+            if not county:
+                county = "All"
 
         finalJobs.append(
             create_job(

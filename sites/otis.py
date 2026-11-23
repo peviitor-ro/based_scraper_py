@@ -3,7 +3,7 @@ from utils import publish_logo, publish_or_update, show_jobs, create_job
 import json
 
 company = "Otis"
-apiUrl = "https://otis.wd5.myworkdayjobs.com/wday/cxs/otis/REC_Ext_Gateway/jobs"
+apiUrl = "https://otis.wd504.myworkdayjobs.com/wday/cxs/otis/REC_Ext_Gateway/jobs"
 
 headers = {
     "Accept": "application/json",
@@ -26,7 +26,7 @@ for job in jobs:
     finalJobs.append(
         create_job(
             job_title=job_title,
-            job_link="https://otis.wd5.myworkdayjobs.com/en-US/REC_Ext_Gateway" + (job.get("externalPath") or ""),
+            job_link="https://otis.wd504.myworkdayjobs.com/en-US/REC_Ext_Gateway" + (job.get("externalPath") or ""),
             company=company,
             country="Romania",
             city="Bucuresti",
