@@ -11,7 +11,7 @@ sys.path.append(str(Path(__file__).resolve().parent.parent))
 from getCounty import GetCounty
 from utils import create_job, publish_or_update, publish_logo, show_jobs
 
-JINA_PROXY = "https://r.jina.ai/http://hellojets.com/ro/cariere/"
+CAREERS_URL = "https://hellojets.com/ro/cariere/"
 LOGO_URL = "https://hellojets.com/wp-content/uploads/2024/11/art.png"
 COMPANY = "HelloJets"
 
@@ -32,8 +32,8 @@ session.mount("https://", adapter)
 session.mount("http://", adapter)
 
 response = session.get(
-    JINA_PROXY,
-    headers={"Accept": "text/html,application/xhtml+xml", "X-Return-Format": "html"},
+    CAREERS_URL,
+    headers={"User-Agent": "Mozilla/5.0"},
     timeout=30,
 )
 response.raise_for_status()

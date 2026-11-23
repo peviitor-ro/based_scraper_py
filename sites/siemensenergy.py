@@ -2,7 +2,7 @@ from scraper.Scraper import Scraper
 from utils import show_jobs, publish_or_update, publish_logo
 from math import ceil
 
-url = "https://jobs.siemens-energy.com/en_US/jobs/Jobs/?29454=964547&29454_format=11381&listFilterMode=1&folderRecordsPerPage=20&folderOffset=0"
+url = "https://jobs.siemens-energy.com/en_US/jobs/SearchJobsRomania/?folderRecordsPerPage=20&folderOffset=0"
 
 company = {"company": "SiemensEnergy"}
 finalJobs = list()
@@ -25,7 +25,7 @@ pages = ceil(totalJobs / 20)
 
 for page in range(pages):
     url = (
-        "https://jobs.siemens-energy.com/en_US/jobs/Jobs/?29454=964547&29454_format=11381&listFilterMode=1&folderRecordsPerPage=20&folderOffset="
+        "https://jobs.siemens-energy.com/en_US/jobs/SearchJobsRomania/?folderRecordsPerPage=20&folderOffset="
         + str(page * 20)
     )
     scraper.get_from_url(url, verify=False)
