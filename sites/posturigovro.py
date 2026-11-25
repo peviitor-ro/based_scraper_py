@@ -15,6 +15,7 @@ LQ = "\u201e"
 RQ = "\u201d"
 
 BASE_URL = "https://posturi.gov.ro"
+ALL_JOBS_URL = f"{BASE_URL}/toate-posturile/"
 LOGO_URL = "https://posturi.gov.ro/wp-content/uploads/2022/01/Logo2-1-412x83.png"
 COMPANY = "posturi.gov.ro"
 HEADERS = {
@@ -106,7 +107,7 @@ def _county_seat(county):
     return COUNTY_NAMES_NORM.get(_norm(county.strip()), county.strip())
 
 
-def get_city(employer, county):
+def get_city(employer, county, explicit_city=None):
     if not county:
         return None
 
@@ -114,8 +115,8 @@ def get_city(employer, county):
     if county_norm == "bucuresti":
         return "București"
 
-    city = None
-    if employer:
+    city = explicit_city
+    if not city and employer:
         text = employer.replace(LQ, "").replace(RQ, "").replace('"', "")
 
         parts = text.split(",")
@@ -149,40 +150,45 @@ jobs = []
 page = 1
 
 while True:
-    url = BASE_URL if page == 1 else f"{BASE_URL}/page/{page}/"
+    url = f"{ALL_JOBS_URL}?pg_page={page}"
     print(f"Page {page}: {url}", flush=True)
 
     try:
-        resp = requests.get(url, headers=HEADERS, timeout=30)
+        resp = requests.get(ALL_JOBS_URL, params={"pg_page": page}, headers=HEADERS, timeout=30)
         resp.raise_for_status()
     except requests.RequestException as e:
         print(f"Error on page {page}: {e}", flush=True)
         break
 
     soup = BeautifulSoup(resp.text, "html.parser")
-    articles = soup.select("article.box")
+    cards = soup.select("a.pg-card.pg-card--link")
 
-    if not articles:
-        print(f"No articles on page {page}, stopping.", flush=True)
+    if not cards:
+        print(f"No job cards on page {page}, stopping.", flush=True)
         break
 
-    for article in articles:
-        link_el = article.select_one("li.title div.title a.permalink")
-        ang_el = article.select_one("div.angajator")
-        county_el = article.select_one("li.locatie div.locatie a")
+    for card in cards:
+        title_el = card.select_one(".pg-card-h")
+        ang_el = card.select_one(".pg-card-inst")
+        location_el = card.select_one(".pg-card-city span")
 
-        if not link_el or not county_el:
+        if not title_el or not location_el:
             continue
 
-        job_title = link_el.get_text(strip=True)
-        job_link = link_el["href"]
+        job_title = title_el.get("title") or title_el.get_text(strip=True)
+        job_link = card["href"]
         if job_link.startswith("/"):
             job_link = BASE_URL + job_link
 
         employer = ang_el.get_text(strip=True) if ang_el else None
-        county = county_el.get_text(strip=True)
+        location = location_el.get_text(" ", strip=True)
+        parts = [part.strip() for part in location.split(",")]
+        county = parts[-1]
+        if _norm(county) not in COUNTY_NAMES_NORM and len(parts) > 1:
+            county = parts[0]
+        explicit_city = parts[0] if len(parts) > 1 and _norm(parts[0]) != _norm(county) else None
 
-        city = get_city(employer, county)
+        city = get_city(employer, county, explicit_city)
         resolved = _counties.get_county(city) or [county]
 
         jobs.append(
@@ -196,7 +202,7 @@ while True:
             )
         )
 
-    next_link = soup.select_one(".ast-pagination a.next.page-numbers")
+    next_link = soup.select_one(".pg-arc-pagi a.next.page-numbers")
     if not next_link:
         break
 
