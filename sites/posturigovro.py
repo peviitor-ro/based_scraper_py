@@ -18,6 +18,7 @@ BASE_URL = "https://posturi.gov.ro"
 ALL_JOBS_URL = f"{BASE_URL}/toate-posturile/"
 LOGO_URL = "https://posturi.gov.ro/wp-content/uploads/2022/01/Logo2-1-412x83.png"
 COMPANY = "posturi.gov.ro"
+PUBLISH_BATCH_SIZE = 250
 HEADERS = {
     "User-Agent": (
         "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) "
@@ -210,6 +211,8 @@ while True:
 
 print(f"Total jobs: {len(jobs)}", flush=True)
 
-publish_or_update(jobs)
+for start in range(0, len(jobs), PUBLISH_BATCH_SIZE):
+    publish_or_update(jobs[start : start + PUBLISH_BATCH_SIZE])
+
 publish_logo(COMPANY, LOGO_URL)
 show_jobs(jobs)
