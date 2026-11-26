@@ -2,7 +2,7 @@ from scraper.Scraper import Scraper
 from utils import publish_or_update, publish_logo, create_job, show_jobs
 
 company = "Remote"
-url = "https://boards-api.greenhouse.io/v1/boards/remotecom/jobs"
+url = "https://apply.remote.com/api/public/jobs"
 
 jobs = []
 
@@ -10,17 +10,16 @@ scraper = Scraper()
 scraper.get_from_url(url, type="JSON")
 
 for job in scraper.markup.get("jobs", []):
-    metadata = job.get("metadata") or []
-    metadata_text = " ".join(str(item) for item in metadata)
-    location = ((job.get("location") or {}).get("name") or "")
+    if job.get("status") != "open" or not job.get("accepting_applications"):
+        continue
 
-    if "Romania" not in metadata_text and "Romania" not in location:
+    if "EMEA" not in (job.get("location") or ""):
         continue
 
     jobs.append(
         create_job(
             job_title=job.get("title"),
-            job_link=job.get("absolute_url"),
+            job_link=f"https://apply.remote.com/jobs/{job.get('public_id')}",
             company=company,
             country="Romania",
             remote=["remote"],
