@@ -11,7 +11,11 @@ scraper.get_from_url(url)
 company = {"company": "Synevo"}
 finaljobs = list()
 
-content = scraper.markup.text if hasattr(scraper.markup, 'text') else str(scraper.markup)
+content = next(
+    (tag.get('x-data', '') for tag in scraper.find_all(attrs={'x-data': True})
+     if 'careers:' in tag.get('x-data', '')),
+    '',
+)
 
 idx = content.find('careers:')
 if idx >= 0:
